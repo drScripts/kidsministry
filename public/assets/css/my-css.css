@@ -1,0 +1,42 @@
+.black-fonts {
+  color: black !important;
+}
+
+.white-fonts {
+  color: white !important;
+}
+
+.grey-fonts {
+  color: rgb(169, 169, 169) !important;
+}
+
+.pointer {
+  cursor: pointer !important;
+}
+
+select {
+  background-color: #1f212f !important;
+  color: white !important;
+}
+
+select.sign-up {
+  background-color: white !important;
+  color: black !important;
+}
+
+option {
+  color: white !important;
+}
+
+select.card-select {
+  background-color: #27293d !important;
+  color: white !important;
+}
+
+.dropdown-menu {
+  background-color: #27293d !important;
+}
+
+.dropdown-menu .dropdown-item {
+  color: white !important;
+}
