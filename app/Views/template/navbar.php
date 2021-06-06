@@ -8,12 +8,18 @@
                     <span class="navbar-toggler-bar bar3"></span>
                 </button>
             </div>
-            <a class="navbar-brand" href="javascript:void(0)" data-aos="fade-right" data-aos-duration="500" data-aos-delay="300">GBI PPL <?php 
-             $region = user()->toArray()['region'];
-             if($region == "Kopo"){
-                 echo $region;
+            <a class="navbar-brand" href="javascript:void(0)" data-aos="fade-right" data-aos-duration="500" data-aos-delay="300">GBI PPL 
+            <?php
+
+                use App\Models\CabangModel;
+
+                $cabangModel = new CabangModel();
+                $cabang = $cabangModel->getCabang(user()->toArray()['region'])['nama_cabang'];
+
+             if($cabang == "Kopo"){
+                 echo $cabang;
              }else{
-                 echo strtoupper($region);
+                 echo strtoupper($cabang);
              }
             
             ?></a>

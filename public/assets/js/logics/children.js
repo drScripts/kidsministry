@@ -33,7 +33,7 @@ $(document).ready(function () {
       `);
 
       $.ajax({
-        url: "/childrenController/getChildren",
+        url: "/children/getChildren",
         headers: { "X-Requested-With": "XMLHttpRequest" },
         dataType: "json",
         success: function (data) {

@@ -10,7 +10,7 @@ class PembimbingsModel extends Model{
     protected $useAutoIncrement = true;
 
     protected $returnType     = 'array';
-    protected $useSoftDeletes = false;
+    protected $useSoftDeletes = true;
 
     protected $allowedFields = ['name_pembimbing','region_pembimbing'];
 

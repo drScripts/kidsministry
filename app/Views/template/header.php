@@ -50,7 +50,7 @@
   <!-- Control Center for Black Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="<?= base_url(); ?>/assets/js/black-dashboard.min.js?v=1.0.0"></script><!-- Black Dashboard DEMO methods, don't include it in your project! -->
   <script src="<?= base_url(); ?>/assets/demo/demo.js"></script>
-   
+  <script src="https://kit.fontawesome.com/01059e4e8b.js" crossorigin="anonymous"></script>
   <!-- sweet alert 2 -->
   <script src="//cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 </head>

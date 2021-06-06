@@ -1,19 +1,24 @@
-<?php 
+<?php
+
 namespace App\Controllers;
+
 use App\Controllers\BaseController;
 use App\Models\AbsensiModel;
+use App\Models\CabangModel;
 use App\Models\ChildrenModel;
 use App\Models\GoogleTokenModel;
 use App\Models\PembimbingsModel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx; 
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
-class AbsensiController extends BaseController{
+class AbsensiController extends BaseController
+{
 
     protected $absensiModel;
     protected $childrenModel;
     protected $pembimbingModel;
     protected $googleToken;
+    protected $cabangModel;
 
     public function __construct()
     {
@@ -21,53 +26,104 @@ class AbsensiController extends BaseController{
         $this->childrenModel = new ChildrenModel();
         $this->pembimbingModel = new PembimbingsModel();
         $this->googleToken = new GoogleTokenModel();
+        $this->cabangModel = new CabangModel();
     }
 
-    public function index(){
-        
-        $absensis = $this->absensiModel->getAllDataFetch()->paginate(7,'absensi');
-        $pager = $this->absensiModel->pager;
-        
+    public function index()
+    {
+
+
         // mengambil penghitungan data
-        $current_page = $this->request->getVar('page_absensi') ? $this->request->getVar('page_absensi') : 1;
+        if (!in_groups('pusat')) {
+            $current_page = $this->request->getVar('page_absensi') ? $this->request->getVar('page_absensi') : 1;
+         
+            
+            $absensis = $this->absensiModel->getAllDataFetch()->paginate(7, 'absensi');
+            $pager = $this->absensiModel->pager;
 
-        $data = [
-            'title'         => 'Absensi',
-            'absensis'      => $absensis,
-            'pager'         => $pager,
-            'current_page'  => $current_page,
-        ];
+            $data = [
+                'title'         => 'Absensi',
+                'absensis'      => $absensis,
+                'pager'         => $pager,
+                'current_page'  => $current_page,
+            ];
+            return view('dashboard/absensi/index', $data);
+        } else {
+            $current_page = $this->request->getVar('page_absensi') ? $this->request->getVar('page_absensi') : 1;
+            $date = explode(" ", $this->getDateName());
+            $year = $date[2];
+            $month = $date[1];
 
-        return view('dashboard/absensi/index',$data);
+            $cabang = [];
+            $sunday_date = [];
+
+            $data = $this->absensiModel
+                ->join('childrens', 'childrens.id_children = absensis.children_id')
+                ->join('pembimbings', 'pembimbings.id_pembimbing = absensis.pembimbing_id')
+                ->join('cabang', 'cabang.id_cabang = pembimbings.region_pembimbing')
+                ->where('month', $month)
+                ->where('year', $year)
+                ->select('children_name,sunday_date,nama_cabang')
+                ->findAll();
+
+            $data_anak = $this->absensiModel
+                ->join('childrens', 'childrens.id_children = absensis.children_id')
+                ->join('pembimbings', 'pembimbings.id_pembimbing = absensis.pembimbing_id')
+                ->join('cabang', 'cabang.id_cabang = pembimbings.region_pembimbing')
+                ->where('month', $month)->where('year', $year)
+                ->orderBy('absensis.created_at', 'DESC')
+                ->select('id_absensi,children_name,sunday_date,nama_cabang')
+                ->paginate(7, 'absensi');
+
+
+            foreach ($data as $d) {
+                $cabang[] = $d['nama_cabang'];
+                $sunday_date[] = $d['sunday_date'];
+            }
+            $cabang = array_unique($cabang);
+            $sunday_date = array_unique($sunday_date);
+
+            $data = [
+                'title'         => 'Absensi',
+                'absensis'      => $data_anak,
+                'pager'         => $this->absensiModel->pager,
+                'current_page'  => $current_page,
+                'cabangs'       => $cabang,
+                'sunday_dates'  => $sunday_date,
+            ];
+            return view('dashboard/absensi/index', $data);
+        }
+ 
     }
 
-    public function addAbsensi(){
-        
+    public function addAbsensi()
+    {
+
         try {
 
             $api = new GoogleApiServices();
-            $pembimbings = $this->pembimbingModel->where('region_pembimbing',user()->toArray()['region'])->get()->getResultArray();
-          
+            $pembimbings = $this->pembimbingModel->where('region_pembimbing', user()->toArray()['region'])->get()->getResultArray();
+
             $data = [
                 'title'         => 'Add Absensi',
                 'validation'    => \Config\Services::validation(),
                 'pembimbings'   => $pembimbings,
             ];
-    
-            return view('dashboard/absensi/add',$data);  
+
+            return view('dashboard/absensi/add', $data);
         } catch (\Throwable $th) {
             $id = $this->googleToken->first()['token_id'];
 
             $delete = $this->googleToken->delete($id);
 
-            if($delete){
-                return redirect('/absensi/add');
-            } 
+            if ($delete) {
+                return redirect()->to('/absensi/add');
+            }
         }
-        
     }
 
-    public function insert(){ 
+    public function insert()
+    {
         $api = new GoogleApiServices();
         $validate = $this->validate([
             'pembimbing' => [
@@ -109,9 +165,9 @@ class AbsensiController extends BaseController{
             ],
         ]);
 
-            
-        
-        if(!$validate){
+
+
+        if (!$validate) {
             return redirect()->to('/absensi/add')->withInput();
         }
 
@@ -120,31 +176,31 @@ class AbsensiController extends BaseController{
         //// search PPl Kids Name
         $pplParentId = $api->searchPplKidsFolder();
         //// search date folder
-        $dateFolderId = $api->search_parents_date_folder($date_file_name,$pplParentId);
-        
+        $dateFolderId = $api->search_parents_date_folder($date_file_name, $pplParentId);
+
         //// search region folder
         $regionName = user()->toArray()['region'];
-        $regionFolderId = $api->search_parents_folder($regionName,$dateFolderId);
+        $regionFolderId = $api->search_parents_folder($regionName, $dateFolderId);
 
         //// search Besar Folder
-        $besarId = $api->search_parents_folder('Besar',$regionFolderId);
-        
+        $besarId = $api->search_parents_folder('Besar', $regionFolderId);
+
         ///// search Foto Folder
         $fotoId = $api->search_parents_folder('Foto', $besarId);
         //// search Video Folder
         $videoId = $api->search_parents_folder('Video', $besarId);
-        
+
         //// get all request
         $pembimbingId = $this->request->getVar('pembimbing');
         $childrenId = $this->request->getVar('children');
         $quiz = $this->request->getVar('quiz');
         $videoFile = $this->request->getFile('video');
         $pictureFile = $this->request->getFile('picture');
-         
+
         //// get Children name by id
 
         $childrenName = $this->childrenModel->getSingleChildren($childrenId)['children_name'];
-        
+
 
         //// extension the file
         $pictExt = null;
@@ -156,23 +212,23 @@ class AbsensiController extends BaseController{
 
         $pictId = '-';
         $videoIds =  '-';
-        if($pictureFile->getName() != ""){ 
-           $pictExt = $pictureFile->getClientExtension();
-           $pict = 'yes';
-           $pictId = $api->push_file($childrenName,$fotoId,$pictExt,$pictureFile);
-        }else{
+        if ($pictureFile->getName() != "") {
+            $pictExt = $pictureFile->getClientExtension();
+            $pict = 'yes';
+            $pictId = $api->push_file($childrenName, $fotoId, $pictExt, $pictureFile);
+        } else {
             $pict = 'no';
         }
 
-        if($videoFile->getName() != ""){
+        if ($videoFile->getName() != "") {
             $videoExt = $videoFile->getClientExtension();
             $video = 'yes';
-            $videoIds = $api->push_file($childrenName,$videoId,$videoExt,$videoFile);
-        }else{
+            $videoIds = $api->push_file($childrenName, $videoId, $videoExt, $videoFile);
+        } else {
             $video = 'no';
         }
 
-        $fileNames = explode(" ",$date_file_name);
+        $fileNames = explode(" ", $date_file_name);
         $month = $fileNames[1];
         $year = $fileNames[2];
 
@@ -187,8 +243,7 @@ class AbsensiController extends BaseController{
             'sunday_date'   => $date_file_name,
             'id_foto'       => $pictId,
             'id_video'      => $videoIds,
-            'updatedby'     => user()->toArray()['username'],
-            'addedby'       => user()->toArray()['username'],
+            'created_by'       => user()->toArray()['id'],
         ]);
 
         session()->setFlashData('success_add', "Successfully Add Absensi Of $childrenName !");
@@ -196,194 +251,221 @@ class AbsensiController extends BaseController{
         return redirect()->to('/absensi/add');
     }
 
-    public function delete($id){
+    public function delete($id)
+    {
 
         $api = new GoogleApiServices();
         $data = $this->absensiModel->find($id);
-        if($data['id_foto'] != '-'){
+        if ($data['id_foto'] != '-') {
             $api->delteFile($data['id_foto']);
         }
 
-        if($data['id_video'] != '-'){
+        if ($data['id_video'] != '-') {
             $api->delteFile($data['id_video']);
         }
 
-        $this->absensiModel->update($id,[
-            'deletedby' => user()->toArray()['username'],
+        $this->absensiModel->update($id, [
+            'deletedby' => user()->toArray()['id'],
         ]);
         $this->absensiModel->delete($id);
-        
+
         session()->setFlashData('success_deleted', 'Absensi Successfully Deleted');
         return redirect()->to('/absensi');
     }
 
-    public function edit($id){
+    public function edit($id)
+    {
 
         $data_absensi = $this->absensiModel->getSingleData($id);
-        
+
         $data = [
             'title' => 'Edit Absensi',
             'data'  => $data_absensi,
             'id'    => $id,
         ];
 
-        return view('dashboard/absensi/edit',$data);
+        return view('dashboard/absensi/edit', $data);
     }
 
-    public function update($id){
+    public function update($id)
+    {
         $foto = null;
         $video = null;
 
-        if($this->request->getVar('foto')){
+        if ($this->request->getVar('foto')) {
             $foto = $this->request->getVar('foto');
-            $this->absensiModel->update($id,[
+            $this->absensiModel->update($id, [
                 'image'         => $foto,
             ]);
         }
 
-        if($this->request->getVar('video')){
+        if ($this->request->getVar('video')) {
             $video = $this->request->getVar('video');
-            $this->absensiModel->update($id,[
+            $this->absensiModel->update($id, [
                 'video'         => $video,
             ]);
         }
 
         $quiz = $this->request->getVar('quiz');
-        $this->absensiModel->update($id,[
-            'quiz'      => $quiz,
+        $this->absensiModel->update($id, [
+            'quiz'          => $quiz,
+            'updated_by'    => user()->toArray()['id'],
         ]);
-        
+
         session()->setFlashData('success_update', 'Absensi Successfully Updated');
         return redirect()->to('/absensi');
-
     }
 
-    public function searchData(){
+    public function searchData()
+    {
         $data = $this->absensiModel->searchData();
         return json_encode($data);
     }
 
-    public function getAbsensiByPembimbing($id){
+    public function getAbsensiByPembimbing($id)
+    {
         $children =  $this->childrenModel->where('id_pembimbing', $id)->get()->getResultArray();
         return json_encode($children);
     }
-    
-    public function getDateName(){
 
-                $bulan = array (
-                            1 =>   'Januari',
-                            'Februari',
-                            'Maret',
-                            'April',
-                            'Mei',
-                            'Juni',
-                            'Juli',
-                            'Agustus',
-                            'September',
-                            'Oktober',
-                            'November',
-                            'Desember'
-                        );
+    public function getDateName()
+    {
 
-            $sunday = strtotime('this sunday');
-            $date = date('d',$sunday);
-            $date = $date*=1;
-            $sunday_month = date('m',$sunday );
-            $sunday_month = $sunday_month*=1;
-            $sunday_month = $bulan[$sunday_month];
-            $sunday_year = date('Y',$sunday );
-            $sunday = "$date $sunday_month $sunday_year";
-            // today date
-            $now = strtotime('now');
-            $date_now = date('d',$now);
-            $date_now = $date_now*=1;
-            $now_month = date('m',$now);
-            $now_month = $now_month*=1;
-            $now_month = $bulan[$now_month];
-            $now_year = date('Y',$now);
-            $now_date = "$date_now $now_month $now_year";
-            
-            // thuesday date
-            $tuesday = strtotime('next tuesday');
-            $tuesday_date = date('d', $tuesday);
-            $tuesday_date = $tuesday_date*=1;
-            $tuesday_month = date('m',$tuesday);
-            $tuesday_month = $tuesday_month*=1;
-            $tuesday_month = $bulan[$tuesday_month];
-            $this_tuesday = date('Y',$tuesday);
-            $this_tuesday = "$tuesday_date $this_tuesday $this_tuesday";
+        $bulan = array(
+            1 =>   'Januari',
+            'Februari',
+            'Maret',
+            'April',
+            'Mei',
+            'Juni',
+            'Juli',
+            'Agustus',
+            'September',
+            'Oktober',
+            'November',
+            'Desember'
+        );
 
-            // last date
-            $last_sunday = strtotime('last sunday');
-            $last_date = date('d', $last_sunday);
-            $last_date = $last_date*=1;
-            $last_month = date('m',$last_sunday);
-            $last_month = $last_month*=1;
-            $last_month = $bulan[$last_month];
-            $last_sundays = date('Y',$last_sunday);
-            $las_sundays = "$last_date $last_month $last_sundays";
-            
-            $file_name = '';
-            if($tuesday >= $now){
-                if($date == $date_now){
-                    $file_name = $now_date;
-                }elseif($date_now <= $date && $date_now<=$tuesday_date){
-                    $file_name = $las_sundays;
-                }elseif($date_now == 31 && $las_sundays == 30 || $las_sundays == 31 ){
-                    $file_name = $las_sundays;
-                }else{
-                    $file_name = $sunday;
-                }
+        $sunday = strtotime('this sunday');
+        $date = date('d', $sunday);
+        $date = $date *= 1;
+        $sunday_month = date('m', $sunday);
+        $sunday_month = $sunday_month *= 1;
+        $sunday_month = $bulan[$sunday_month];
+        $sunday_year = date('Y', $sunday);
+        $sunday = "$date $sunday_month $sunday_year";
+        // today date
+        $now = strtotime('now');
+        $date_now = date('d', $now);
+        $date_now = $date_now *= 1;
+        $now_month = date('m', $now);
+        $now_month = $now_month *= 1;
+        $now_month = $bulan[$now_month];
+        $now_year = date('Y', $now);
+        $now_date = "$date_now $now_month $now_year";
+
+        // thuesday date
+        $tuesday = strtotime('next tuesday');
+        $tuesday_date = date('d', $tuesday);
+        $tuesday_date = $tuesday_date *= 1;
+        $tuesday_month = date('m', $tuesday);
+        $tuesday_month = $tuesday_month *= 1;
+        $tuesday_month = $bulan[$tuesday_month];
+        $this_tuesday = date('Y', $tuesday);
+        $this_tuesday = "$tuesday_date $this_tuesday $this_tuesday";
+
+        // last date
+        $last_sunday = strtotime('last sunday');
+        $last_date = date('d', $last_sunday);
+        $last_date = $last_date *= 1;
+        $last_month = date('m', $last_sunday);
+        $last_month = $last_month *= 1;
+        $last_month = $bulan[$last_month];
+        $last_sundays = date('Y', $last_sunday);
+        $las_sundays = "$last_date $last_month $last_sundays";
+
+        $file_name = '';
+        if ($tuesday >= $now) {
+            if ($date == $date_now) {
+                $file_name = $now_date;
+            } elseif ($date_now <= $date && $date_now <= $tuesday_date) {
+                $file_name = $las_sundays;
+            } elseif ($date_now == 31 && $las_sundays == 30 || $las_sundays == 31) {
+                $file_name = $las_sundays;
+            } else {
+                $file_name = $sunday;
             }
-            
-
-            return $file_name;
-            
-    }
-
-    public function history(){
-
-        $dataHistory = $this->absensiModel->history()->get()->getResultArray();
-        $all_tahun = [];
-
-        foreach($dataHistory as $history){
-            $all_tahun[] = $history['year'];
-        }
-        
-        $tahun = array_unique($all_tahun);
-        
-        $dataMonth = [];
-
-        foreach ($tahun as $thn) {
-           $data_temp = [];
-            foreach ($dataHistory as $histo) {
-                if($histo['year'] == $thn){
-                    $data_temp[] = $histo['month'];
-                }
-            }
-
-            $months = array_unique($data_temp);
-            foreach ($months as $month) {
-                $dataMonth[] = [
-                    'year'  => $thn,
-                    'month' => $month,
-                ];
-            }
-            
         }
 
-         
-        $data = [
-            'title'         => 'Absensi History',
-            'datas'         => $dataMonth,
-            'years'         => $tahun,  
-        ];  
 
-        return view('dashboard/absensi/history',$data);
+        return $file_name;
     }
 
-    public function searchHistory($params){
-        $dataHistory = $this->absensiModel->history()->where('year',$params)->get()->getResultArray();
+    public function history()
+    {
+
+        if (!in_groups('pusat')) {
+            $dataHistory = $this->absensiModel->history()->get()->getResultArray();
+            $all_tahun = [];
+
+            foreach ($dataHistory as $history) {
+                $all_tahun[] = $history['year'];
+            }
+
+            $tahun = array_unique($all_tahun);
+
+            $dataMonth = [];
+
+            foreach ($tahun as $thn) {
+                $data_temp = [];
+                foreach ($dataHistory as $histo) {
+                    if ($histo['year'] == $thn) {
+                        $data_temp[] = $histo['month'];
+                    }
+                }
+
+                $months = array_unique($data_temp);
+                foreach ($months as $month) {
+                    $dataMonth[] = [
+                        'year'  => $thn,
+                        'month' => $month,
+                    ];
+                }
+            }
+
+
+            $data = [
+                'title'         => 'Absensi History',
+                'datas'         => $dataMonth,
+                'years'         => $tahun,
+            ];
+        }else{
+           $dataAbsensi = [];
+           $cabang = [];
+           $data = $this->absensiModel->join('pembimbings','pembimbings.id_pembimbing = absensis.pembimbing_id')
+                               ->join('cabang','cabang.id_cabang = pembimbings.region_pembimbing')
+                               ->findAll();
+            foreach ($data as $d ) {
+                $dataAbsensi[] = $d['month'] . '-' . $d['year'] . '-' . $d['nama_cabang'];
+                $cabang[] = $d['nama_cabang'];
+            }
+
+            $dataAbsensi = array_unique($dataAbsensi);
+            $cabang = array_unique($cabang);
+
+            $data = [
+                'title'         => 'History Absensi',
+                'absenHistory'  => $dataAbsensi,
+                'cabangs'       => $cabang,  
+            ];
+        }
+
+        return view('dashboard/absensi/history', $data);
+    }
+
+    public function searchHistory($params)
+    {
+        $dataHistory = $this->absensiModel->history()->where('year', $params)->get()->getResultArray();
 
         $dataMonth = [];
 
@@ -405,22 +487,23 @@ class AbsensiController extends BaseController{
         return json_encode($data);
     }
 
-    public function searchAll(){
+    public function searchAll()
+    {
         $dataHistory = $this->absensiModel->history()->get()->getResultArray();
         $all_tahun = [];
 
-        foreach($dataHistory as $history){
+        foreach ($dataHistory as $history) {
             $all_tahun[] = $history['year'];
         }
-        
+
         $tahun = array_unique($all_tahun);
-        
+
         $dataMonth = [];
 
         foreach ($tahun as $thn) {
-           $data_temp = [];
+            $data_temp = [];
             foreach ($dataHistory as $histo) {
-                if($histo['year'] == $thn){
+                if ($histo['year'] == $thn) {
                     $data_temp[] = $histo['month'];
                 }
             }
@@ -432,18 +515,18 @@ class AbsensiController extends BaseController{
                     'month' => $month,
                 ];
             }
-            
         }
 
         return json_encode($dataMonth);
     }
 
-    public function export($month,$year){
+    public function export($month, $year)
+    {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
-        
 
-        $data = $this->absensiModel->join('pembimbings', "pembimbings.id_pembimbing = absensis.pembimbing_id")->join('childrens', "childrens.id_children = absensis.children_id")->where('region_pembimbing',user()->toArray()['region'])->where('month',$month)->where('year',$year)->get()->getResultArray();
+
+        $data = $this->absensiModel->join('pembimbings', "pembimbings.id_pembimbing = absensis.pembimbing_id")->join('childrens', "childrens.id_children = absensis.children_id")->where('region_pembimbing', user()->toArray()['region'])->where('month', $month)->where('year', $year)->get()->getResultArray();
 
         $tanggal_awal = $data[0]['sunday_date'];
         $data_semua = [];
@@ -451,11 +534,11 @@ class AbsensiController extends BaseController{
         $beda_akhir = [];
 
         foreach ($data as $absen) {
-            if($absen['sunday_date'] != $tanggal_awal){
+            if ($absen['sunday_date'] != $tanggal_awal) {
                 $data_beda[] = $absen['sunday_date'];
             }
 
-            if($absen['sunday_date'] == $tanggal_awal){
+            if ($absen['sunday_date'] == $tanggal_awal) {
 
                 $data_baru = [
                     'Nama Anak'       => $absen['children_name'],
@@ -473,7 +556,7 @@ class AbsensiController extends BaseController{
 
         $beda_akhir = array_unique($data_beda);
 
-        foreach($beda_akhir as $tanggal){
+        foreach ($beda_akhir as $tanggal) {
             $data_baru = [
                 'Nama Anak'       => ' ',
                 'Code Anak'       => ' ',
@@ -486,9 +569,9 @@ class AbsensiController extends BaseController{
             ];
             $data_semua[] = $data_baru;
 
-            $datas = $this->absensiModel->join('pembimbings', "pembimbings.id_pembimbing = absensis.pembimbing_id")->join('childrens', "childrens.id_children = absensis.children_id")->where('region_pembimbing',user()->toArray()['region'])->where('sunday_date',$tanggal)->get()->getResultArray();
-            
-            foreach($datas as $data){
+            $datas = $this->absensiModel->join('pembimbings', "pembimbings.id_pembimbing = absensis.pembimbing_id")->join('childrens', "childrens.id_children = absensis.children_id")->where('region_pembimbing', user()->toArray()['region'])->where('sunday_date', $tanggal)->get()->getResultArray();
+
+            foreach ($datas as $data) {
                 $data_baru = [
                     'Nama Anak'       => $data['children_name'],
                     'Code Anak'       => $data['code'],
@@ -503,7 +586,7 @@ class AbsensiController extends BaseController{
             }
         }
 
-        $sheet->setCellValue('A1','No');
+        $sheet->setCellValue('A1', 'No');
         $sheet->setCellValue('B1', 'Nama Anak');
         $sheet->setCellValue('C1', 'Code Anak');
         $sheet->setCellValue('D1', 'Kelas');
@@ -516,19 +599,19 @@ class AbsensiController extends BaseController{
         $no = 1;
         $index = 2;
         foreach ($data_semua as $data) {
-            if($data['Nama Anak'] != " "){
-                $sheet->setCellValue('A'.$index,$no++);
-            }else{
-                $sheet->setCellValue('A'.$index,' ');
+            if ($data['Nama Anak'] != " ") {
+                $sheet->setCellValue('A' . $index, $no++);
+            } else {
+                $sheet->setCellValue('A' . $index, ' ');
             }
-            $sheet->setCellValue('B'.$index,$data['Nama Anak']);
-            $sheet->setCellValue('C'.$index,$data['Code Anak']);
-            $sheet->setCellValue('D'.$index,$data['Kelas']);
-            $sheet->setCellValue('E'.$index,$data['Nama Pembimbing']);
-            $sheet->setCellValue('F'.$index,$data['Absen Foto']);
-            $sheet->setCellValue('G'.$index,$data['Absen Video']);
-            $sheet->setCellValue('H'.$index,$data['Children Quiz']);
-            $sheet->setCellValue('I'.$index,$data['Tanggal Minggu']);
+            $sheet->setCellValue('B' . $index, $data['Nama Anak']);
+            $sheet->setCellValue('C' . $index, $data['Code Anak']);
+            $sheet->setCellValue('D' . $index, $data['Kelas']);
+            $sheet->setCellValue('E' . $index, $data['Nama Pembimbing']);
+            $sheet->setCellValue('F' . $index, $data['Absen Foto']);
+            $sheet->setCellValue('G' . $index, $data['Absen Video']);
+            $sheet->setCellValue('H' . $index, $data['Children Quiz']);
+            $sheet->setCellValue('I' . $index, $data['Tanggal Minggu']);
             $index++;
         }
         $spreadsheet->getActiveSheet()->getColumnDimensionByColumn(2)->setWidth(30);
@@ -549,30 +632,35 @@ class AbsensiController extends BaseController{
         $spreadsheet->getActiveSheet()->getStyle('A1:I1')->getFont()->setBold(9);
 
         $writer = new Xlsx($spreadsheet);
+
+        $getRegionName = $this->cabangModel->getCabang(user()->toArray()['region'])['nama_cabang'];
+
         header('Content-Type: application/vnd.ms-excel');
-		header('Content-Disposition: attachment;filename="'.$month . ' ' . $year.'.xlsx"'); 
-		header('Cache-Control: max-age=0');
-	
-		$writer->save('php://output');
+        header('Content-Disposition: attachment;filename="Absensi ' . $getRegionName . ' ' . $month . ' ' . $year . '.xlsx"');
+        header('Cache-Control: max-age=0');
 
+        $writer->save('php://output');
     }
 
-    public function chartAbsensi(){
-       $data = $this->absensiModel->chartAbsensi();
-       return json_encode($data);
+    public function chartAbsensi()
+    {
+        $data = $this->absensiModel->chartAbsensi();
+        return json_encode($data);
     }
 
-    public function coba(){
+    public function coba()
+    {
         return view('coba_exccel');
     }
 
-    public function import(){
+    public function import()
+    {
 
         $file_upload = $this->request->getFile('excel');
-         
+
         // move file
         $file_upload->move('temp_excel');
-        
+
         // mengambil nama
         $file_name = $file_upload->getName();
 
@@ -585,11 +673,11 @@ class AbsensiController extends BaseController{
         $data = $spreadSheet->getActiveSheet()->toArray();
         unlink($path_file);
 
-        $data = array_slice($data,1,count($data)-1);
+        $data = array_slice($data, 1, count($data) - 1);
 
         $data_clear = [];
         foreach ($data as $d) {
-            if($d[0] != ' '){
+            if ($d[0] != ' ') {
                 $data_clear[] = $d;
             }
         }
@@ -615,5 +703,4 @@ class AbsensiController extends BaseController{
 
         dd($childrenArr);
     }
-
 }

@@ -1,8 +1,7 @@
 <?php 
 
 namespace App\Models;
-use CodeIgniter\Model;
-
+use CodeIgniter\Model; 
 
 class AbsensiModel extends Model{
     protected $table      = 'absensis'; 
@@ -13,29 +12,24 @@ class AbsensiModel extends Model{
     protected $returnType     = 'array';
     protected $useSoftDeletes = true;
 
-    protected $allowedFields = ['children_id', 'pembimbing_id','video','image','quiz','month','year','sunday_date','id_foto','id_video','updatedby','addedby','deletedby'];
+    protected $allowedFields = ['children_id', 'pembimbing_id','video','image','quiz','month','year','sunday_date','id_foto','id_video','updated_by','created_by','deleted_by'];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
     protected $deletedField  = 'deleted_at'; 
 
-
-    
-
-
     public function getAllDataFetch(){
         $date_name = $this->getDateName();
         $dateNames = explode(" ", $date_name);
 
         $month = $dateNames[1];
-        $year = $dateNames[2];
-        $user = user()->toArray()['region'];
+        $year = $dateNames[2]; 
 
         $tables = $this->table($this->table);
         $tables->where('month',$month);
         $tables->where('year', $year);
-        $tables->where('region_pembimbing',$user);
+        $tables->where('region_pembimbing',user()->toArray()['region']);
         $tables->orderBy('absensis.created_at', 'DESC');
         $tables->join('pembimbings', "pembimbings.id_pembimbing = $this->table.pembimbing_id");
         $tables->join('childrens',"childrens.id_children = $this->table.children_id");
@@ -67,22 +61,16 @@ class AbsensiModel extends Model{
         
         $date_name = $this->getDateName();
         $dateNames = explode(" ", $date_name);
-        $month = $dateNames[1];
-        $user = user()->toArray()['region'];
-        
+        $month = $dateNames[1];        
 
         $tables = $this->table($this->table); 
         
         $tables->join('pembimbings', "pembimbings.id_pembimbing = $this->table.pembimbing_id");
         $tables->join('childrens',"childrens.id_children = $this->table.children_id");
         $tables->where('month', $month);
-        $tables->where('region_pembimbing', $user);
-
+        $tables->where('region_pembimbing', user()->toArray()['region']);
         
-        
-        $result = $tables->get()->getResultArray();
-        
-        return $result;
+        return $tables->get()->getResultArray();
 
     }
 
@@ -158,69 +146,105 @@ class AbsensiModel extends Model{
         
     }
 
-
-
     public function history(){
-       $tables = $this->table($this->table);
+       
+       $tables = $this->table('absensis');
+       
        $tables->join('pembimbings', "pembimbings.id_pembimbing = $this->table.pembimbing_id");
        $tables->join('childrens', "childrens.id_children = $this->table.children_id");
        $tables->where('region_pembimbing', user()->toArray()['region']);
+        
        return $tables;
     }
 
-
     public function chartAbsensi(){
-        $bulan = array (
-            1 =>   'Januari',
-            'Februari',
-            'Maret',
-            'April',
-            'Mei',
-            'Juni',
-            'Juli',
-            'Agustus',
-            'September',
-            'Oktober',
-            'November',
-            'Desember'
-        );
-
-        
+       
+        $data_semua = [];
+        $bulans = [];
 
        $year = date("Y");
-       $datas = $this->history()->where('year',$year)->get()->getResultArray();
-       
-       $data_awal_bulan = [];
-       foreach ($datas as $data) {
-            $data_awal_bulan[] = $data['month'];
-       }
-       $data_bulan_jadi = [];
+        $datas = $this->table('absensis')->join('pembimbings','pembimbings.id_pembimbing = absensis.pembimbing_id')->where('region_pembimbing',user()->toArray()['region'])->where('year',$year)->findAll();
 
-       $data_bulan = array_unique($data_awal_bulan);
-
-       foreach ($bulan as $bln) {
-        foreach ($data_bulan as $dbln) {
-            if($bln == $dbln){
-                $data_bulan_jadi[] = $dbln;
-                break;
-            }    
+        foreach($datas as $data){
+            $bulans[] = $data['month'];
         }
-       }
-       
-       $data_semua = [];
+        
+        $bulans = array_unique($bulans);
+         
 
-       foreach ($data_bulan_jadi as $month) {
-           $datas = $this->history()->where('year',$year)->where('month',$month)->get()->getResultArray();
-           $jumlah = count($datas);
+       foreach ($bulans as $month) {
+           $jumlah = $this->table($this->table)->join('pembimbings','pembimbings.id_pembimbing = absensis.pembimbing_id')->where('region_pembimbing',user()->toArray()['region'])->where('year',$year)->countAllResults();
+        
            $data_semua[] = [
             'jumlah' => $jumlah,
             'bulan'  => $month,
            ];
        }
-
- 
+        
 
        return $data_semua;
+    }
+
+    public function getAllMonth($cabang = null){
+        $date = date('Y');
+         if($cabang == null){
+           return $this->table('absensis')->join('pembimbings','pembimbings.id_pembimbing = absensis.pembimbing_id')->join('cabang','cabang.id_cabang = pembimbings.region_pembimbing')->where('year',$date);
+         }else{
+           return $this->table('absensis')->join('pembimbings','pembimbings.id_pembimbing = absensis.pembimbing_id')->join('cabang','cabang.id_cabang = pembimbings.region_pembimbing')->where('year',$date)->where('nama_cabang',$cabang);
+         }
+    }
+
+    public function getAllCountByMonth($bulan,$cabang = null){
+        $date = date('Y');
+        if($cabang == null){
+           return (int)$this->table('absensis')->join('pembimbings','pembimbings.id_pembimbing = absensis.pembimbing_id')->join('cabang','cabang.id_cabang = pembimbings.region_pembimbing')->where('month',$bulan)->where('year',$date)->countAllResults();
+        }else{
+           return (int)$this->table('absensis')->where('month',$bulan)->join('pembimbings','pembimbings.id_pembimbing = absensis.pembimbing_id')->join('cabang','cabang.id_cabang = pembimbings.region_pembimbing')->where('year',$date)->where('nama_cabang',$cabang)->countAllResults();
+        }
+    }
+
+    public function getAllCountMonthly($month,$cabang = null){
+        $date = date('Y');
+        $data_jumlah = [];
+        if($cabang == null){
+           $minggu = [];
+
+           $data = $this->table($this->table)->where('year',$date)->where('month',$month)->findAll();
+           foreach ($data as $d) {
+               $minggu[] = $d['sunday_date'];
+           }
+
+           $minggu = array_unique($minggu);
+           
+           foreach ($minggu as $m) {
+               $jumlah = $this->table($this->table)->where('year',$date)->where('sunday_date',$m)->countAllResults();
+               $data_jumlah[] = [
+                   'minggu'     => $m,
+                   'jumlah'     => $jumlah,
+               ];
+           } 
+        }else{
+            $minggu = [];
+
+            $data = $this->table($this->table)->join('pembimbings','pembimbings.id_pembimbing = absensis.pembimbing_id')->join('cabang','cabang.id_cabang = pembimbings.region_pembimbing')->where('nama_cabang',$cabang)->where('year',$date)->where('month',$month)->findAll();
+
+            foreach ($data as $d) {
+                $minggu[] = $d['sunday_date'];
+            }
+
+            $minggu = array_unique($minggu);
+
+            foreach($minggu as $m){
+                $jumlah = $this->table($this->table)->join('pembimbings','pembimbings.id_pembimbing = absensis.pembimbing_id')->join('cabang','cabang.id_cabang = pembimbings.region_pembimbing')->where('nama_cabang',$cabang)->where('year',$date)->where('sunday_date',$m)->countAllResults();
+
+                $data_jumlah[] = [
+                    'minggu'    => $m,
+                    'jumlah'    => $jumlah,
+                ];
+            }
+        }
+
+        return $data_jumlah;
     }
 }
 

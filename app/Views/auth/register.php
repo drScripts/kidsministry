@@ -1,4 +1,5 @@
 <?= $this->include('template/header'); ?>
+
 <div class="container">
     <div class="card o-hidden border-0 shadow-lg" style="margin-top:100px;" data-aos="zoom-in" data-aos-duration="500">
         <div class="card-body" style="background-color: rgba(238, 241, 241, 1);">
@@ -45,16 +46,12 @@
 
                             <div class="form-group" data-aos="fade-left" data-aos-duration="700" data-aos-delay="800">
                                 <div class="mb-2 mb-sm-0">
-                                    <select class="custom-select form-control black-fonts" name="region" id="section"
+                                    <select class="custom-select form-control black-fonts cabang" name="region" id="section"
                                         required>
-                                        <option value=""> Select Your Region</option>
-                                        <option value="crb">Cirebon</option>
-                                        <option value="fcl">Festival Citylink</option>
-                                        <option value="kbp">KBP</option>
-                                        <option value="Kopo">Kopo</option>
-                                        <option value="mjst">Majesty</option>
-                                        <option value="RAU">Riau</option>
-                                        <option value="stb">Setiabudhi</option>
+                                        <option value="" class="cabang"> Select Cabang Region </option>
+                                        <?php foreach($cabangs as $cabang): ?>
+                                            <option class="cabang" value="<?= $cabang['id_cabang']; ?>"><?= $cabang['nama_cabang']; ?></option>
+                                        <?php endforeach; ?>
                                     </select>
                                 </div>
                             </div>

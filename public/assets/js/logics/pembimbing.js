@@ -48,7 +48,6 @@ $(document).ready(function () {
             );
           } else {
             var jumlah = 0;
-            var number = 1;
             $("#body-table").html("");
             $.each(data, function (i, datas) {
               let pembimbing = datas.name_pembimbing
@@ -56,13 +55,12 @@ $(document).ready(function () {
                 .includes(value.toLowerCase());
 
               if (pembimbing) {
-                console.log("hai");
                 $("#body-table").append(
                   `
                     <tr>
                       <td class="text-center">
                           ` +
-                    number +
+                    datas.id_pembimbing +
                     `
                       </td> 
                       <td >
@@ -89,7 +87,6 @@ $(document).ready(function () {
                     </tr>
                     `
                 );
-                number++;
                 jumlah++;
               }
             });

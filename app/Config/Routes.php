@@ -32,40 +32,86 @@ $routes->setAutoRoute(true);
 
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
-$routes->get('/', 'Home::dashboard');
-$routes->delete('/children/(:num)', 'ChildrenController::delete/$1');
-$routes->get('/children','ChildrenController::index');
-$routes->get('/children/edit/(:num)','ChildrenController::edit/$1');
-$routes->get('/children/add','ChildrenController::addChildren');
-$routes->post('/children/insert','ChildrenController::insert'); 
-$routes->put('/children/update/(:num)','ChildrenController::update/$1');
-$routes->get('/children/export','ChildrenController::export');
 
 
-$routes->delete('/pembimbing/(:num)','PembimbingController::delete/$1');
-$routes->get('/pembimbing','PembimbingController::index');
-$routes->get('/pembimbing/search','PembimbingController::searchPembimbings');
-$routes->get('/pembimbing/add','PembimbingController::create');
-$routes->post('/pembimbing/insert','PembimbingController::insert');
-$routes->get('/pembimbing/edit/(:num)','PembimbingController::edit/$1');
-$routes->put('/pembimbing/update/(:num)','PembimbingController::update/$1');
-$routes->get('/pembimbing/export','PembimbingController::export');
 
-$routes->delete('/absensi/(:num)', "AbsensiController::delete/$1");
-$routes->get('/absensi','AbsensiController::index');
-$routes->get('/absensi/search','AbsensiController::searchData');
-$routes->get('/absensi/add','AbsensiController::addAbsensi');
-$routes->get('/absensi/getChildPembimbing/(:num)', 'AbsensiController::getAbsensiByPembimbing/$1');
-$routes->post('/absensi/insert',"AbsensiController::insert");
-$routes->get('/absensi/edit/(:num)', "AbsensiController::edit/$1");
-$routes->put('/absensi/update/(:num)', "AbsensiController::update/$1");
+$routes->group('', ['filter' => 'role:admin,superadmin'], function($routes) {
+	 
+	$routes->delete('/children/(:num)', 'ChildrenController::delete/$1');
+	$routes->get('/children/edit/(:num)','ChildrenController::edit/$1');
+	$routes->put('/children/update/(:num)','ChildrenController::update/$1');
+	$routes->get('/children/add','ChildrenController::addChildren');
+	$routes->post('/children/insert','ChildrenController::insert'); 
+	$routes->get('/children/export','ChildrenController::export');
+	$routes->get('/children/getChildren','ChildrenController::getChildren');
+	
+	
+	$routes->delete('/pembimbing/(:num)','PembimbingController::delete/$1');
+	$routes->get('/pembimbing/search','PembimbingController::searchPembimbings');
+	$routes->get('/pembimbing/add','PembimbingController::create');
+	$routes->post('/pembimbing/insert','PembimbingController::insert');
+	$routes->get('/pembimbing/edit/(:num)','PembimbingController::edit/$1');
+	$routes->put('/pembimbing/update/(:num)','PembimbingController::update/$1');
+	$routes->get('/pembimbing/export','PembimbingController::export');
+	
+	$routes->delete('/absensi/(:num)', "AbsensiController::delete/$1");
+	$routes->get('/absensi/search','AbsensiController::searchData');
+	$routes->get('/absensi/add','AbsensiController::addAbsensi');
+	$routes->get('/absensi/getChildPembimbing/(:num)', 'AbsensiController::getAbsensiByPembimbing/$1');
+	$routes->post('/absensi/insert',"AbsensiController::insert");
+	$routes->get('/absensi/edit/(:num)', "AbsensiController::edit/$1");
+	$routes->put('/absensi/update/(:num)', "AbsensiController::update/$1");
+	
+	$routes->get('/history/search/(:any)', "AbsensiController::searchHistory/$1");
+	$routes->get('/history/searchall', "AbsensiController::searchAll");
+	$routes->get('/export/(:any)/(:any)', "AbsensiController::export/$1/$2");
+	$routes->get('/chart', "AbsensiController::chartAbsensi");
+	$routes->get('/chart/(:any)', "Home::getChartWeek/$1");
 
-$routes->get('/history',"AbsensiController::history");
-$routes->get('/history/search/(:any)', "AbsensiController::searchHistory/$1");
-$routes->get('/history/searchall', "AbsensiController::searchAll");
-$routes->get('/export/(:any)/(:any)', "AbsensiController::export/$1/$2");
-$routes->get('/chart', "AbsensiController::chartAbsensi");
-$routes->get('/chart/(:any)', "Home::getChartWeek/$1");
+});
+
+$routes->group('',['filter' => 'role:superadmin,pusat,admin'],function($routes){
+	$routes->get('/', 'Home::dashboard');
+
+	$routes->get('/children','ChildrenController::index');
+	
+	$routes->get('/pembimbing','PembimbingController::index');
+
+	$routes->get('/absensi','AbsensiController::index');
+	
+});
+
+$routes->group('',['filter' => 'role:pusat'],function($routes){
+	$routes->get('/pusat/getChartYear/', 'PusatController::getHomeChartYear');
+	$routes->get('/pusat/getChartYear/(:any)', 'PusatController::getHomeChartYear/$1');
+	$routes->get('/pusat/getChartMonth/(:any)','PusatController::getHomeChartMonth/$1');
+	$routes->get('/pusat/getChartMonth/(:any)/(:any)','PusatController::getHomeChartMonth/$1/$2');
+	$routes->get('/pusat/getChildrenCabang/(:any)', 'PusatController::getChildrenByCabang/$1');
+	$routes->get('/pusat/getAllChildren','PusatController::showAllChildren');
+	$routes->get('/children/details/(:num)','PusatController::details/$1');
+	$routes->get('/pusat/getPembimbing','PusatController::getPembimbing');
+	$routes->get('/pusat/getPembimbing/(:any)','PusatController::getPembimbing/$1');
+	$routes->get('/pusat/getSundayDate/(:any)','PusatController::getPusatSunday/$1');
+	$routes->get('/pusat/getAbsensi','PusatController::getAbsensi');
+	$routes->get('/pusat/getAbsensi/(:any)','PusatController::getAbsensi/$1');
+	$routes->get('/pusat/getAbsensi/(:any)/(:any)','PusatController::getAbsensi/$1/$2');
+	$routes->get('/absensi/details/(:num)','PusatController::detailsAbsen/$1');
+	$routes->get('/pusat/getHistorys/(:any)','PusatController::absensiHistory/$1');
+
+});
+
+$routes->group('',['filter' => 'role:superadmin,pusat'],function($routes){
+	$routes->get('/', 'Home::dashboard');
+
+	$routes->get('/team',"TeamController::index");
+	$routes->get('/team/edit/(:num)',"TeamController::edit/$1");
+
+	$routes->put('/team/update/(:num)', "TeamController::attemptEdit/$1");
+	$routes->get('/team/cabang',"TeamController::getCabang");
+
+	$routes->get('/history',"AbsensiController::history");
+});
+
 
 
 /*

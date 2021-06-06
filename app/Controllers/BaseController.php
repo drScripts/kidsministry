@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\CabangModel;
 use CodeIgniter\Controller;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
@@ -36,6 +37,8 @@ class BaseController extends Controller
 	 * @param ResponseInterface $response
 	 * @param LoggerInterface   $logger
 	 */
+
+	 protected $region;
 	public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
 	{
 		// Do Not Edit This Line
@@ -47,5 +50,6 @@ class BaseController extends Controller
 		// E.g.: $this->session = \Config\Services::session();
 		
         session();
+		$this->region = user()->toArray()['region'];
 	}
 }

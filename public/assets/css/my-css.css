@@ -14,13 +14,17 @@
   cursor: pointer !important;
 }
 
+select.cabang {
+  background-color: rgba(238, 241, 241, 1) !important;
+  color: black !important;
+}
+
 select {
   background-color: #1f212f !important;
   color: white !important;
 }
 
-select.sign-up {
-  background-color: white !important;
+option.cabang {
   color: black !important;
 }
 

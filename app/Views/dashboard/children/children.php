@@ -24,38 +24,61 @@ if (session()->getFlashData('success_add')) {
 ?>
 
 <div class="d-flex">
-    <div class="p-2 bd-highlight">
-        <div class="row">
-            <div class="col-md" data-aos="fade-right" data-aos-duration="500" data-aos-delay="900">
-                <a href="<?= base_url('children/add'); ?>" class="btn-sm btn">
-                    <p><i class="fas fa-user-plus mr-2"></i> Add Children</p>
-                </a>
-            </div>
-        </div>
-
-    </div>
-    <div class="p-2 bd-highlight ml-3">
-        <div class="row">
-            <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle font-weight-lighter" type="button" id="dropdownMenuButton" data-toggle="dropdown">
-                   Data Actions
-                </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <a class="dropdown-item" href="<?= base_url('/children/export'); ?>"> <i class="fas fa-download"></i> Get Children Data</a>
-                    <a class="dropdown-item" href="#"><i class="fas fa-upload"></i> Import Children Data</a>
+    <?php if (!in_groups('pusat')) : ?>
+        <div class="p-2 bd-highlight">
+            <div class="row">
+                <div class="col-md" data-aos="fade-right" data-aos-duration="500" data-aos-delay="900">
+                    <a href="<?= base_url('children/add'); ?>" class="btn-sm btn">
+                        <p><i class="fas fa-user-plus mr-2"></i> Add Children</p>
+                    </a>
                 </div>
             </div>
         </div>
-    </div>
-    <!-- search button -->
-    <div class="p-2 ml-auto bd-highlight">
-        <div class="input-group mb-3" data-aos="fade-left" data-aos-duration="500" data-aos-delay="1000">
-            <input type="text" id="search-input" class="form-control" placeholder="Search Children">
-            <div class="input-group-append">
-                <button class="btn btn-sm white-fonts" type="button" id="button-addon2"><i class="fas fa-search"></i></button>
+        <div class="p-2 bd-highlight ml-3">
+            <div class="row">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle font-weight-lighter" type="button" id="dropdownMenuButton" data-toggle="dropdown">
+                        Data Actions
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" href="<?= base_url('/children/export'); ?>"> <i class="fas fa-download"></i> Get Children Data</a>
+                        <a class="dropdown-item" href="#"><i class="fas fa-upload"></i> Import Children Data</a>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    <?php endif; ?>
+
+    <!-- search button -->
+    <?php if (!in_groups('pusat')) : ?>
+        <div class="p-2 ml-auto bd-highlight">
+            <div class="input-group mb-3" data-aos="fade-left" data-aos-duration="500" data-aos-delay="1000">
+                <input type="text" id="search-input" class="form-control" placeholder="Search Children">
+                <div class="input-group-append">
+                    <button class="btn btn-sm white-fonts" type="button" id="button-addon2"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+        </div>
+    <?php else : ?>
+        <div class="p-2 ml-auto bd-highlight">
+            <div class="input-group mb-3" data-aos="fade-left" data-aos-duration="500" data-aos-delay="1000">
+                <select id="cabang" class="form-control">
+                    <option>Show All Region</option>
+                    <?php foreach ($cabangs as $cabang) : ?>
+                        <option><?= $cabang; ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
+        <div class="p-2 bd-highlight">
+            <div class="input-group mb-3" data-aos="fade-left" data-aos-duration="500" data-aos-delay="1000">
+                <input type="text" id="search-input" class="form-control" placeholder="Search Children">
+                <div class="input-group-append">
+                    <button class="btn btn-sm white-fonts" type="button" id="button-addon2"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
     <!-- search button end -->
 </div>
 
@@ -66,7 +89,11 @@ if (session()->getFlashData('success_add')) {
             <th>Name</th>
             <th class="text-center">Code</th>
             <th>Pembimbing</th>
-            <th class="text-center">Role</th>
+            <?php if(in_groups('pusat')): ?>
+                <th>Cabang</th>
+            <?php else: ?>
+                <th>Region</th>
+            <?php endif; ?>
             <th class="text-center">Actions</th>
         </tr>
     </thead>
@@ -91,21 +118,32 @@ if (session()->getFlashData('success_add')) {
                     <td>
                         <?= $child['name_pembimbing']; ?>
                     </td>
-                    <td class="text-center">
-                        <?= $child['role']; ?>
-                    </td>
-                    <td class="td-actions text-center">
-                        <a href="<?= base_url('children/edit') . '/' . $child['id_children']; ?>" rel="tooltip" class="mr-3 btn btn-success btn-sm btn-round btn-icon">
-                            <i class="tim-icons icon-settings"></i>
-                        </a>
-                        <form action="<?= base_url('children') . '/' . $child['id_children'] ?>" method="POST" class="d-inline">
-                            <?= csrf_field(); ?>
-                            <input type="hidden" name="_method" value="DELETE">
-                            <button type="submit" rel="tooltip" onclick="return confirm('Are You Sure Want To Delete ?');" class="btn btn-danger btn-sm btn-round btn-icon">
-                                <i class="far fa-trash-alt"></i>
-                            </button>
-                        </form>
-                    </td>
+
+
+                    <?php if (!in_groups('pusat')) : ?>
+                        <td><?= $child['role']; ?></td>
+                        <td class="td-actions text-center">
+                            <a href="<?= base_url('children/edit') . '/' . $child['id_children']; ?>" rel="tooltip" class="mr-3 btn btn-success btn-sm btn-round btn-icon">
+                                <i class="tim-icons icon-settings"></i>
+                            </a>
+                            <form action="<?= base_url('children') . '/' . $child['id_children'] ?>" method="POST" class="d-inline">
+                                <?= csrf_field(); ?>
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="submit" rel="tooltip" onclick="return confirm('Are You Sure Want To Delete ?');" class="btn btn-danger btn-sm btn-round btn-icon">
+                                    <i class="far fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        </td>
+                    <?php else : ?>
+                        <td class="text-center">
+                            <?= $child['nama_cabang']; ?>
+                        </td>
+                        <td class="td-actions text-center">
+                            <a href="<?= base_url('children/details') . '/' . $child['id_children']; ?>" rel="tooltip" class="btn btn-success btn-sm btn-round btn-icon">
+                                <i class="fas fa-search"></i>
+                            </a>
+                        </td>
+                    <?php endif; ?>
                 </tr>
             <?php endforeach; ?>
         <?php endif; ?>
@@ -116,6 +154,13 @@ if (session()->getFlashData('success_add')) {
 </div>
 <!-- pagination -->
 
+<?php if (!in_groups('pusat')) : ?>
+    <script src="<?= base_url(); ?>/assets/js/logics/children.js"></script>
+<?php else: ?>
+    <script src="<?= base_url('/assets/js/logics/pusat.js'); ?>"></script>
+    <script>
+        pusat.pusatChildrenOptions();
+    </script>
+<?php endif; ?>
 
-<script src="<?= base_url(); ?>/assets/js/logics/children.js"></script>
 <?= $this->endSection(); ?>
