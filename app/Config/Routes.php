@@ -78,6 +78,8 @@ $routes->group('',['filter' => 'role:superadmin,pusat,admin'],function($routes){
 	$routes->get('/pembimbing','PembimbingController::index');
 
 	$routes->get('/absensi','AbsensiController::index');
+
+	$routes->get('/history',"AbsensiController::history");
 	
 });
 
@@ -97,19 +99,20 @@ $routes->group('',['filter' => 'role:pusat'],function($routes){
 	$routes->get('/pusat/getAbsensi/(:any)/(:any)','PusatController::getAbsensi/$1/$2');
 	$routes->get('/absensi/details/(:num)','PusatController::detailsAbsen/$1');
 	$routes->get('/pusat/getHistorys/(:any)','PusatController::absensiHistory/$1');
+	$routes->get('/pusat/tracking','PusatController::trackingData');
+	$routes->get('/pusat/tracking/(:any)','PusatController::trackingData/$1');
+	$routes->get('/pusat/export/(:any)/(:any)/(:any)','PusatController::historyExport/$1/$2/$3');
 
 });
 
 $routes->group('',['filter' => 'role:superadmin,pusat'],function($routes){
 	$routes->get('/', 'Home::dashboard');
-
 	$routes->get('/team',"TeamController::index");
 	$routes->get('/team/edit/(:num)',"TeamController::edit/$1");
 
 	$routes->put('/team/update/(:num)', "TeamController::attemptEdit/$1");
 	$routes->get('/team/cabang',"TeamController::getCabang");
 
-	$routes->get('/history',"AbsensiController::history");
 });
 
 

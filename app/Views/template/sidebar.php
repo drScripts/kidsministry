@@ -56,15 +56,7 @@
                     <i class="fas fa-calendar-check"></i>
                     <p>History Absensi</p>
                 </a>
-            </li>
-            <?php if (in_groups('superadmin')) : ?>
-                <li class="<?= (isset($title) && $title === 'Google Token' ? 'active' : ' '); ?>" data-aos="fade-right" data-aos-duration="500" data-aos-delay="1000">
-                    <a href="./user.html">
-                        <i class="fas fa-key"></i>
-                        <p>Google Token</p>
-                    </a>
-                </li>
-            <?php endif; ?>
+            </li> 
             <?php if (in_groups('superadmin') || in_groups('pusat')) : ?>
                 <li class="<?= (strpos(current_url(true)->getPath(), 'team') !== false ? 'active' : ' '); ?>" data-aos="fade-right" data-aos-duration="500" data-aos-delay="1100">
                     <a href="<?= base_url('/team'); ?>">

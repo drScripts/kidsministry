@@ -50,6 +50,15 @@ if (session()->getFlashData('success_update')) {
         </div>
         <!-- search button end -->
     <?php else : ?>
+        <div class="p-2 bd-highlight">
+            <div class="row">
+                <div class="col-md" data-aos="fade-right" data-aos-duration="500" data-aos-delay="300">
+                    <a href="<?= base_url('/pusat/tracking'); ?>" class="btn-sm btn">
+                        <p><i class="fas fa-calendar-times"></i> Tracking Absensi</p>
+                    </a>
+                </div>
+            </div>
+        </div>
         <div class="p-2 ml-auto bd-highlight">
             <div class="input-group mb-3" data-aos="fade-left" data-aos-duration="500" data-aos-delay="1000">
                 <select id="cabang" class="form-control">
