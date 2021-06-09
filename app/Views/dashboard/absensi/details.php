@@ -8,7 +8,13 @@
 <h4 class="white-fonts">Cabang : <?= $absensis['nama_cabang']; ?></h4>
 <h4 class="white-fonts">Absen Video : <?= $absensis['video']; ?></h4>
 <h4 class="white-fonts">Absen Foto : <?= $absensis['image']; ?></h4>
-<h4 class="white-fonts">Absen Quiz : <?= $absensis['quiz']; ?></h4>
+<?php if($quiz): ?>
+    <h4 class="white-fonts">Absen Quiz : <?php if($absensis['quis'] == '-'){
+        echo 'Tidak Ada';
+    }else{
+        echo $absensis['quis'];
+    } ?></h4>
+<?php endif; ?>
 <h4 class="white-fonts">Absen Untuk : <?= $absensis['sunday_date']; ?></h4> 
 <h4 class="white-fonts">Di Absen Oleh : <?= $absensis['username']; ?></h4>
 <h4 class="white-fonts">Di Absen Pada Tanggal : <?= date('d M Y', strtotime($absensis['absensiCreatedAt'])) ?></h4>

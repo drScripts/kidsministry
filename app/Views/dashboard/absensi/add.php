@@ -3,8 +3,8 @@
 <h1 data-aos="fade-right" data-aos-duration="500" data-aos-delay="300">Add Absensi</h1>
 
 
-<?php 
-if($validation->hasError('pembimbing') || $validation->hasError('children') || $validation->hasError('quiz') || $validation->hasError('video') || $validation->hasError('picture')){ 
+<?php
+if ($validation->hasError('pembimbing') || $validation->hasError('children') || $validation->hasError('quiz') || $validation->hasError('video') || $validation->hasError('picture')) {
     echo "
     <script>
         demo.dangerNotification('top', 'right', '<b>Failed Add Absensi</b><br>Check Your Input');
@@ -12,9 +12,9 @@ if($validation->hasError('pembimbing') || $validation->hasError('children') || $
     ";
 }
 
-if($validation->hasError('video')) {
+if ($validation->hasError('video')) {
     echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
-            '. $validation->getError('video') .'
+            ' . $validation->getError('video') . '
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <i class="tim-icons icon-simple-remove"></i>
             </button>
@@ -29,7 +29,7 @@ if($validation->hasError('video')) {
 
 if ($validation->hasError('picture')) {
     echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
-            '. $validation->getError('picture') .'
+            ' . $validation->getError('picture') . '
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <i class="tim-icons icon-simple-remove"></i>
             </button>
@@ -42,12 +42,12 @@ if ($validation->hasError('picture')) {
   })</script>";
 }
 
-if(session()->getFlashData('success_add')){
+if (session()->getFlashData('success_add')) {
     echo "<script>
         Swal.fire({
         icon: 'success',
         title: 'Success !',
-        text: '". session()->getFlashData('success_add') ."', 
+        text: '" . session()->getFlashData('success_add') . "', 
       })</script>";
 }
 
@@ -61,10 +61,10 @@ if(session()->getFlashData('success_add')){
         <label for="pembimbing-select" class="white-fonts">Pembimbing Name</label>
         <select name="pembimbing" id="pembimbing-select" class="form-control grey-fonts <?= ($validation->hasError('pembimbing')) ? 'is-invalid' : ''; ?>" required>
             <option value="">Select Pembimbing Name</option>
-            <?php foreach($pembimbings as $pembimbing): ?>
-            <option value="<?= $pembimbing['id_pembimbing']; ?>">
-                <?= $pembimbing['name_pembimbing']; ?>
-            </option>
+            <?php foreach ($pembimbings as $pembimbing) : ?>
+                <option value="<?= $pembimbing['id_pembimbing']; ?>">
+                    <?= $pembimbing['name_pembimbing']; ?>
+                </option>
             <?php endforeach; ?>
         </select>
         <div class="invalid-feedback ">
@@ -82,17 +82,19 @@ if(session()->getFlashData('success_add')){
         </div>
     </div>
 
-    <div class="form-group form-check" data-aos="fade-right" data-aos-duration="500" data-aos-delay="900">
-        <label for="quiz-select" class="white-fonts">Children Quiz</label>
-        <select name="quiz" id="quiz-select" class="form-control grey-fonts <?= ($validation->hasError('quiz')) ? 'is-invalid' : ''; ?>" required>
-            <option value="">Select Children Quiz</option>
-            <option value="yes">Yes</option>
-            <option value="no">No</option>
-        </select>
-        <div class="invalid-feedback ">
-            <?= $validation->getError('quiz'); ?>
+    <?php if ($quiz) : ?>
+        <div class="form-group form-check" data-aos="fade-right" data-aos-duration="500" data-aos-delay="900">
+            <label for="quiz-select" class="white-fonts">Children Quiz</label>
+            <select name="quiz" id="quiz-select" class="form-control grey-fonts <?= ($validation->hasError('quiz')) ? 'is-invalid' : ''; ?>" required>
+                <option value="">Select Children Quiz</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+            </select>
+            <div class="invalid-feedback ">
+                <?= $validation->getError('quiz'); ?>
+            </div>
         </div>
-    </div>
+    <?php endif; ?>
 
     <div class="d-flex justify-content-center mt-5">
         <div class="row text-center">
@@ -101,8 +103,7 @@ if(session()->getFlashData('success_add')){
                     <label for="images">
                         <div class="card text-center " style="width: 31.5rem;">
                             <div class="card-body ">
-                                <img src="https://kesagami.com/wp-content/plugins/complete-gallery-manager/images/gallery_icon@2x.png"
-                                    width="200px" height="200px" class="" alt="add picture">
+                                <img src="https://kesagami.com/wp-content/plugins/complete-gallery-manager/images/gallery_icon@2x.png" width="200px" height="200px" class="" alt="add picture">
                                 <input type="file" hidden id="images" accept="image/*" name='picture'>
                                 <h3 class="white-fonts mt-3 mb-2">Pick An Image</h3>
                             </div>
@@ -115,8 +116,7 @@ if(session()->getFlashData('success_add')){
                     <label for="videos">
                         <div class="card " style="width: 31.5rem;">
                             <div class="card-body ">
-                                <img src="https://www.freeiconspng.com/uploads/movie-icon-3.png" width="200px"
-                                    height="200px" alt="add picture" class="">
+                                <img src="https://www.freeiconspng.com/uploads/movie-icon-3.png" width="200px" height="200px" alt="add picture" class="">
                                 <input type="file" hidden id="videos" accept="video/*" name="video">
                                 <h3 class="white-fonts mt-3 mb-2">Pick An Video</h3>
                             </div>

@@ -27,12 +27,12 @@ class AbsensiModel extends Model{
         $year = $dateNames[2]; 
 
         $tables = $this->table($this->table);
+        $tables->join('pembimbings', "pembimbings.id_pembimbing = $this->table.pembimbing_id");
+        $tables->join('childrens',"childrens.id_children = $this->table.children_id");
         $tables->where('month',$month);
         $tables->where('year', $year);
         $tables->where('region_pembimbing',user()->toArray()['region']);
         $tables->orderBy('absensis.created_at', 'DESC');
-        $tables->join('pembimbings', "pembimbings.id_pembimbing = $this->table.pembimbing_id");
-        $tables->join('childrens',"childrens.id_children = $this->table.children_id");
         return $tables;
     }
 
@@ -173,7 +173,7 @@ class AbsensiModel extends Model{
          
 
        foreach ($bulans as $month) {
-           $jumlah = $this->table($this->table)->join('pembimbings','pembimbings.id_pembimbing = absensis.pembimbing_id')->where('region_pembimbing',user()->toArray()['region'])->where('year',$year)->countAllResults();
+           $jumlah = $this->table($this->table)->join('pembimbings','pembimbings.id_pembimbing = absensis.pembimbing_id')->where('region_pembimbing',user()->toArray()['region'])->where('year',$year)->where('month',$month)->countAllResults();
         
            $data_semua[] = [
             'jumlah' => $jumlah,

@@ -13,7 +13,7 @@ class CabangModel extends Model{
     protected $returnType     = 'array';
     protected $useSoftDeletes = true;
 
-    protected $allowedFields = ['id_cabang', 'nama_cabang'];
+    protected $allowedFields = ['id_cabang', 'nama_cabang','quiz'];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';

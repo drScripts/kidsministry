@@ -8,10 +8,9 @@
     <!-- content -->
     <div class="content">
       <?= $this->renderSection('content'); ?>
-     
     </div>
     <!-- content end -->
+    <?= $this->include('template/footer'); ?>
   </div>
-  <?= $this->include('template/footer'); ?>
 </div> 
 <?= $this->include('template/footers'); ?>

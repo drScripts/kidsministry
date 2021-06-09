@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\AbsensiModel;
 use App\Models\CabangModel;
 use App\Models\ChildrenModel;
+use App\Models\ClassModel;
 use App\Models\GoogleTokenModel;
 use App\Models\PembimbingsModel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -19,6 +20,8 @@ class AbsensiController extends BaseController
     protected $pembimbingModel;
     protected $googleToken;
     protected $cabangModel;
+    protected $classModel;
+    protected $quiz;
 
     public function __construct()
     {
@@ -27,17 +30,16 @@ class AbsensiController extends BaseController
         $this->pembimbingModel = new PembimbingsModel();
         $this->googleToken = new GoogleTokenModel();
         $this->cabangModel = new CabangModel();
+        $this->classModel = new ClassModel();
+        $this->quiz =  $this->cabangModel->find(user()->toArray()['region'])['quiz'];
     }
 
     public function index()
     {
-
-
         // mengambil penghitungan data
         if (!in_groups('pusat')) {
             $current_page = $this->request->getVar('page_absensi') ? $this->request->getVar('page_absensi') : 1;
-         
-            
+
             $absensis = $this->absensiModel->getAllDataFetch()->paginate(7, 'absensi');
             $pager = $this->absensiModel->pager;
 
@@ -46,6 +48,7 @@ class AbsensiController extends BaseController
                 'absensis'      => $absensis,
                 'pager'         => $pager,
                 'current_page'  => $current_page,
+                'quiz'          => boolval($this->quiz),
             ];
             return view('dashboard/absensi/index', $data);
         } else {
@@ -90,10 +93,10 @@ class AbsensiController extends BaseController
                 'current_page'  => $current_page,
                 'cabangs'       => $cabang,
                 'sunday_dates'  => $sunday_date,
+                'quiz'          => $this->quiz,
             ];
             return view('dashboard/absensi/index', $data);
         }
- 
     }
 
     public function addAbsensi()
@@ -108,6 +111,7 @@ class AbsensiController extends BaseController
                 'title'         => 'Add Absensi',
                 'validation'    => \Config\Services::validation(),
                 'pembimbings'   => $pembimbings,
+                'quiz'          => boolval($this->quiz),
             ];
 
             return view('dashboard/absensi/add', $data);
@@ -125,45 +129,79 @@ class AbsensiController extends BaseController
     public function insert()
     {
         $api = new GoogleApiServices();
-        $validate = $this->validate([
-            'pembimbing' => [
-                'rules'     => 'required|integer',
-                'errors'    => [
-                    'required'  => 'Please Select The Pembimbing Name !',
-                    'integer'   => 'The Pembimbing Must Be Integer',
+        if (boolval($this->quiz)) {
+            $validate = $this->validate([
+                'pembimbing' => [
+                    'rules'     => 'required|integer',
+                    'errors'    => [
+                        'required'  => 'Please Select The Pembimbing Name !',
+                        'integer'   => 'The Pembimbing Must Be Integer',
+                    ],
                 ],
-            ],
-            'children' => [
-                'rules'     => 'required|integer',
-                'errors'    => [
-                    'required'  => 'Please Select The Children Name !',
-                    'integer'   => 'The Children Must Be Integer',
+                'children' => [
+                    'rules'     => 'required|integer',
+                    'errors'    => [
+                        'required'  => 'Please Select The Children Name !',
+                        'integer'   => 'The Children Must Be Integer',
+                    ],
                 ],
-            ],
-            'quiz'     => [
-                'rules'     => 'required|string|max_length[5]',
-                'errors'    => [
-                    'required'      => 'Please Select The Children Quiz !',
-                    'string'        => 'Quiz Must Be String !',
-                    'max_length'    => 'Quiz Max Is 5 !',
+                'quiz'     => [
+                    'rules'     => 'required|string|max_length[5]',
+                    'errors'    => [
+                        'required'      => 'Please Select The Children Quiz !',
+                        'string'        => 'Quiz Must Be String !',
+                        'max_length'    => 'Quiz Max Is 5 !',
+                    ],
                 ],
-            ],
-            'picture'    => [
-                'rules'     => 'mime_in[picture,image/gif,image/jpg,image/jpeg,image/png,image/svg+xml]|is_image[picture]|max_size[picture,15360]',
-                'errors'    => [
-                    'mime_in'   => 'Picture Must With Mime Type Of Images !',
-                    'is_image'  => 'Picture Must Be A Picture File !',
-                    'max_size'  => 'Picture Size Must Less Than 15MB !'
+                'picture'    => [
+                    'rules'     => 'mime_in[picture,image/gif,image/jpg,image/jpeg,image/png,image/svg+xml]|is_image[picture]|max_size[picture,15360]',
+                    'errors'    => [
+                        'mime_in'   => 'Picture Must With Mime Type Of Images !',
+                        'is_image'  => 'Picture Must Be A Picture File !',
+                        'max_size'  => 'Picture Size Must Less Than 15MB !'
+                    ],
                 ],
-            ],
-            'video'    => [
-                'rules'     => 'mime_in[video,video/x-flv,video/mp4,application/x-mpegURL,video/MP2T,video/3gpp,video/quicktime]|max_size[video,15360]',
-                'errors'    => [
-                    'mime_in'   => 'Video Must With Mime Type Of Videos',
-                    'max_size'  => 'Video Size Must Less Than 15MB',
+                'video'    => [
+                    'rules'     => 'mime_in[video,video/x-flv,video/mp4,application/x-mpegURL,video/MP2T,video/3gpp,video/quicktime]|max_size[video,15360]',
+                    'errors'    => [
+                        'mime_in'   => 'Video Must With Mime Type Of Videos',
+                        'max_size'  => 'Video Size Must Less Than 15MB',
+                    ],
                 ],
-            ],
-        ]);
+            ]);
+        } else {
+            $validate = $this->validate([
+                'pembimbing' => [
+                    'rules'     => 'required|integer',
+                    'errors'    => [
+                        'required'  => 'Please Select The Pembimbing Name !',
+                        'integer'   => 'The Pembimbing Must Be Integer',
+                    ],
+                ],
+                'children' => [
+                    'rules'     => 'required|integer',
+                    'errors'    => [
+                        'required'  => 'Please Select The Children Name !',
+                        'integer'   => 'The Children Must Be Integer',
+                    ],
+                ],
+                'picture'    => [
+                    'rules'     => 'mime_in[picture,image/gif,image/jpg,image/jpeg,image/png,image/svg+xml]|is_image[picture]|max_size[picture,15360]',
+                    'errors'    => [
+                        'mime_in'   => 'Picture Must With Mime Type Of Images !',
+                        'is_image'  => 'Picture Must Be A Picture File !',
+                        'max_size'  => 'Picture Size Must Less Than 15MB !'
+                    ],
+                ],
+                'video'    => [
+                    'rules'     => 'mime_in[video,video/x-flv,video/mp4,application/x-mpegURL,video/MP2T,video/3gpp,video/quicktime]|max_size[video,15360]',
+                    'errors'    => [
+                        'mime_in'   => 'Video Must With Mime Type Of Videos',
+                        'max_size'  => 'Video Size Must Less Than 15MB',
+                    ],
+                ],
+            ]);
+        }
 
 
 
@@ -172,14 +210,18 @@ class AbsensiController extends BaseController
         }
 
         $date_file_name = $this->getDateName();
-
+        $bulan = explode(' ', $date_file_name)[1];
         //// search PPl Kids Name
         $pplParentId = $api->searchPplKidsFolder();
+
+        //// search grouping folder name
+        $group = $api->search_parents_date_folder('Foto Video Anak - Bulan ' . $bulan, $pplParentId);
+
         //// search date folder
-        $dateFolderId = $api->search_parents_date_folder($date_file_name, $pplParentId);
+        $dateFolderId = $api->search_parents_date_folder($date_file_name, $group);
 
         //// search region folder
-        $regionName = user()->toArray()['region'];
+        $regionName = $this->cabangModel->find(user()->toArray()['region'])['nama_cabang'];
         $regionFolderId = $api->search_parents_folder($regionName, $dateFolderId);
 
         //// search Besar Folder
@@ -193,7 +235,12 @@ class AbsensiController extends BaseController
         //// get all request
         $pembimbingId = $this->request->getVar('pembimbing');
         $childrenId = $this->request->getVar('children');
-        $quiz = $this->request->getVar('quiz');
+        $quiz = '';
+        if(boolval($this->quiz)){
+            $quiz = $this->request->getVar('quiz');
+        }else{
+            $quiz = '-';
+        }
         $videoFile = $this->request->getFile('video');
         $pictureFile = $this->request->getFile('picture');
 
@@ -232,7 +279,7 @@ class AbsensiController extends BaseController
         $month = $fileNames[1];
         $year = $fileNames[2];
 
-        $this->absensiModel->save([
+        $save = $this->absensiModel->save([
             'children_id'   => $childrenId,
             'pembimbing_id' => $pembimbingId,
             'video'         => $video,
@@ -246,9 +293,11 @@ class AbsensiController extends BaseController
             'created_by'       => user()->toArray()['id'],
         ]);
 
-        session()->setFlashData('success_add', "Successfully Add Absensi Of $childrenName !");
+        if ($save) {
+            session()->setFlashData('success_add', "Successfully Add Absensi Of $childrenName !");
 
-        return redirect()->to('/absensi/add');
+            return redirect()->to('/absensi/add');
+        }
     }
 
     public function delete($id)
@@ -265,7 +314,7 @@ class AbsensiController extends BaseController
         }
 
         $this->absensiModel->update($id, [
-            'deletedby' => user()->toArray()['id'],
+            'deleted_by' => user()->toArray()['id'],
         ]);
         $this->absensiModel->delete($id);
 
@@ -282,6 +331,7 @@ class AbsensiController extends BaseController
             'title' => 'Edit Absensi',
             'data'  => $data_absensi,
             'id'    => $id,
+            'quiz'  => boolval($this->quiz),
         ];
 
         return view('dashboard/absensi/edit', $data);
@@ -306,13 +356,20 @@ class AbsensiController extends BaseController
             ]);
         }
 
-        $quiz = $this->request->getVar('quiz');
-        $this->absensiModel->update($id, [
-            'quiz'          => $quiz,
-            'updated_by'    => user()->toArray()['id'],
-        ]);
+        if ($this->request->getPost('quiz')) {
+            $quiz = $this->request->getVar('quiz');
+            $update = $this->absensiModel->update($id, [
+                'quiz'          => $quiz,
+                'updated_by'    => user()->toArray()['id'],
+            ]);
 
-        session()->setFlashData('success_update', 'Absensi Successfully Updated');
+            if ($update) {
+                session()->setFlashData('success_update', 'Absensi Successfully Updated');
+                return redirect()->to('/absensi');
+            } else {
+                return redirect()->to('/absensi');
+            }
+        }
         return redirect()->to('/absensi');
     }
 
@@ -439,13 +496,13 @@ class AbsensiController extends BaseController
                 'datas'         => $dataMonth,
                 'years'         => $tahun,
             ];
-        }else{
-           $dataAbsensi = [];
-           $cabang = [];
-           $data = $this->absensiModel->join('pembimbings','pembimbings.id_pembimbing = absensis.pembimbing_id')
-                               ->join('cabang','cabang.id_cabang = pembimbings.region_pembimbing')
-                               ->findAll();
-            foreach ($data as $d ) {
+        } else {
+            $dataAbsensi = [];
+            $cabang = [];
+            $data = $this->absensiModel->join('pembimbings', 'pembimbings.id_pembimbing = absensis.pembimbing_id')
+                ->join('cabang', 'cabang.id_cabang = pembimbings.region_pembimbing')
+                ->findAll();
+            foreach ($data as $d) {
                 $dataAbsensi[] = $d['month'] . '-' . $d['year'] . '-' . $d['nama_cabang'];
                 $cabang[] = $d['nama_cabang'];
             }
@@ -456,7 +513,7 @@ class AbsensiController extends BaseController
             $data = [
                 'title'         => 'History Absensi',
                 'absenHistory'  => $dataAbsensi,
-                'cabangs'       => $cabang,  
+                'cabangs'       => $cabang,
             ];
         }
 
@@ -646,61 +703,5 @@ class AbsensiController extends BaseController
     {
         $data = $this->absensiModel->chartAbsensi();
         return json_encode($data);
-    }
-
-    public function coba()
-    {
-        return view('coba_exccel');
-    }
-
-    public function import()
-    {
-
-        $file_upload = $this->request->getFile('excel');
-
-        // move file
-        $file_upload->move('temp_excel');
-
-        // mengambil nama
-        $file_name = $file_upload->getName();
-
-        // path file name
-        $path_file = "../public/temp_excel/$file_name";
-        $inputType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($path_file);
-        $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader($inputType);
-        $spreadSheet = $reader->load($path_file);
-
-        $data = $spreadSheet->getActiveSheet()->toArray();
-        unlink($path_file);
-
-        $data = array_slice($data, 1, count($data) - 1);
-
-        $data_clear = [];
-        foreach ($data as $d) {
-            if ($d[0] != ' ') {
-                $data_clear[] = $d;
-            }
-        }
-
-        // upload database 
-        $childrenArr = [];
-
-        foreach ($data_clear as $datak) {
-            $nama = $datak[1];
-            $code = $datak[2];
-            $pembimbing_name = $datak[4];
-            $role = $datak[3];
-
-            $temp_arr = [
-                'nama' => $nama,
-                'code' => $code,
-                'pembimbing_name' => $pembimbing_name,
-                'role' => $role,
-            ];
-
-            $childrenArr[] = $temp_arr;
-        }
-
-        dd($childrenArr);
     }
 }

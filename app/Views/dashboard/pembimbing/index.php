@@ -42,8 +42,7 @@ if (session()->getFlashData('success_add')) {
                         Data Actions
                     </button>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <a class="dropdown-item" href="<?= base_url('/pembimbing/export'); ?>"> <i class="fas fa-download"></i> Get Pembimbing Data</a>
-                        <a class="dropdown-item" href="#"><i class="fas fa-upload"></i> Import Pembimbing Data</a>
+                        <a class="dropdown-item" href="<?= base_url('/pembimbing/export'); ?>"> <i class="fas fa-file-download"></i> Get Pembimbing Data</a>
                     </div>
                 </div>
             </div>

@@ -34,7 +34,7 @@ if (session()->getFlashData('success_add')) {
                 </div>
             </div>
         </div>
-        <div class="p-2 bd-highlight ml-3">
+        <div class="p-2 bd-highlight ml-2 mr-2">
             <div class="row">
                 <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle font-weight-lighter" type="button" id="dropdownMenuButton" data-toggle="dropdown">
@@ -42,8 +42,22 @@ if (session()->getFlashData('success_add')) {
                     </button>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         <a class="dropdown-item" href="<?= base_url('/children/export'); ?>"> <i class="fas fa-download"></i> Get Children Data</a>
-                        <a class="dropdown-item" href="#"><i class="fas fa-upload"></i> Import Children Data</a>
+                        <?php if (in_groups('superadmin')) : ?>
+                            <a class="dropdown-item" href="<?= base_url('/children/import'); ?>"><i class="fas fa-upload"></i> Import Children Data</a>
+                        <?php endif; ?>
                     </div>
+                </div>
+            </div>
+        </div>
+
+    <?php endif; ?>
+    <?php if (in_groups('superadmin')) : ?>
+        <div class="p-2 bd-highlight">
+            <div class="row">
+                <div class="col-md" data-aos="fade-right" data-aos-duration="500" data-aos-delay="900">
+                    <a href="<?= base_url('/children/addClass'); ?>" class="btn-sm btn">
+                        <p><i class="fas fa-user-plus mr-2"></i> Add Data Kelas</p>
+                    </a>
                 </div>
             </div>
         </div>
@@ -98,9 +112,9 @@ if (session()->getFlashData('success_add')) {
             <th>Name</th>
             <th class="text-center">Code</th>
             <th>Pembimbing</th>
-            <?php if(in_groups('pusat')): ?>
-                <th>Cabang</th>
-            <?php else: ?>
+            <?php if (!in_groups('pusat')) : ?>
+                <th class="text-center">Role</th>
+            <?php else : ?>
                 <th>Region</th>
             <?php endif; ?>
             <th class="text-center">Actions</th>
@@ -130,7 +144,7 @@ if (session()->getFlashData('success_add')) {
 
 
                     <?php if (!in_groups('pusat')) : ?>
-                        <td><?= $child['role']; ?></td>
+                        <td class="text-center"><?= $child['nama_kelas']; ?></td>
                         <td class="td-actions text-center">
                             <a href="<?= base_url('children/edit') . '/' . $child['id_children']; ?>" rel="tooltip" class="mr-3 btn btn-success btn-sm btn-round btn-icon">
                                 <i class="tim-icons icon-settings"></i>
@@ -165,7 +179,7 @@ if (session()->getFlashData('success_add')) {
 
 <?php if (!in_groups('pusat')) : ?>
     <script src="<?= base_url(); ?>/assets/js/logics/children.js"></script>
-<?php else: ?>
+<?php else : ?>
     <script src="<?= base_url('/assets/js/logics/pusat.js'); ?>"></script>
     <script>
         pusat.pusatChildrenOptions();

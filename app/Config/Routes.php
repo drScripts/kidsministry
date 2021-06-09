@@ -44,6 +44,10 @@ $routes->group('', ['filter' => 'role:admin,superadmin'], function($routes) {
 	$routes->post('/children/insert','ChildrenController::insert'); 
 	$routes->get('/children/export','ChildrenController::export');
 	$routes->get('/children/getChildren','ChildrenController::getChildren');
+	$routes->get('/children/addClass','ChildrenController::addClass');
+	$routes->post('/children/class','ChildrenController::attemptClass');
+	$routes->get('/children/import','ChildrenController::addExcel');
+	$routes->post('/children/import','ChildrenController::import');
 	
 	
 	$routes->delete('/pembimbing/(:num)','PembimbingController::delete/$1');
@@ -80,6 +84,10 @@ $routes->group('',['filter' => 'role:superadmin,pusat,admin'],function($routes){
 	$routes->get('/absensi','AbsensiController::index');
 
 	$routes->get('/history',"AbsensiController::history");
+
+	
+	$routes->get('/settings','PusatController::settings');
+	$routes->post('/settings','PusatController::attemptSettings');
 	
 });
 

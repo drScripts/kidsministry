@@ -42,13 +42,14 @@ if($validation->hasError('children_name')){
         <select name="role" id="role"
             class="form-control grey-fonts <?= ($validation->hasError('role')) ? 'is-invalid':''; ?>">
             <optgroup label="Current Value">
-                <option value="<?= $current_children['role']; ?>">
-                    <?= $current_children['role']; ?>
+                <option value="<?= $current_children['id_class']; ?>">
+                    <?= $current_children['nama_kelas']; ?>
                 </option>
             </optgroup>
             <optgroup label="Options">
-                <option value="Madya">Madya</option>
-                <option value="Pratama">Pratama</option>
+                <?php foreach ($class as $c) : ?>    
+                    <option value="<?= $c['id_class']; ?>"><?= $c['nama_kelas']; ?></option>
+                <?php endforeach ?>
             </optgroup>
         </select>
         <div class="invalid-feedback ">

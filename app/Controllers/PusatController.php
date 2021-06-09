@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\AbsensiModel;
+use App\Models\CabangModel;
 use App\Models\ChildrenModel;
 use App\Models\PembimbingsModel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -14,12 +15,16 @@ class PusatController extends BaseController
     protected $absensiModel;
     protected $childrenModel;
     protected $pembimbingModel;
+    protected $cabangModel;
+    protected $quiz;
 
     public function __construct()
     {
         $this->absensiModel = new AbsensiModel();
         $this->childrenModel = new ChildrenModel();
         $this->pembimbingModel = new PembimbingsModel();
+        $this->cabangModel = new CabangModel();
+        $this->quiz =  $this->cabangModel->find(user()->toArray()['region'])['quiz'];
     }
 
     public function getHomeChartYear($cabang = null)
@@ -94,10 +99,9 @@ class PusatController extends BaseController
             ->join('pembimbings', 'pembimbings.id_pembimbing = childrens.id_pembimbing')
             ->join('users', 'users.id = childrens.created_by')
             ->join('cabang', 'cabang.id_cabang = pembimbings.region_pembimbing')
-            ->select('childrens.created_by as childrenAdd, childrens.updated_by as childrenUpdate,children_name,code,name_pembimbing,role,nama_cabang,username,email,childrens.created_at as childrenCreated,childrens.updated_at as childrenUpdated')
+            ->join('kelas', 'kelas.id_class = childrens.role')
+            ->select('childrens.created_by as childrenAdd, childrens.updated_by as childrenUpdate,children_name,code,name_pembimbing,role,nama_cabang,username,email,childrens.created_at as childrenCreated,childrens.updated_at as childrenUpdated,nama_kelas')
             ->find($id);
-
-
         $data = [
             'title'  => 'Detail Children',
             'childs' => $child,
@@ -190,12 +194,12 @@ class PusatController extends BaseController
             ->join('pembimbings', 'pembimbings.id_pembimbing = absensis.pembimbing_id')
             ->join('cabang', 'cabang.id_cabang = pembimbings.region_pembimbing')
             ->join('users', 'users.id = absensis.created_by')
-            ->select('video,image,quiz,sunday_date,absensis.created_at as absensiCreatedAt,children_name,name_pembimbing,nama_cabang,username,absensis.updated_at as absensiUpdatedAt,absensis.updated_by as absensiUpdateBy')
+            ->select('video,image,absensis.quiz as quis,sunday_date,absensis.created_at as absensiCreatedAt,children_name,name_pembimbing,nama_cabang,username,absensis.updated_at as absensiUpdatedAt,absensis.updated_by as absensiUpdateBy')
             ->find($id);
-
         $data = [
             'absensis'  => $data,
             'title'     => "Detail's Absensi",
+            'quiz'      => $this->quiz,
         ];
         return view('dashboard/absensi/details', $data);
     }
@@ -268,6 +272,7 @@ class PusatController extends BaseController
             ->join('cabang', 'cabang.id_cabang = pembimbings.region_pembimbing')
             ->join('childrens', 'childrens.id_children = absensis.children_id')
             ->join('users', 'users.id = absensis.created_by')
+            ->join('kelas', 'kelas.id_class = childrens.role')
             ->where('month', $month)
             ->where('year', $year)
             ->where('nama_cabang', $cabang)
@@ -291,7 +296,7 @@ class PusatController extends BaseController
                     $semua[] = [
                         'Nama Anak'         => $d['children_name'],
                         'Kode Anak'         => $d['code'],
-                        'Role Anak'         => $d['role'],
+                        'Role Anak'         => $d['nama_kelas'],
                         'Nama Pembimbing'   => $d['name_pembimbing'],
                         'Absen Foto'        => $d['image'],
                         'Absen Video'       => $d['video'],
@@ -313,7 +318,7 @@ class PusatController extends BaseController
             ];
         }
 
-        array_pop($semua); 
+        array_pop($semua);
 
         $sheet->setCellValue('A1', 'No');
         $sheet->setCellValue('B1', 'Nama Anak');
@@ -369,6 +374,62 @@ class PusatController extends BaseController
         header('Cache-Control: max-age=0');
 
         $writter->save('php://output');
+    }
 
+    public function settings()
+    {
+        $cabang = $this->cabangModel->find(user()->toArray()['region'])['quiz'];
+
+        $data = [
+            'title' => 'Settings',
+            'quiz'  => boolval($cabang),
+        ];
+
+        return view('dashboard/settings/index', $data);
+    }
+
+    public function attemptSettings()
+    {
+        $hasil = 0;
+        $request = $this->request->getVar()['status'];
+        $respond = [];
+
+        if($request =='true'){
+            $hasil = 1;
+
+            $update = $this->cabangModel->update(user()->toArray()['region'],[
+                'quiz'  => $hasil,
+            ]);
+
+            if($update){
+                $respond = [
+                    'success'  => 'Quiz Module Success Updated. Now Quiz module is Active',
+                ];
+            }else{
+                $respond = [
+                    'failed'  => 'Quiz Module Failed Updated',
+                ];
+            }
+
+        }else{
+            $hasil = 0;
+            $update = $this->cabangModel->update(user()->toArray()['region'],[
+                'quiz'  => $hasil,
+            ]);
+
+            if($update){
+                $respond = [
+                    'success'  => 'Quiz Module Success Updated. Now Quiz Module is non Active',
+                ];
+            }else{
+                $respond = [
+                    'failed'  => 'Quiz Module Failed Updated',
+                ];
+            }
+        }
+
+
+
+        return json_encode($respond);
     }
 }

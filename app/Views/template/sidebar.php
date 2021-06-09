@@ -1,4 +1,4 @@
-<div class="sidebar" data-aos="fade-right" data-aos-duration="500">
+<div class="sidebar">
     <div class="sidebar-wrapper">
         <div class="logo" data-aos="fade-right" data-aos-duration="500" data-aos-delay="300">
             <a href="<?= base_url(); ?>" class="simple-text logo-mini">

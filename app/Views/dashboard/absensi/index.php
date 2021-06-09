@@ -101,7 +101,9 @@ if (session()->getFlashData('success_update')) {
                 <th>Pembimbing Name</th>
                 <th class="text-center">Video</th>
                 <th class="text-center">Image</th>
-                <th class="text-center">Quiz</th>
+                <?php if ($quiz) : ?>
+                    <th class="text-center">Quiz</th>
+                <?php endif; ?>
                 <th class="text-center">Sunday Date</th>
             <?php else : ?>
                 <th class="text-center">Cabang</th>
@@ -141,9 +143,11 @@ if (session()->getFlashData('success_update')) {
                             <?= $absen['image']; ?>
                         </td>
 
-                        <td class="text-center">
-                            <?= $absen['quiz']; ?>
-                        </td>
+                        <?php if ($quiz) : ?>
+                            <td class="text-center">
+                                <?= $absen['quiz']; ?>
+                            </td>
+                        <?php endif; ?>
 
                         <td class="text-center">
                             <?= $absen['sunday_date']; ?>

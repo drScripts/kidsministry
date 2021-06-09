@@ -22,7 +22,9 @@ class ChildrenModel extends Model{
     public function getChildren(){ 
 
         return $this->table('childrens')
-        ->join('pembimbings', "pembimbings.id_pembimbing = $this->table.id_pembimbing")->where('region_pembimbing',user()->toArray()['region']);
+        ->join('pembimbings', "pembimbings.id_pembimbing = $this->table.id_pembimbing")
+        ->join('kelas','kelas.id_class = childrens.role')
+        ->where('region_pembimbing',user()->toArray()['region']);
     }
 
     public function searchChildren(){ 

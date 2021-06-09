@@ -49,6 +49,7 @@
                                     <select class="custom-select form-control black-fonts cabang" name="region" id="section"
                                         required>
                                         <option value="" class="cabang"> Select Cabang Region </option>
+                                        <?php array_pop($cabangs); ?>
                                         <?php foreach($cabangs as $cabang): ?>
                                             <option class="cabang" value="<?= $cabang['id_cabang']; ?>"><?= $cabang['nama_cabang']; ?></option>
                                         <?php endforeach; ?>

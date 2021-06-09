@@ -4,7 +4,7 @@
 
   <div class="container mt-3 ml-3 mr-2 ml-2">
     <h4 class="white-fonts">Nama Anak : <?= $childs['children_name']; ?></h4>
-    <h4 class="white-fonts">Kelas : <?= $childs['role']; ?></h4>
+    <h4 class="white-fonts">Kelas : <?= $childs['nama_kelas']; ?></h4>
     <h4 class="white-fonts">Kode Anak : <?= $childs['code']; ?></h4>
     <h4 class="white-fonts">Pembimbing : <?= $childs['name_pembimbing']; ?></h4>
     <h4 class="white-fonts">Cabang : <?= $childs['nama_cabang']; ?></h4>

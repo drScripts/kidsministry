@@ -126,7 +126,7 @@ gradient2 = {
         barPercentage: 1.6,
         gridLines: {
           drawBorder: false,
-          color: "rgba(29,140,248,0.0)",
+          color: "rgba(29,140,248,0.1)",
           zeroLineColor: "transparent",
         },
         ticks: {
@@ -214,6 +214,8 @@ $("#month").on("change", function () {
 
   chart_labels_month = [];
   chart_data_month = [];
+  $("#canvas2").html("");
+  $("#canvas2").append('<canvas id="chartBig2"></canvas>');
 
   $.ajax({
     url: "/chart/" + month,

@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use App\Models\CabangModel;
 use App\Models\ChildrenModel;
+use App\Models\ClassModel;
 use App\Models\PembimbingsModel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -15,12 +16,14 @@ class ChildrenController extends BaseController
     protected $childrenModel;
     protected $pembimbingModel;
     protected $cabangModel;
+    protected $classModel;
 
     public function __construct()
     {
         $this->childrenModel = new ChildrenModel();
         $this->pembimbingModel = new PembimbingsModel();
         $this->cabangModel = new CabangModel();
+        $this->classModel = new ClassModel();
     }
 
     public function index()
@@ -31,6 +34,7 @@ class ChildrenController extends BaseController
 
         if (!in_groups('pusat')) {
             // konek to database withh model 
+            // $children_pageinate = $this->childrenModel->getChildren()->findAll();
             $children_pageinate = $this->childrenModel->getChildren()->paginate(7, 'children');
             $pager = $this->childrenModel->pager;
 
@@ -44,12 +48,12 @@ class ChildrenController extends BaseController
             $cabangs = $this->childrenModel->getPusatChildren()->select('nama_cabang')->get()->getResultArray();
             $cabang = [];
 
-            foreach($cabangs as $c){
+            foreach ($cabangs as $c) {
                 $cabang[] = $c['nama_cabang'];
             }
 
 
-            $children_pageinate = $this->childrenModel->getPusatChildren()->paginate(7,'children');
+            $children_pageinate = $this->childrenModel->getPusatChildren()->paginate(7, 'children');
             $pager = $this->childrenModel->pager;
 
             $data = [
@@ -61,7 +65,7 @@ class ChildrenController extends BaseController
             ];
         }
 
-       
+
 
         return view('dashboard/children/children', $data);
     }
@@ -78,11 +82,13 @@ class ChildrenController extends BaseController
 
         $dataPembimbing = $this->pembimbingModel->where('region_pembimbing', $this->region)->get()->getResultArray();
 
+        $kelas = $this->classModel->findAll();
         $validation = \Config\Services::validation();
         $data = [
             'title'       => "Add Children",
             'pembimbings' => $dataPembimbing,
             'validation'  => $validation,
+            'class'       => $kelas,
         ];
 
         return view('dashboard/children/add_children', $data);
@@ -107,7 +113,7 @@ class ChildrenController extends BaseController
                 ],
             ],
             'role'          => [
-                'rules'     => 'string|required',
+                'rules'     => 'required',
                 'errors'    => [
                     'required'  => 'Please Select The Children Role !'
                 ],
@@ -138,7 +144,7 @@ class ChildrenController extends BaseController
 
     public function delete($id)
     {
-        $this->childrenModel->update($id,[
+        $this->childrenModel->update($id, [
             'deleted_by'    => user()->toArray()['id'],
         ]);
         $this->childrenModel->delete($id);
@@ -149,7 +155,7 @@ class ChildrenController extends BaseController
     public function edit($id)
     {
         // get current Children Data
-        $children = $this->childrenModel->find($id);
+        $children = $this->childrenModel->join('kelas', 'kelas.id_class = childrens.role')->find($id);
 
         // get Current Children Pembimbing Data
         $id_pembimbing = $children['id_pembimbing'];
@@ -158,6 +164,8 @@ class ChildrenController extends BaseController
         // get All Pembimbing Data
         $pembimbings = $this->pembimbingModel->getPembimbings()->get()->getResultArray();
 
+        // get All Class Data
+        $kelas = $this->classModel->findAll();
         $data = [
             'title'                 => 'Edit Children',
             'id'                    => $id,
@@ -165,6 +173,7 @@ class ChildrenController extends BaseController
             'current_pembimbing'    => $current_pebimbing,
             'pembimbings'           => $pembimbings,
             'validation'            => \Config\Services::validation(),
+            'class'                 => $kelas,
         ];
 
         return view('dashboard/children/edit_children', $data);
@@ -190,7 +199,7 @@ class ChildrenController extends BaseController
                 ],
             ],
             'role'          => [
-                'rules'     => 'string|required',
+                'rules'     => 'required',
                 'errors'    => [
                     'required'  => 'Please Select The Children Role !'
                 ],
@@ -219,10 +228,6 @@ class ChildrenController extends BaseController
         return redirect()->to('/children');
     }
 
-    public function import()
-    {
-    }
-
     public function export()
     {
         $spredsheet = new Spreadsheet();
@@ -239,7 +244,7 @@ class ChildrenController extends BaseController
         foreach ($arrChildren as $children) {
             $sheet->setCellValue('A' . $index, $children['children_name']);
             $sheet->setCellValue('B' . $index, $children['code']);
-            $sheet->setCellValue('C' . $index, $children['role']);
+            $sheet->setCellValue('C' . $index, $children['nama_kelas']);
             $sheet->setCellValue('D' . $index, $children['name_pembimbing']);
             $index++;
         }
@@ -265,4 +270,143 @@ class ChildrenController extends BaseController
         $writer->save('php://output');
     }
 
+    public function addClass()
+    {
+
+        $data = [
+            'title' => 'Add Children Class',
+            'validation'    => \Config\Services::validation(),
+        ];
+
+        return view('dashboard/children/addClass', $data);
+    }
+
+    public function attemptClass()
+    {
+
+        $validate = $this->validate([
+            'class_name' => [
+                'rules'     => 'required|max_length[255]',
+                'errors'    => [
+                    'required'      => 'Please Insert Class Name !',
+                    'max_length'    => 'Please Inser Class Name Max 255 length'
+                ],
+            ],
+        ]);
+
+
+
+        if (!$validate) {
+            return redirect()->to('/pembimbing/add')->withInput();
+        }
+
+        $class_name = $this->request->getVar()['class_name'];
+
+        $adding = $this->classModel->save([
+            'nama_kelas'    => $class_name,
+        ]);
+
+        if ($adding) {
+            session()->setFlashData('success_add', 'Class Successfully Added !');
+            return redirect()->to('/children/addClass');
+        }
+    }
+
+    public function addExcel()
+    {
+        return view('dashboard/children/import');
+    }
+
+    public function import()
+    {
+
+        $file_upload = $this->request->getFile('excel');
+
+        // move file
+        $file_upload->move('temp_excel');
+
+        // mengambil nama
+        $file_name = $file_upload->getName();
+
+        // path file name
+        $path_file = "../public/temp_excel/$file_name";
+        $inputType = \PhpOffice\PhpSpreadsheet\IOFactory::identify($path_file);
+        $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader($inputType);
+        $spreadSheet = $reader->load($path_file);
+
+        $data = $spreadSheet->getActiveSheet()->toArray();
+        unlink($path_file);
+
+        $data = array_slice($data, 1, count($data) - 1);
+
+        $data_clear = [];
+        foreach ($data as $d) {
+            if ($d[0] != ' ') {
+                $data_clear[] = $d;
+            }
+        }
+
+        // upload database 
+        $childrenArr = [];
+
+        $nama_pembimbing = [];
+        $data_pembimbing = [];
+
+        foreach ($data_clear as $datak) {
+
+            if ($datak[0] == null && $datak[1] == null && $datak[2] == null && $datak[3] == null) {
+                continue;
+            }
+
+            $nama = trim(ucwords($datak[0]));
+            $code = $datak[1] != null ? trim(strtoupper($datak[1])) : '-';
+            $role = trim(ucwords($datak[2]));
+            $pembimbing_name = trim(ucwords($datak[3]));
+
+            $nama_pembimbing[] = $pembimbing_name;
+
+            $temp_arr = [
+                'nama' => $nama,
+                'code' => $code,
+                'role' => $role,
+                'pembimbing_name' => trim($pembimbing_name),
+            ];
+
+            $childrenArr[] = $temp_arr;
+        }
+
+
+        $nama_pembimbing = array_unique($nama_pembimbing);
+
+        foreach ($nama_pembimbing as $pembimbing) {
+            $this->pembimbingModel->save([
+                'name_pembimbing'       => $pembimbing,
+                'region_pembimbing'     => user()->toArray()['region'],
+            ]);
+
+            $pembimbing_id = $this->pembimbingModel->getInsertID();
+            $data_pembimbing[$pembimbing] = $pembimbing_id;
+        }
+
+
+        foreach ($childrenArr as $child) {
+            $id_pembimbing = '';
+            $class = $this->classModel->where('nama_kelas', $child['role'])->first()['id_class'];
+            foreach ($data_pembimbing as $key => $value) {
+                if ($key == $child['pembimbing_name']) {
+                    $id_pembimbing = $value;
+                }
+            }
+
+            $this->childrenModel->save([
+                'children_name' => $child['nama'],
+                'code'          => $child['code'],
+                'id_pembimbing' => $id_pembimbing,
+                'role'          => $class,
+                'created_by'    => user()->toArray()['id'],
+            ]);
+        }
+
+        return redirect()->to('/children');
+    }
 }
