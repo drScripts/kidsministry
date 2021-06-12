@@ -12,7 +12,7 @@ class AbsensiModel extends Model{
     protected $returnType     = 'array';
     protected $useSoftDeletes = true;
 
-    protected $allowedFields = ['children_id', 'pembimbing_id','video','image','quiz','month','year','sunday_date','id_foto','id_video','updated_by','created_by','deleted_by'];
+    protected $allowedFields = ['children_id', 'pembimbing_id','video','image','quiz','month','year','sunday_date','id_foto','id_video','updated_by','created_by','deleted_by','zoom'];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
@@ -247,9 +247,3 @@ class AbsensiModel extends Model{
         return $data_jumlah;
     }
 }
-
-
-
-
-
-?>

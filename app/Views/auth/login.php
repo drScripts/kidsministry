@@ -17,36 +17,29 @@
                                 </div>
                                 <?= view('Myth\Auth\Views\_message_block') ?>
                                 <form class="user" action="<?= route_to('login') ?>" method="post">
-                                <?= csrf_field() ?>
+                                    <?= csrf_field() ?>
                                     <div class="form-group" data-aos="fade-left" data-aos-duration="700" data-aos-delay="600">
-                                        <input type="email"
-                                            class="form-control form-control-user black-fonts <?php if(session('errors.login')) : ?>is-invalid<?php endif ?>"
-                                            name="login" aria-describedby="emailHelp"
-                                            placeholder="Enter Email Address..." email required>
+                                        <input type="email" class="form-control form-control-user black-fonts <?php if (session('errors.login')) : ?>is-invalid<?php endif ?>" name="login" aria-describedby="emailHelp" placeholder="Enter Email Address..." email required>
                                         <div class="invalid-feedback">
                                             <?= session('errors.login') ?>
                                         </div>
                                     </div>
 
                                     <div class="form-group" data-aos="fade-left" data-aos-duration="700" data-aos-delay="700">
-                                        <input type="password"
-                                            class="form-control form-control-user black-fonts <?php if(session('errors.password')) : ?>is-invalid<?php endif ?>"
-                                            name="password" placeholder="Password" minlength="8" password required>
+                                        <input type="password" class="form-control form-control-user black-fonts <?php if (session('errors.password')) : ?>is-invalid<?php endif ?>" name="password" placeholder="Password" minlength="8" password required>
                                         <div class="invalid-feedback">
                                             <?= session('errors.password') ?>
                                         </div>
                                     </div>
 
-                                    <?php if ($config->allowRemembering): ?>
-                                    <div class="form-group" data-aos="fade-left" data-aos-duration="700" data-aos-delay="800">
-                                        <div class="custom-control custom-checkbox small">
-                                            <input type="checkbox" name="remember"
-                                                class="custom-control-input <?php if(old('remember')) : ?> checked <?php endif ?>>"
-                                                id="customCheck">
-                                            <label class="custom-control-label black-fonts" for="customCheck">Remember
-                                                Me</label>
+                                    <?php if ($config->allowRemembering) : ?>
+                                        <div class="form-group" data-aos="fade-left" data-aos-duration="700" data-aos-delay="800">
+                                            <div class="custom-control custom-checkbox small">
+                                                <input type="checkbox" name="remember" class="custom-control-input <?php if (old('remember')) : ?> checked <?php endif ?>>" id="customCheck">
+                                                <label class="custom-control-label black-fonts" for="customCheck">Remember
+                                                    Me</label>
+                                            </div>
                                         </div>
-                                    </div>
                                     <?php endif; ?>
 
                                     <button class="btn btn-primary btn-user btn-block" type="submit" data-aos="fade-left" data-aos-duration="700" data-aos-delay="900">Login</button>
@@ -56,9 +49,16 @@
                                 <!-- <div class="text-center">
                                     <a class="small" href="forgot-password.html">Forgot Password?</a>
                                 </div> -->
+                                <?php if ($config->allowRegistration) : ?>
                                 <div class="text-center" data-aos="fade-left" data-aos-duration="700" data-aos-delay="1100">
                                     <a class="small" href="<?= base_url(); ?>/register">Create an Account!</a>
                                 </div>
+                                <?php endif; ?>
+                                <?php if ($config->activeResetter) : ?>
+                                    <div class="text-center" data-aos="fade-left" data-aos-duration="700" data-aos-delay="1100">
+                                        <a class="small" href="<?= route_to('forgot') ?>"><?=lang('Auth.forgotYourPassword')?></a>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>

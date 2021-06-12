@@ -8,9 +8,9 @@
             <th class="text-center">No</th>
             <th>Children Name</th>
             <th>Pembimbing</th>
-            <th  class="text-center">Cabang</th>
+            <th class="text-center">Cabang</th>
             <th class="text-center">Yang Menghapus</th>
-            <th  class="text-center">Tanggal Dihapus</th>
+            <th class="text-center">Tanggal Dihapus</th>
         </tr>
     </thead>
     <tbody id="body-table">
@@ -21,13 +21,18 @@
             </tr>
         <?php else : ?>
             <?php foreach ($datas as $data) : ?>
+
                 <tr>
                     <td><?= $no++; ?></td>
                     <td><?= $data['children_name']; ?></td>
                     <td><?= $data['name_pembimbing']; ?></td>
-                    <td  class="text-center"><?= $data['nama_cabang']; ?></td>
-                    <td  class="text-center"><?= $data['username'] . ' - ' . $data['email']; ?></td>
-                    <td  class="text-center"><?= date('d M Y',strtotime($data['childrenDeleted'])); ?></td>
+                    <td class="text-center"><?= $data['nama_cabang']; ?></td>
+                    <td class="text-center"><?= $data['username'] . ' - ' . $data['email']; ?></td>
+                    <?php if (isset($data['childrenDeleted'])) : ?>
+                        <td class="text-center"><?= date('d M Y', strtotime($data['childrenDeleted'])); ?></td>
+                    <?php else : ?>
+                        <td class="text-center"><?= date('d M Y', strtotime($data['absensiDeleted'])); ?></td>
+                    <?php endif ?>
                 </tr>
             <?php endforeach; ?>
         <?php endif; ?>

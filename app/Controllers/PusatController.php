@@ -17,6 +17,7 @@ class PusatController extends BaseController
     protected $pembimbingModel;
     protected $cabangModel;
     protected $quiz;
+    protected $absensiController;
 
     public function __construct()
     {
@@ -25,6 +26,7 @@ class PusatController extends BaseController
         $this->pembimbingModel = new PembimbingsModel();
         $this->cabangModel = new CabangModel();
         $this->quiz =  $this->cabangModel->find(user()->toArray()['region'])['quiz'];
+        $this->absensiController = new AbsensiController();
     }
 
     public function getHomeChartYear($cabang = null)
@@ -394,34 +396,33 @@ class PusatController extends BaseController
         $request = $this->request->getVar()['status'];
         $respond = [];
 
-        if($request =='true'){
+        if ($request == 'true') {
             $hasil = 1;
 
-            $update = $this->cabangModel->update(user()->toArray()['region'],[
+            $update = $this->cabangModel->update(user()->toArray()['region'], [
                 'quiz'  => $hasil,
             ]);
 
-            if($update){
+            if ($update) {
                 $respond = [
                     'success'  => 'Quiz Module Success Updated. Now Quiz module is Active',
                 ];
-            }else{
+            } else {
                 $respond = [
                     'failed'  => 'Quiz Module Failed Updated',
                 ];
             }
-
-        }else{
+        } else {
             $hasil = 0;
-            $update = $this->cabangModel->update(user()->toArray()['region'],[
+            $update = $this->cabangModel->update(user()->toArray()['region'], [
                 'quiz'  => $hasil,
             ]);
 
-            if($update){
+            if ($update) {
                 $respond = [
                     'success'  => 'Quiz Module Success Updated. Now Quiz Module is non Active',
                 ];
-            }else{
+            } else {
                 $respond = [
                     'failed'  => 'Quiz Module Failed Updated',
                 ];
@@ -431,5 +432,95 @@ class PusatController extends BaseController
 
 
         return json_encode($respond);
+    }
+
+    public function rankAttempt(string $start, string $end)
+    {
+    }
+
+    public function rank()
+    {
+        $data = [];
+
+        if (!in_groups('pusat')) {
+            $date = $this->absensiModel->select('sunday_date')->findAll();
+            dd($date);
+        } else {
+            $cabang = $this->cabangModel->findAll();
+
+            $data = [
+                'title'  => 'Ranking',
+                'cabang' => $cabang,
+            ];
+        }
+
+        return view('dashboard/absensi/rangking', $data);
+    }
+
+    public function gettingYear($id_cabang)
+    {
+
+        $data = $this->absensiModel->join('pembimbings', 'pembimbings.id_pembimbing = absensis.pembimbing_id')
+            ->where('region_pembimbing', $id_cabang)
+            ->select('year')
+            ->get()
+            ->getResultArray();
+
+        $year = [];
+
+        foreach ($data as $d) {
+            $year[] = $d['year'];
+        }
+
+        $year = array_unique($year);
+
+        return json_encode($year);
+    }
+
+    public function getAbsensiDate($id_cabang, $year)
+    {
+        $date = [];
+        $dates = [];
+        $data = $this->absensiModel->join('pembimbings', 'pembimbings.id_pembimbing = absensis.pembimbing_id')
+            ->where('region_pembimbing', $id_cabang)
+            ->where('year', $year)
+            ->findAll();
+        foreach ($data as $d) {
+            $date[] = $d['sunday_date'];
+        }
+        $date = array_unique($date);
+
+        foreach ($date as $d) {
+            $dates[] = $this->dateToTanggal($d);
+        }
+
+        return json_encode($dates);
+    }
+
+    public function getReport(int $cabang, string $start, string $end)
+    {
+        $data =  $this->absensiModel->join('pembimbings', 'pembimbings.id_pembimbing = absensis.pembimbing_id')
+            ->join('childrens', 'childrens.id_children = absensis.children_id')
+            ->where('region_pembimbing', $cabang)
+            ->orderBy('children_name', 'ASC')
+            ->findAll();
+        dd($data);
+    }
+
+    public function dateToTanggal($date)
+    {
+        $bulan = array('Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember');
+        $month = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+
+        $exploded = explode(' ', $date);
+        $date_month = $exploded[0];
+        $monthly = $exploded[1];
+        $year = $exploded[2];
+        for ($i = 0; $i < count($bulan); $i++) {
+            if ($monthly == $bulan[$i]) {
+                return $date_month . ' ' . $month[$i] . ' ' . $year;
+            }
+        }
     }
 }

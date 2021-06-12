@@ -9,10 +9,12 @@
                 $cabangModel = new CabangModel();
                 $cabang = $cabangModel->getCabang(user()->toArray()['region'])['nama_cabang'];
 
-                if ($cabang == "Kopo") {
-                    echo "KP";
-                } else {
-                    echo strtoupper($cabang);
+                if(in_groups('pusat')){
+                    echo strtoupper('hq');
+                }elseif (in_groups('superadmin')) {
+                    echo strtoupper('sa');
+                }else {
+                    echo strtoupper('ad');
                 }
                 ?>
             </a>
@@ -57,6 +59,14 @@
                     <p>History Absensi</p>
                 </a>
             </li> 
+            <?php if(in_groups('pusat')): ?>
+                <li class="<?= (strpos(current_url(true)->getPath(), 'rank') !== false ? 'active' : ' '); ?>" data-aos="fade-right" data-aos-duration="500" data-aos-delay="1100">
+                    <a href="<?= base_url('/rank'); ?>">
+                        <i class="fas fa-trophy"></i>
+                        <p>Ranking</p>
+                    </a>
+                </li> 
+            <?php endif; ?>
             <?php if (in_groups('superadmin') || in_groups('pusat')) : ?>
                 <li class="<?= (strpos(current_url(true)->getPath(), 'team') !== false ? 'active' : ' '); ?>" data-aos="fade-right" data-aos-duration="500" data-aos-delay="1100">
                     <a href="<?= base_url('/team'); ?>">
@@ -65,6 +75,7 @@
                     </a>
                 </li> 
             <?php endif; ?>
+            
         </ul>
     </div>
 </div>

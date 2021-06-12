@@ -203,8 +203,6 @@ class AbsensiController extends BaseController
             ]);
         }
 
-
-
         if (!$validate) {
             return redirect()->to('/absensi/add')->withInput();
         }
@@ -226,19 +224,26 @@ class AbsensiController extends BaseController
 
         //// search Besar Folder
         $besarId = $api->search_parents_folder('Besar', $regionFolderId);
+        $kecilId = $api->search_parents_folder('Kecil', $regionFolderId);
+        $teenId = $api->search_parents_folder('Teens', $regionFolderId);
 
-        ///// search Foto Folder
-        $fotoId = $api->search_parents_folder('Foto', $besarId);
+        ///// search Foto Folder Besar
+        $fotoIdBesar = $api->search_parents_folder('Foto', $besarId);
+        $fotoIdKecil = $api->search_parents_folder('Foto', $kecilId);
+        $fotoIdTeen = $api->search_parents_folder('Foto', $teenId);
+
         //// search Video Folder
-        $videoId = $api->search_parents_folder('Video', $besarId);
+        $videoIdBesar = $api->search_parents_folder('Video', $besarId);
+        $videoIdKecil = $api->search_parents_folder('Video', $kecilId);
+        $videoIdTeen = $api->search_parents_folder('Video', $teenId);
 
         //// get all request
         $pembimbingId = $this->request->getVar('pembimbing');
         $childrenId = $this->request->getVar('children');
         $quiz = '';
-        if(boolval($this->quiz)){
+        if (boolval($this->quiz)) {
             $quiz = $this->request->getVar('quiz');
-        }else{
+        } else {
             $quiz = '-';
         }
         $videoFile = $this->request->getFile('video');
@@ -247,6 +252,8 @@ class AbsensiController extends BaseController
         //// get Children name by id
 
         $childrenName = $this->childrenModel->getSingleChildren($childrenId)['children_name'];
+        $childrenRole = $this->childrenModel->getSingleChildren($childrenId)['role'];
+        $kelas = $this->classModel->find($childrenRole)['nama_kelas'];
 
 
         //// extension the file
@@ -262,7 +269,13 @@ class AbsensiController extends BaseController
         if ($pictureFile->getName() != "") {
             $pictExt = $pictureFile->getClientExtension();
             $pict = 'yes';
-            $pictId = $api->push_file($childrenName, $fotoId, $pictExt, $pictureFile);
+            if ($kelas == 'Balita' || $kelas == 'Batita' || $kelas == 'Pratama') {
+                $pictId = $api->push_file($childrenName, $fotoIdKecil, $pictExt, $pictureFile);
+            } elseif ($kelas == 'Teens') {
+                $pictId = $api->push_file($childrenName, $fotoIdTeen, $pictExt, $pictureFile);
+            } else {
+                $pictId = $api->push_file($childrenName, $fotoIdBesar, $pictExt, $pictureFile);
+            }
         } else {
             $pict = 'no';
         }
@@ -270,7 +283,13 @@ class AbsensiController extends BaseController
         if ($videoFile->getName() != "") {
             $videoExt = $videoFile->getClientExtension();
             $video = 'yes';
-            $videoIds = $api->push_file($childrenName, $videoId, $videoExt, $videoFile);
+            if ($kelas == 'Balita' || $kelas == 'Batita' || $kelas == 'Pratama') {
+                $videoIds = $api->push_file($childrenName, $videoIdKecil, $videoExt, $videoFile);
+            } elseif ($kelas == 'Teens') {
+                $videoIds = $api->push_file($childrenName, $videoIdTeen, $videoExt, $videoFile);
+            } else {
+                $videoIds = $api->push_file($childrenName, $videoIdBesar, $pictExt, $pictureFile);
+            }
         } else {
             $video = 'no';
         }
@@ -303,23 +322,32 @@ class AbsensiController extends BaseController
     public function delete($id)
     {
 
-        $api = new GoogleApiServices();
-        $data = $this->absensiModel->find($id);
-        if ($data['id_foto'] != '-') {
-            $api->delteFile($data['id_foto']);
+        try {
+            $api = new GoogleApiServices();
+            $data = $this->absensiModel->find($id);
+            if ($data['id_foto'] != '-') {
+                $api->delteFile($data['id_foto']);
+            }
+
+            if ($data['id_video'] != '-') {
+                $api->delteFile($data['id_video']);
+            }
+            $this->absensiModel->update($id, [
+                'deleted_by' => user()->toArray()['id'],
+            ]);
+            $this->absensiModel->delete($id);
+
+            session()->setFlashData('success_deleted', 'Absensi Successfully Deleted');
+            return redirect()->to('/absensi');
+        } catch (\Throwable $th) {
+            $this->absensiModel->update($id, [
+                'deleted_by' => user()->toArray()['id'],
+            ]);
+            $this->absensiModel->delete($id);
+
+            session()->setFlashData('success_deleted', 'Absensi Successfully Deleted');
+            return redirect()->to('/absensi');
         }
-
-        if ($data['id_video'] != '-') {
-            $api->delteFile($data['id_video']);
-        }
-
-        $this->absensiModel->update($id, [
-            'deleted_by' => user()->toArray()['id'],
-        ]);
-        $this->absensiModel->delete($id);
-
-        session()->setFlashData('success_deleted', 'Absensi Successfully Deleted');
-        return redirect()->to('/absensi');
     }
 
     public function edit($id)

@@ -7,8 +7,7 @@ $routes = Services::routes();
 
 // Load the system's routing file first, so that the app and ENVIRONMENT
 // can override as needed.
-if (file_exists(SYSTEMPATH . 'Config/Routes.php'))
-{
+if (file_exists(SYSTEMPATH . 'Config/Routes.php')) {
 	require SYSTEMPATH . 'Config/Routes.php';
 }
 
@@ -35,92 +34,95 @@ $routes->setAutoRoute(true);
 
 
 
-$routes->group('', ['filter' => 'role:admin,superadmin'], function($routes) {
-	 
+$routes->group('', ['filter' => 'role:admin,superadmin'], function ($routes) {
+
 	$routes->delete('/children/(:num)', 'ChildrenController::delete/$1');
-	$routes->get('/children/edit/(:num)','ChildrenController::edit/$1');
-	$routes->put('/children/update/(:num)','ChildrenController::update/$1');
-	$routes->get('/children/add','ChildrenController::addChildren');
-	$routes->post('/children/insert','ChildrenController::insert'); 
-	$routes->get('/children/export','ChildrenController::export');
-	$routes->get('/children/getChildren','ChildrenController::getChildren');
-	$routes->get('/children/addClass','ChildrenController::addClass');
-	$routes->post('/children/class','ChildrenController::attemptClass');
-	$routes->get('/children/import','ChildrenController::addExcel');
-	$routes->post('/children/import','ChildrenController::import');
-	
-	
-	$routes->delete('/pembimbing/(:num)','PembimbingController::delete/$1');
-	$routes->get('/pembimbing/search','PembimbingController::searchPembimbings');
-	$routes->get('/pembimbing/add','PembimbingController::create');
-	$routes->post('/pembimbing/insert','PembimbingController::insert');
-	$routes->get('/pembimbing/edit/(:num)','PembimbingController::edit/$1');
-	$routes->put('/pembimbing/update/(:num)','PembimbingController::update/$1');
-	$routes->get('/pembimbing/export','PembimbingController::export');
-	
+	$routes->get('/children/edit/(:num)', 'ChildrenController::edit/$1');
+	$routes->put('/children/update/(:num)', 'ChildrenController::update/$1');
+	$routes->get('/children/add', 'ChildrenController::addChildren');
+	$routes->post('/children/insert', 'ChildrenController::insert');
+	$routes->get('/children/export', 'ChildrenController::export');
+	$routes->get('/children/getChildren', 'ChildrenController::getChildren');
+	$routes->get('/children/addClass', 'ChildrenController::addClass');
+	$routes->post('/children/class', 'ChildrenController::attemptClass');
+	$routes->get('/children/import', 'ChildrenController::addExcel');
+	$routes->post('/children/import', 'ChildrenController::import');
+
+
+	$routes->delete('/pembimbing/(:num)', 'PembimbingController::delete/$1');
+	$routes->get('/pembimbing/search', 'PembimbingController::searchPembimbings');
+	$routes->get('/pembimbing/add', 'PembimbingController::create');
+	$routes->post('/pembimbing/insert', 'PembimbingController::insert');
+	$routes->get('/pembimbing/edit/(:num)', 'PembimbingController::edit/$1');
+	$routes->put('/pembimbing/update/(:num)', 'PembimbingController::update/$1');
+	$routes->get('/pembimbing/export', 'PembimbingController::export');
+
 	$routes->delete('/absensi/(:num)', "AbsensiController::delete/$1");
-	$routes->get('/absensi/search','AbsensiController::searchData');
-	$routes->get('/absensi/add','AbsensiController::addAbsensi');
+	$routes->get('/absensi/search', 'AbsensiController::searchData');
+	$routes->get('/absensi/add', 'AbsensiController::addAbsensi');
 	$routes->get('/absensi/getChildPembimbing/(:num)', 'AbsensiController::getAbsensiByPembimbing/$1');
-	$routes->post('/absensi/insert',"AbsensiController::insert");
+	$routes->post('/absensi/insert', "AbsensiController::insert");
 	$routes->get('/absensi/edit/(:num)', "AbsensiController::edit/$1");
 	$routes->put('/absensi/update/(:num)', "AbsensiController::update/$1");
-	
+
 	$routes->get('/history/search/(:any)', "AbsensiController::searchHistory/$1");
 	$routes->get('/history/searchall', "AbsensiController::searchAll");
 	$routes->get('/export/(:any)/(:any)', "AbsensiController::export/$1/$2");
 	$routes->get('/chart', "AbsensiController::chartAbsensi");
 	$routes->get('/chart/(:any)', "Home::getChartWeek/$1");
-
 });
 
-$routes->group('',['filter' => 'role:superadmin,pusat,admin'],function($routes){
+$routes->group('', ['filter' => 'role:superadmin,pusat,admin'], function ($routes) {
 	$routes->get('/', 'Home::dashboard');
 
-	$routes->get('/children','ChildrenController::index');
-	
-	$routes->get('/pembimbing','PembimbingController::index');
+	$routes->get('/children', 'ChildrenController::index');
 
-	$routes->get('/absensi','AbsensiController::index');
+	$routes->get('/pembimbing', 'PembimbingController::index');
 
-	$routes->get('/history',"AbsensiController::history");
+	$routes->get('/absensi', 'AbsensiController::index');
 
-	
-	$routes->get('/settings','PusatController::settings');
-	$routes->post('/settings','PusatController::attemptSettings');
-	
+	$routes->get('/history', "AbsensiController::history");
+
+
+	$routes->get('/settings', 'PusatController::settings');
+	$routes->post('/settings', 'PusatController::attemptSettings');
 });
 
-$routes->group('',['filter' => 'role:pusat'],function($routes){
+$routes->group('', ['filter' => 'role:pusat'], function ($routes) {
 	$routes->get('/pusat/getChartYear/', 'PusatController::getHomeChartYear');
 	$routes->get('/pusat/getChartYear/(:any)', 'PusatController::getHomeChartYear/$1');
-	$routes->get('/pusat/getChartMonth/(:any)','PusatController::getHomeChartMonth/$1');
-	$routes->get('/pusat/getChartMonth/(:any)/(:any)','PusatController::getHomeChartMonth/$1/$2');
+	$routes->get('/pusat/getChartMonth/(:any)', 'PusatController::getHomeChartMonth/$1');
+	$routes->get('/pusat/getChartMonth/(:any)/(:any)', 'PusatController::getHomeChartMonth/$1/$2');
 	$routes->get('/pusat/getChildrenCabang/(:any)', 'PusatController::getChildrenByCabang/$1');
-	$routes->get('/pusat/getAllChildren','PusatController::showAllChildren');
-	$routes->get('/children/details/(:num)','PusatController::details/$1');
-	$routes->get('/pusat/getPembimbing','PusatController::getPembimbing');
-	$routes->get('/pusat/getPembimbing/(:any)','PusatController::getPembimbing/$1');
-	$routes->get('/pusat/getSundayDate/(:any)','PusatController::getPusatSunday/$1');
-	$routes->get('/pusat/getAbsensi','PusatController::getAbsensi');
-	$routes->get('/pusat/getAbsensi/(:any)','PusatController::getAbsensi/$1');
-	$routes->get('/pusat/getAbsensi/(:any)/(:any)','PusatController::getAbsensi/$1/$2');
-	$routes->get('/absensi/details/(:num)','PusatController::detailsAbsen/$1');
-	$routes->get('/pusat/getHistorys/(:any)','PusatController::absensiHistory/$1');
-	$routes->get('/pusat/tracking','PusatController::trackingData');
-	$routes->get('/pusat/tracking/(:any)','PusatController::trackingData/$1');
-	$routes->get('/pusat/export/(:any)/(:any)/(:any)','PusatController::historyExport/$1/$2/$3');
-
+	$routes->get('/pusat/getAllChildren', 'PusatController::showAllChildren');
+	$routes->get('/children/details/(:num)', 'PusatController::details/$1');
+	$routes->get('/pusat/getPembimbing', 'PusatController::getPembimbing');
+	$routes->get('/pusat/getPembimbing/(:any)', 'PusatController::getPembimbing/$1');
+	$routes->get('/pusat/getSundayDate/(:any)', 'PusatController::getPusatSunday/$1');
+	$routes->get('/pusat/getAbsensi', 'PusatController::getAbsensi');
+	$routes->get('/pusat/getAbsensi/(:any)', 'PusatController::getAbsensi/$1');
+	$routes->get('/pusat/getAbsensi/(:any)/(:any)', 'PusatController::getAbsensi/$1/$2');
+	$routes->get('/absensi/details/(:num)', 'PusatController::detailsAbsen/$1');
+	$routes->get('/pusat/getHistorys/(:any)', 'PusatController::absensiHistory/$1');
+	$routes->get('/pusat/tracking', 'PusatController::trackingData');
+	$routes->get('/pusat/tracking/(:any)', 'PusatController::trackingData/$1');
+	$routes->get('/pusat/export/(:any)/(:any)/(:any)', 'PusatController::historyExport/$1/$2/$3');
 });
 
-$routes->group('',['filter' => 'role:superadmin,pusat'],function($routes){
+$routes->group('', ['filter' => 'role:admin,pusat'], function ($routes) {
+	$routes->get('/rank', 'PusatController::rank');
+	$routes->get('/rank/getYear/(:num)', 'PusatController::gettingYear/$1');
+	$routes->get('/rank/getDate/(:num)/(:any)', 'PusatController::getAbsensiDate/$1/$2');
+	$routes->get('/rank/report/(:num)/(:any)/(:any)', 'PusatController::getReport/$1/$2/$3');
+});
+
+$routes->group('', ['filter' => 'role:superadmin,pusat'], function ($routes) {
 	$routes->get('/', 'Home::dashboard');
-	$routes->get('/team',"TeamController::index");
-	$routes->get('/team/edit/(:num)',"TeamController::edit/$1");
+	$routes->get('/team', "TeamController::index");
+	$routes->get('/team/edit/(:num)', "TeamController::edit/$1");
 
 	$routes->put('/team/update/(:num)', "TeamController::attemptEdit/$1");
-	$routes->get('/team/cabang',"TeamController::getCabang");
-
+	$routes->get('/team/cabang', "TeamController::getCabang");
 });
 
 
@@ -138,7 +140,6 @@ $routes->group('',['filter' => 'role:superadmin,pusat'],function($routes){
  * You will have access to the $routes object within that file without
  * needing to reload it.
  */
-if (file_exists(APPPATH . 'Config/' . ENVIRONMENT . '/Routes.php'))
-{
+if (file_exists(APPPATH . 'Config/' . ENVIRONMENT . '/Routes.php')) {
 	require APPPATH . 'Config/' . ENVIRONMENT . '/Routes.php';
 }
