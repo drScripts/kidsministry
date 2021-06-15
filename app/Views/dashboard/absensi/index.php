@@ -104,6 +104,9 @@ if (session()->getFlashData('success_update')) {
                 <?php if ($quiz) : ?>
                     <th class="text-center">Quiz</th>
                 <?php endif; ?>
+                <?php if ($zoom) : ?>
+                    <th class="text-center">Zoom</th>
+                <?php endif; ?>
                 <th class="text-center">Sunday Date</th>
             <?php else : ?>
                 <th class="text-center">Cabang</th>
@@ -148,7 +151,11 @@ if (session()->getFlashData('success_update')) {
                                 <?= $absen['quiz']; ?>
                             </td>
                         <?php endif; ?>
-
+                        <?php if ($zoom) : ?>
+                            <td class="text-center">
+                                <?= $absen['zoom']; ?>
+                            </td>
+                        <?php endif; ?>
                         <td class="text-center">
                             <?= $absen['sunday_date']; ?>
                         </td>

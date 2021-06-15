@@ -95,6 +95,19 @@ if (session()->getFlashData('success_add')) {
             </div>
         </div>
     <?php endif; ?>
+    <?php if ($zoom) : ?>
+        <div class="form-group form-check" data-aos="fade-right" data-aos-duration="500" data-aos-delay="900">
+            <label for="zoom-select" class="white-fonts">Children Zoom</label>
+            <select name="zoom" id="zoom-select" class="form-control grey-fonts <?= ($validation->hasError('zoom')) ? 'is-invalid' : ''; ?>" required>
+                <option value="">Select Children Zoom</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+            </select>
+            <div class="invalid-feedback">
+                <?= $validation->getError('zoom'); ?>
+            </div>
+        </div>
+    <?php endif; ?>
 
     <div class="d-flex justify-content-center mt-5">
         <div class="row text-center">

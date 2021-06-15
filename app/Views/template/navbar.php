@@ -49,7 +49,9 @@
                         <li class="nav-link"><a href="#" class="nav-item dropdown-item"><?= user()->toArray()['username'] ?></a>
                         </li>
                         <li class="dropdown-divider"></li>
-                        <li class="nav-link"><a href="<?= base_url('/settings'); ?>" class="nav-item dropdown-item">Settings</a></li>
+                        <?php if (!in_groups('pusat')) : ?>
+                            <li class="nav-link"><a href="<?= base_url('/settings'); ?>" class="nav-item dropdown-item">Settings</a></li>
+                        <?php endif; ?>
                         <li class="nav-link"><a href="<?= base_url('/logout'); ?>" class="nav-item dropdown-item">Log out</a>
                         </li>
                     </ul>

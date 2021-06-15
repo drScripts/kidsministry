@@ -93,11 +93,8 @@
   <?php if (!in_groups('pusat')) : ?>
     <script src="<?= base_url('assets/js/logics/index.js'); ?>"></script>
   <?php else : ?>
-
     <script src="<?= base_url('/assets/js/logics/pusat.js'); ?>"></script>
     <script>
-
-
       pusat.initAllCountly();
       $('#cabang').on('change', function() {
         $('#canvas1').html('');
@@ -107,27 +104,26 @@
 
         pusat.initAllCountly($(this).val());
       });
-      
-      
+
+
       let cabang = $('#cabang1').val();
       let month = $('#month').val();
 
-      pusat.initChartMonthly(month,cabang);
+      pusat.initChartMonthly(month, cabang);
 
-      $('#cabang1').on('change',function(){ 
+      $('#cabang1').on('change', function() {
         $('#canvas2').html('');
         $('#canvas2').html(`
         <canvas id="chartBig2"></canvas>
         `);
-
         let cabang = $(this).val();
-        let month = $('#month').val();
-        console.log(month);
-        console.log(cabang);
-        pusat.initChartMonthly(month,cabang);
+
+        pusat.updateMonthCabang($(this).val());
+
+
       });
-  
-      $('#month').on('change',function(){
+
+      $('#month').on('change', function() {
         $('#canvas2').html('');
         $('#canvas2').html(`
         <canvas id="chartBig2"></canvas>
@@ -136,14 +132,9 @@
         let cabang = $('#cabang1').val();
         let month = $(this).val();
 
-        pusat.initChartMonthly(month,cabang);
+        pusat.initChartMonthly(month, cabang);
       });
-
-
-
-      
     </script>
-
   <?php endif; ?>
 
   <?= $this->include('template/footers'); ?>

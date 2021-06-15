@@ -85,7 +85,7 @@ $routes->group('', ['filter' => 'role:superadmin,pusat,admin'], function ($route
 
 
 	$routes->get('/settings', 'PusatController::settings');
-	$routes->post('/settings', 'PusatController::attemptSettings');
+	$routes->post('/settings/(:any)', 'PusatController::attemptSettings/$1');
 });
 
 $routes->group('', ['filter' => 'role:pusat'], function ($routes) {
@@ -107,13 +107,16 @@ $routes->group('', ['filter' => 'role:pusat'], function ($routes) {
 	$routes->get('/pusat/tracking', 'PusatController::trackingData');
 	$routes->get('/pusat/tracking/(:any)', 'PusatController::trackingData/$1');
 	$routes->get('/pusat/export/(:any)/(:any)/(:any)', 'PusatController::historyExport/$1/$2/$3');
+
+	$routes->get('/getMonth/(:any)', 'Home::getMonth/$1');
 });
 
 $routes->group('', ['filter' => 'role:admin,pusat'], function ($routes) {
 	$routes->get('/rank', 'PusatController::rank');
 	$routes->get('/rank/getYear/(:num)', 'PusatController::gettingYear/$1');
 	$routes->get('/rank/getDate/(:num)/(:any)', 'PusatController::getAbsensiDate/$1/$2');
-	$routes->get('/rank/report/(:num)/(:any)/(:any)', 'PusatController::getReport/$1/$2/$3');
+	$routes->get('/rank/getKelas/(:num)/(:any)/(:any)', 'PusatController::getKelas/$1/$2/$3');
+	$routes->post('/rank', 'PusatController::getReport');
 });
 
 $routes->group('', ['filter' => 'role:superadmin,pusat'], function ($routes) {

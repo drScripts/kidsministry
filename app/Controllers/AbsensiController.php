@@ -22,6 +22,7 @@ class AbsensiController extends BaseController
     protected $cabangModel;
     protected $classModel;
     protected $quiz;
+    protected $zoom;
 
     public function __construct()
     {
@@ -31,7 +32,9 @@ class AbsensiController extends BaseController
         $this->googleToken = new GoogleTokenModel();
         $this->cabangModel = new CabangModel();
         $this->classModel = new ClassModel();
-        $this->quiz =  $this->cabangModel->find(user()->toArray()['region'])['quiz'];
+        $getRegionDate = $this->cabangModel->find(user()->toArray()['region']);
+        $this->quiz =  $getRegionDate['quiz'];
+        $this->zoom = $getRegionDate['zoom'];
     }
 
     public function index()
@@ -49,6 +52,7 @@ class AbsensiController extends BaseController
                 'pager'         => $pager,
                 'current_page'  => $current_page,
                 'quiz'          => boolval($this->quiz),
+                'zoom'          => boolval($this->zoom),
             ];
             return view('dashboard/absensi/index', $data);
         } else {
@@ -94,6 +98,7 @@ class AbsensiController extends BaseController
                 'cabangs'       => $cabang,
                 'sunday_dates'  => $sunday_date,
                 'quiz'          => $this->quiz,
+                'zoom'          => boolval($this->zoom),
             ];
             return view('dashboard/absensi/index', $data);
         }
@@ -112,6 +117,7 @@ class AbsensiController extends BaseController
                 'validation'    => \Config\Services::validation(),
                 'pembimbings'   => $pembimbings,
                 'quiz'          => boolval($this->quiz),
+                'zoom'          => boolval($this->zoom),
             ];
 
             return view('dashboard/absensi/add', $data);
@@ -129,22 +135,42 @@ class AbsensiController extends BaseController
     public function insert()
     {
         $api = new GoogleApiServices();
+
+        $validator = [
+            'pembimbing' => [
+                'rules'     => 'required|integer',
+                'errors'    => [
+                    'required'  => 'Please Select The Pembimbing Name !',
+                    'integer'   => 'The Pembimbing Must Be Integer',
+                ],
+            ],
+            'children' => [
+                'rules'     => 'required|integer',
+                'errors'    => [
+                    'required'  => 'Please Select The Children Name !',
+                    'integer'   => 'The Children Must Be Integer',
+                ],
+            ],
+            'picture'    => [
+                'rules'     => 'mime_in[picture,image/gif,image/jpg,image/jpeg,image/png,image/svg+xml]|is_image[picture]|max_size[picture,15360]',
+                'errors'    => [
+                    'mime_in'   => 'Picture Must With Mime Type Of Images !',
+                    'is_image'  => 'Picture Must Be A Picture File !',
+                    'max_size'  => 'Picture Size Must Less Than 15MB !'
+                ],
+            ],
+            'video'    => [
+                'rules'     => 'mime_in[video,video/x-flv,video/mp4,application/x-mpegURL,video/MP2T,video/3gpp,video/quicktime]|max_size[video,15360]',
+                'errors'    => [
+                    'mime_in'   => 'Video Must With Mime Type Of Videos',
+                    'max_size'  => 'Video Size Must Less Than 15MB',
+                ],
+            ],
+        ];
+
+
         if (boolval($this->quiz)) {
-            $validate = $this->validate([
-                'pembimbing' => [
-                    'rules'     => 'required|integer',
-                    'errors'    => [
-                        'required'  => 'Please Select The Pembimbing Name !',
-                        'integer'   => 'The Pembimbing Must Be Integer',
-                    ],
-                ],
-                'children' => [
-                    'rules'     => 'required|integer',
-                    'errors'    => [
-                        'required'  => 'Please Select The Children Name !',
-                        'integer'   => 'The Children Must Be Integer',
-                    ],
-                ],
+            $validator[] = [
                 'quiz'     => [
                     'rules'     => 'required|string|max_length[5]',
                     'errors'    => [
@@ -153,54 +179,22 @@ class AbsensiController extends BaseController
                         'max_length'    => 'Quiz Max Is 5 !',
                     ],
                 ],
-                'picture'    => [
-                    'rules'     => 'mime_in[picture,image/gif,image/jpg,image/jpeg,image/png,image/svg+xml]|is_image[picture]|max_size[picture,15360]',
+            ];
+            $validate = $this->validate($validator);
+        } elseif (boolval($this->zoom)) {
+            $validator[] = [
+                'zoom'     => [
+                    'rules'     => 'required|string|max_length[5]',
                     'errors'    => [
-                        'mime_in'   => 'Picture Must With Mime Type Of Images !',
-                        'is_image'  => 'Picture Must Be A Picture File !',
-                        'max_size'  => 'Picture Size Must Less Than 15MB !'
+                        'required'      => 'Please Select The Children Zoom !',
+                        'string'        => 'Quiz Must Be String !',
+                        'max_length'    => 'Quiz Max Is 5 !',
                     ],
                 ],
-                'video'    => [
-                    'rules'     => 'mime_in[video,video/x-flv,video/mp4,application/x-mpegURL,video/MP2T,video/3gpp,video/quicktime]|max_size[video,15360]',
-                    'errors'    => [
-                        'mime_in'   => 'Video Must With Mime Type Of Videos',
-                        'max_size'  => 'Video Size Must Less Than 15MB',
-                    ],
-                ],
-            ]);
+            ];
+            $validate = $this->validate($validator);
         } else {
-            $validate = $this->validate([
-                'pembimbing' => [
-                    'rules'     => 'required|integer',
-                    'errors'    => [
-                        'required'  => 'Please Select The Pembimbing Name !',
-                        'integer'   => 'The Pembimbing Must Be Integer',
-                    ],
-                ],
-                'children' => [
-                    'rules'     => 'required|integer',
-                    'errors'    => [
-                        'required'  => 'Please Select The Children Name !',
-                        'integer'   => 'The Children Must Be Integer',
-                    ],
-                ],
-                'picture'    => [
-                    'rules'     => 'mime_in[picture,image/gif,image/jpg,image/jpeg,image/png,image/svg+xml]|is_image[picture]|max_size[picture,15360]',
-                    'errors'    => [
-                        'mime_in'   => 'Picture Must With Mime Type Of Images !',
-                        'is_image'  => 'Picture Must Be A Picture File !',
-                        'max_size'  => 'Picture Size Must Less Than 15MB !'
-                    ],
-                ],
-                'video'    => [
-                    'rules'     => 'mime_in[video,video/x-flv,video/mp4,application/x-mpegURL,video/MP2T,video/3gpp,video/quicktime]|max_size[video,15360]',
-                    'errors'    => [
-                        'mime_in'   => 'Video Must With Mime Type Of Videos',
-                        'max_size'  => 'Video Size Must Less Than 15MB',
-                    ],
-                ],
-            ]);
+            $validate = $this->validate($validator);
         }
 
         if (!$validate) {
@@ -241,11 +235,19 @@ class AbsensiController extends BaseController
         $pembimbingId = $this->request->getVar('pembimbing');
         $childrenId = $this->request->getVar('children');
         $quiz = '';
+        $zoom = '';
         if (boolval($this->quiz)) {
             $quiz = $this->request->getVar('quiz');
         } else {
             $quiz = '-';
         }
+
+        if (boolval($this->zoom)) {
+            $zoom = $this->request->getVar('zoom');
+        } else {
+            $zoom = '-';
+        }
+
         $videoFile = $this->request->getFile('video');
         $pictureFile = $this->request->getFile('picture');
 
@@ -269,7 +271,7 @@ class AbsensiController extends BaseController
         if ($pictureFile->getName() != "") {
             $pictExt = $pictureFile->getClientExtension();
             $pict = 'yes';
-            if ($kelas == 'Balita' || $kelas == 'Batita' || $kelas == 'Pratama') {
+            if ($kelas == 'Balita' || $kelas == 'Batita' || $kelas == 'Pratama' || $kelas == 'Daud' || $kelas == 'Samuel') {
                 $pictId = $api->push_file($childrenName, $fotoIdKecil, $pictExt, $pictureFile);
             } elseif ($kelas == 'Teens') {
                 $pictId = $api->push_file($childrenName, $fotoIdTeen, $pictExt, $pictureFile);
@@ -283,7 +285,7 @@ class AbsensiController extends BaseController
         if ($videoFile->getName() != "") {
             $videoExt = $videoFile->getClientExtension();
             $video = 'yes';
-            if ($kelas == 'Balita' || $kelas == 'Batita' || $kelas == 'Pratama') {
+            if ($kelas == 'Balita' || $kelas == 'Batita' || $kelas == 'Pratama' || $kelas == 'Mazmur' || $kelas == 'Lukas') {
                 $videoIds = $api->push_file($childrenName, $videoIdKecil, $videoExt, $videoFile);
             } elseif ($kelas == 'Teens') {
                 $videoIds = $api->push_file($childrenName, $videoIdTeen, $videoExt, $videoFile);
@@ -304,6 +306,7 @@ class AbsensiController extends BaseController
             'video'         => $video,
             'image'         => $pict,
             'quiz'          => $quiz,
+            'zoom'          => $zoom,
             'month'         => $month,
             'year'          => $year,
             'sunday_date'   => $date_file_name,

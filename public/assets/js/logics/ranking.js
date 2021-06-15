@@ -1,9 +1,16 @@
 const rangking = {
   pusat: () => {
+    const defaultSelect = $("#first").html();
+
+    let kelas = [];
     const date = [];
     $("#start-field").hide();
     $("#end-field").hide();
     $("#button").hide();
+    $("#ranking-field").hide();
+    $("#addClass").hide();
+    $("#row-kelas").hide();
+    $("#removeClass").hide();
 
     $("#cabang").on("change", function () {
       if ($(this).val() === "Select Cabang Name") {
@@ -103,19 +110,88 @@ const rangking = {
     $("#end").on("change", function () {
       if ($(this).val() === "Select End Date") {
         $("#button").hide();
+        $("#ranking-field").hide();
         return false;
       }
 
-      const uri =
-        "/rank/report/" +
+      $("#ranking-field").show();
+      $("#button").show();
+
+      let uri =
+        "/rank/getKelas/" +
         $("#cabang").val() +
         "/" +
         $("#start").val() +
         "/" +
         $("#end").val();
+      $.ajax({
+        url: uri,
+        headers: { "X-Requested-With": "XMLHttpRequest" },
+        dataType: "json",
+        success: function (datas) {
+          $.each(datas, function (i, data) {
+            kelas.push(
+              `
+              <option value='` +
+                data +
+                `'>${data}</option>
+            `
+            );
+          });
+        },
+      });
+    });
 
-      $("#button").attr("href", uri);
-      $("#button").show();
+    $("#class3").on("change", function () {
+      $("#addClass").show();
+      $("#row-kelas").show();
+      $("#first").attr("disabled", false);
+      $("#first").html("");
+      $("#first").append("<option value=''>pilih kelas</option>");
+      $("#first").append(kelas);
+    });
+
+    $("#class2").on("change", function () {
+      $("#addClass").hide();
+      $("#row-kelas").hide();
+      $("#first").attr("disabled", true);
+    });
+
+    $("#class1").on("change", function () {
+      $("#addClass").hide();
+      $("#row-kelas").hide();
+      $("#first").attr("disabled", true);
+    });
+
+    $("#addClass").on("click", function () {
+      let jumlah = $("#row-kelas #first").length;
+
+      if (jumlah < kelas.length) {
+        $("#row-kelas").append(
+          `<div class="col-3" id="col">
+          <select id='first' class="form-control" name="kelas[]">
+              <option value=''>pilih kelas</option>
+              ` +
+            kelas +
+            `
+          </select>
+      </div>`
+        );
+      }
+
+      if (jumlah < kelas.length) {
+        $(this).hide();
+        $("#removeClass").show();
+      }
+    });
+
+    $("#removeClass").on("click", function () {
+      $("#row-kelas #col").last().remove();
+      let jumlah = $("#row-kelas #first").length;
+      if (jumlah === 1) {
+        $(this).hide();
+        $("#addClass").show();
+      }
     });
   },
 };

@@ -52,6 +52,7 @@ function optionPusatYear(max) {
   };
 }
 
+const defaultMonth = $("#month").html();
 const pusat = {
   initAllCountly: (cabang = null) => {
     var chart_labels = [];
@@ -163,6 +164,36 @@ const pusat = {
           options: optionPusatYear(200),
         };
         var myChartData = new Chart(ctx, config);
+      },
+    });
+  },
+  updateMonthCabang: (cabang) => {
+    if (cabang === "See All Result") {
+      $("#month").html(defaultMonth);
+      pusat.initChartMonthly($("#month").val(), cabang);
+      return false;
+    }
+
+    $.ajax({
+      url: "/getMonth/" + cabang,
+      headers: {
+        "X-Requested-With": "XMLHttpRequest",
+      },
+      dataType: "json",
+      success: function (data) {
+        $("#month").html("");
+        $.each(data, function (i, datas) {
+          $("#month").append(
+            `
+                <option>` +
+              datas +
+              `</option>
+            `
+          );
+        });
+
+        let month = $("#month").val();
+        pusat.initChartMonthly(month, cabang);
       },
     });
   },

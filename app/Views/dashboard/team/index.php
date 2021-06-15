@@ -2,12 +2,12 @@
 <?= $this->section('content'); ?>
 
 
-<?php 
+<?php
 
-if(session()->getFlashData('success_update')){
+if (session()->getFlashData('success_update')) {
     echo "
      <script>
-         demo.successNotification('top', 'right', '<b>Success !</b><br> ". session()->getFlashData('success_update') ."');
+         demo.successNotification('top', 'right', '<b>Success !</b><br> " . session()->getFlashData('success_update') . "');
      </script>
      ";
 }
@@ -19,7 +19,7 @@ if(session()->getFlashData('success_update')){
             <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle font-weight-lighter" type="button" id="dropdownMenuButton" data-toggle="dropdown">
                     Data Actions
-                </button> 
+                </button>
             </div>
         </div>
     </div>

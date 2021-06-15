@@ -380,62 +380,100 @@ class PusatController extends BaseController
 
     public function settings()
     {
-        $cabang = $this->cabangModel->find(user()->toArray()['region'])['quiz'];
+        $cabang = $this->cabangModel->find(user()->toArray()['region']);
+        $quiz = $cabang['quiz'];
+        $zoom = $cabang['zoom'];
 
         $data = [
             'title' => 'Settings',
-            'quiz'  => boolval($cabang),
+            'quiz'  => boolval($quiz),
+            'zoom'  => boolval($zoom),
         ];
 
         return view('dashboard/settings/index', $data);
     }
 
-    public function attemptSettings()
+    public function attemptSettings($mode)
     {
-        $hasil = 0;
-        $request = $this->request->getVar()['status'];
         $respond = [];
-
-        if ($request == 'true') {
-            $hasil = 1;
-
-            $update = $this->cabangModel->update(user()->toArray()['region'], [
-                'quiz'  => $hasil,
-            ]);
-
-            if ($update) {
-                $respond = [
-                    'success'  => 'Quiz Module Success Updated. Now Quiz module is Active',
-                ];
-            } else {
-                $respond = [
-                    'failed'  => 'Quiz Module Failed Updated',
-                ];
-            }
-        } else {
+        if ($mode == 'quiz') {
             $hasil = 0;
-            $update = $this->cabangModel->update(user()->toArray()['region'], [
-                'quiz'  => $hasil,
-            ]);
+            $request = $this->request->getVar()['status'];
 
-            if ($update) {
-                $respond = [
-                    'success'  => 'Quiz Module Success Updated. Now Quiz Module is non Active',
-                ];
+
+            if ($request == 'true') {
+                $hasil = 1;
+
+                $update = $this->cabangModel->update(user()->toArray()['region'], [
+                    'quiz'  => $hasil,
+                ]);
+
+                if ($update) {
+                    $respond = [
+                        'success'  => 'Quiz Module Success Updated. Now Quiz module is Active',
+                    ];
+                } else {
+                    $respond = [
+                        'failed'  => 'Quiz Module Failed Updated',
+                    ];
+                }
             } else {
-                $respond = [
-                    'failed'  => 'Quiz Module Failed Updated',
-                ];
+                $hasil = 0;
+                $update = $this->cabangModel->update(user()->toArray()['region'], [
+                    'quiz'  => $hasil,
+                ]);
+
+                if ($update) {
+                    $respond = [
+                        'success'  => 'Quiz Module Success Updated. Now Quiz Module is non Active',
+                    ];
+                } else {
+                    $respond = [
+                        'failed'  => 'Quiz Module Failed Updated',
+                    ];
+                }
+            }
+        } elseif ($mode == 'zoom') {
+            $hasil = 0;
+            $request = $this->request->getVar()['status'];
+
+
+            if ($request == 'true') {
+                $hasil = 1;
+
+                $update = $this->cabangModel->update(user()->toArray()['region'], [
+                    'zoom'  => $hasil,
+                ]);
+
+                if ($update) {
+                    $respond = [
+                        'success'  => 'Zoom Module Success Updated. Now Zoom module is Active',
+                    ];
+                } else {
+                    $respond = [
+                        'failed'  => 'Zoom Module Failed Updated',
+                    ];
+                }
+            } else {
+                $hasil = 0;
+                $update = $this->cabangModel->update(user()->toArray()['region'], [
+                    'zoom'  => $hasil,
+                ]);
+
+                if ($update) {
+                    $respond = [
+                        'success'  => 'Zoom Module Success Updated. Now Zoom Module is non Active',
+                    ];
+                } else {
+                    $respond = [
+                        'failed'  => 'Quiz Module Failed Updated',
+                    ];
+                }
             }
         }
 
 
-
         return json_encode($respond);
-    }
-
-    public function rankAttempt(string $start, string $end)
-    {
     }
 
     public function rank()
@@ -497,14 +535,26 @@ class PusatController extends BaseController
         return json_encode($dates);
     }
 
-    public function getReport(int $cabang, string $start, string $end)
+    public function getReport()
     {
-        $data =  $this->absensiModel->join('pembimbings', 'pembimbings.id_pembimbing = absensis.pembimbing_id')
-            ->join('childrens', 'childrens.id_children = absensis.children_id')
-            ->where('region_pembimbing', $cabang)
-            ->orderBy('children_name', 'ASC')
-            ->findAll();
-        dd($data);
+        dd($this->request->getVar());
+
+        // $cabang = $this->request->getVar('cabang');
+        // $start = $this->request->getVar('start');
+        // $end = $this->request->getVar('end');
+        // $year = $this->request->getVar('year');
+
+        // $data =  $this->absensiModel->join('pembimbings', 'pembimbings.id_pembimbing = absensis.pembimbing_id')
+        //     ->join('childrens', 'childrens.id_children = absensis.children_id')
+        //     ->where('region_pembimbing', $cabang)
+        //     ->where('year', $year)
+        //     ->orderBy('children_name', 'ASC')
+        //     ->findAll();
+        // // dd($data);
+
+        // // datestring to timestamp 
+        // $start = strtotime($start);
+        // $end = strtotime($end);
     }
 
     public function dateToTanggal($date)
@@ -522,5 +572,37 @@ class PusatController extends BaseController
                 return $date_month . ' ' . $month[$i] . ' ' . $year;
             }
         }
+    }
+
+    public function getKelas($cabang, $start, $end)
+    {
+        $data = $this->absensiModel
+            ->join('pembimbings', 'pembimbings.id_pembimbing = absensis.pembimbing_id')
+            ->join('childrens', 'childrens.id_children = absensis.children_id')
+            ->join('kelas', 'kelas.id_class = childrens.role')
+            ->where('region_pembimbing', $cabang)
+            ->findAll();
+
+        $selectedData = [];
+
+        $start = strtotime($start);
+        $end = strtotime($end);
+
+        foreach ($data as $d) {
+            $thisTime = strtotime($this->dateToTanggal($d['sunday_date']));
+            if ($thisTime >= $start && $thisTime <= $end) {
+                $selectedData[] = $d;
+            }
+        }
+
+        $kelas = [];
+
+        foreach ($selectedData as $data) {
+            $kelas[] = $data['nama_kelas'];
+        }
+
+        $kelas = array_unique($kelas);
+
+        return json_encode($kelas);
     }
 }
