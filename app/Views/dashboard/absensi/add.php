@@ -114,11 +114,11 @@ if (session()->getFlashData('success_add')) {
             <div class="col " data-aos="fade-right" data-aos-duration="500" data-aos-delay="1000">
                 <div class="form-group">
                     <label for="images">
-                        <div class="card text-center " style="width: 31.5rem;">
+                        <div class="card text-center " id='image' style="width: 31.5rem;">
                             <div class="card-body ">
                                 <img src="https://kesagami.com/wp-content/plugins/complete-gallery-manager/images/gallery_icon@2x.png" width="200px" height="200px" class="" alt="add picture">
                                 <input type="file" hidden id="images" accept="image/*" name='picture'>
-                                <h3 class="white-fonts mt-3 mb-2">Pick An Image</h3>
+                                <h4 class="white-fonts mt-3 mb-2" id="image-name">Pick An Image</h4>
                             </div>
                         </div>
                     </label>
@@ -127,11 +127,11 @@ if (session()->getFlashData('success_add')) {
             <div class="col " data-aos="fade-left" data-aos-duration="500" data-aos-delay="1000">
                 <div class="form-group">
                     <label for="videos">
-                        <div class="card " style="width: 31.5rem;">
+                        <div class="card " id="video" style="width: 31.5rem;">
                             <div class="card-body ">
                                 <img src="https://www.freeiconspng.com/uploads/movie-icon-3.png" width="200px" height="200px" alt="add picture" class="">
                                 <input type="file" hidden id="videos" accept="video/*" name="video">
-                                <h3 class="white-fonts mt-3 mb-2">Pick An Video</h3>
+                                <h4 class="white-fonts mt-3 mb-2" id="video-name">Pick An Video</h4>
                             </div>
                         </div>
                     </label>
@@ -148,4 +148,30 @@ if (session()->getFlashData('success_add')) {
 
 
 <script src="<?= base_url('/assets/js/logics/absensi.js'); ?>"></script>
+<script>
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+
+            var reader = new FileReader();
+
+            reader.onload = function(e) {
+                $('#image').css('background-image', 'url(' + e.target.result + ')');
+                $('#image').css('background-size', 'contain');
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    $("#images").change(function() {
+        readURL(this);
+        const file = $(this).val();
+        var filename = file.split(/[\\/]/g).pop().split('.')[0];
+        $('#image-name').html(filename);
+    });
+
+    $('#videos').on('change', function() {
+        const file = $(this).val();
+        var filename = file.split(/[\\/]/g).pop().split('.')[0];
+        $('#video-name').html(filename);
+    });
+</script>
 <?= $this->endSection(); ?>

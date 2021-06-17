@@ -9,11 +9,11 @@
                 $cabangModel = new CabangModel();
                 $cabang = $cabangModel->getCabang(user()->toArray()['region'])['nama_cabang'];
 
-                if(in_groups('pusat')){
+                if (in_groups('pusat')) {
                     echo strtoupper('hq');
-                }elseif (in_groups('superadmin')) {
+                } elseif (in_groups('superadmin')) {
                     echo strtoupper('sa');
-                }else {
+                } else {
                     echo strtoupper('ad');
                 }
                 ?>
@@ -58,14 +58,14 @@
                     <i class="fas fa-calendar-check"></i>
                     <p>History Absensi</p>
                 </a>
-            </li> 
-            <?php if(in_groups('pusat')): ?>
+            </li>
+            <?php if (in_groups('pusat') || in_groups('admin')) : ?>
                 <li class="<?= (strpos(current_url(true)->getPath(), 'rank') !== false ? 'active' : ' '); ?>" data-aos="fade-right" data-aos-duration="500" data-aos-delay="1100">
                     <a href="<?= base_url('/rank'); ?>">
                         <i class="fas fa-trophy"></i>
                         <p>Ranking</p>
                     </a>
-                </li> 
+                </li>
             <?php endif; ?>
             <?php if (in_groups('superadmin') || in_groups('pusat')) : ?>
                 <li class="<?= (strpos(current_url(true)->getPath(), 'team') !== false ? 'active' : ' '); ?>" data-aos="fade-right" data-aos-duration="500" data-aos-delay="1100">
@@ -73,9 +73,9 @@
                         <i class="fas fa-user"></i>
                         <p>Team's</p>
                     </a>
-                </li> 
+                </li>
             <?php endif; ?>
-            
+
         </ul>
     </div>
 </div>

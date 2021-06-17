@@ -112,11 +112,16 @@ $routes->group('', ['filter' => 'role:pusat'], function ($routes) {
 });
 
 $routes->group('', ['filter' => 'role:admin,pusat'], function ($routes) {
-	$routes->get('/rank', 'PusatController::rank');
-	$routes->get('/rank/getYear/(:num)', 'PusatController::gettingYear/$1');
-	$routes->get('/rank/getDate/(:num)/(:any)', 'PusatController::getAbsensiDate/$1/$2');
-	$routes->get('/rank/getKelas/(:num)/(:any)/(:any)', 'PusatController::getKelas/$1/$2/$3');
-	$routes->post('/rank', 'PusatController::getReport');
+	$routes->get('/rank', 'RankingController::index');
+	$routes->get('/rank/getYear/(:num)', 'RankingController::gettingYear/$1');
+	$routes->get('/rank/getDate/(:any)/(:num)', 'RankingController::getAbsensiDate/$1/$2');
+	$routes->get('/rank/getDate/(:any)', 'RankingController::getAbsensiDate/$1');
+
+	$routes->get('/rank/getKelas/(:any)/(:any)/(:num)', 'RankingController::getKelas/$1/$2/$3');
+	$routes->get('/rank/getKelas/(:any)/(:any)', 'RankingController::getKelas/$1/$2');
+
+	$routes->get('/rank/getMonth/(:num)/(:any)', 'RankingController::getMonthAbsensi/$1/$2');
+	$routes->post('/rank', 'RankingController::getReport');
 });
 
 $routes->group('', ['filter' => 'role:superadmin,pusat'], function ($routes) {

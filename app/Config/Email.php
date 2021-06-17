@@ -9,7 +9,7 @@ class Email extends BaseConfig
 	/**
 	 * @var string
 	 */
-	public $fromEmail = "nathandavisvalentino@gmail.com";
+	public $fromEmail = "admin@kidsministry.site";
 
 	/**
 	 * @var string
@@ -47,14 +47,14 @@ class Email extends BaseConfig
 	 *
 	 * @var string
 	 */
-	public $SMTPHost = 'smtp.gmail.com';
+	public $SMTPHost = 'smtp.hostinger.com';
 
 	/**
 	 * SMTP Username
 	 *
 	 * @var string
 	 */
-	public $SMTPUser = 'nathandavisvalentino@gmail.com';
+	public $SMTPUser = 'admin@kidsministry.site';
 
 	/**
 	 * SMTP Password
@@ -167,5 +167,4 @@ class Email extends BaseConfig
 	 * @var boolean
 	 */
 	public $DSN = false;
-
 }

@@ -1,9 +1,5 @@
-const rangking = {
-  pusat: () => {
-    const defaultSelect = $("#first").html();
-
-    let kelas = [];
-    const date = [];
+const admin = {
+  initSelect: () => {
     $("#start-field").hide();
     $("#end-field").hide();
     $("#button").hide();
@@ -12,50 +8,15 @@ const rangking = {
     $("#row-kelas").hide();
     $("#removeClass").hide();
 
-    $("#cabang").on("change", function () {
-      if ($(this).val() === "Select Cabang Name") {
-        $("#year").html("<option>Please Select Cabang Name First</option>");
-        return false;
-      }
-
-      const uri = "/rank/getYear/" + $(this).val();
-
-      $.ajax({
-        url: uri,
-        headers: { "X-Requested-With": "XMLHttpRequest" },
-        dataType: "json",
-        success: function (data) {
-          if (data.length == 0) {
-            $("#year").html("<option>No Absensi History</option>");
-          } else {
-            $("#year").html("<option>Select Year Absensi</option>");
-            $.each(data, function (i, datas) {
-              $("#year").append(
-                `
-                    <option>` +
-                  datas +
-                  `</option>
-                `
-              );
-            });
-          }
-        },
-      });
-      //
-    });
+    const date = [];
+    let kelas = [];
 
     $("#year").on("change", function () {
-      let cabang = $("#cabang").val();
-      let year = $(this).val();
-
-      if (year === "Select Year Absensi") {
+      if ($(this).val() === "Please Select Year") {
         $("#start-field").hide();
-        $("#end-field").hide();
-        $("#button").hide();
         return false;
       }
-
-      const uri = "/rank/getDate/" + year + "/" + cabang;
+      const uri = "/rank/getDate/" + $(this).val();
 
       $.ajax({
         url: uri,
@@ -117,13 +78,7 @@ const rangking = {
       $("#ranking-field").show();
       $("#button").show();
 
-      let uri =
-        "/rank/getKelas/" +
-        $("#start").val() +
-        "/" +
-        $("#end").val() +
-        "/" +
-        $("#cabang").val();
+      let uri = "/rank/getKelas/" + $("#start").val() + "/" + $("#end").val();
       $.ajax({
         url: uri,
         headers: { "X-Requested-With": "XMLHttpRequest" },
@@ -132,10 +87,10 @@ const rangking = {
           $.each(datas, function (i, data) {
             kelas.push(
               `
-              <option value='` +
+                <option value='` +
                 data +
                 `'>${data}</option>
-            `
+              `
             );
           });
         },
@@ -168,13 +123,13 @@ const rangking = {
       if (jumlah < kelas.length) {
         $("#row-kelas").append(
           `<div class="col-3" id="col">
-          <select id='first' class="form-control" name="kelas[]">
-          <option value=''>pilih kelas</option>
-          ` +
+            <select id='first' class="form-control" name="kelas[]">
+            <option value=''>pilih kelas</option>
+            ` +
             kelas +
             `
-          </select>
-          </div>`
+            </select>
+            </div>`
         );
       }
 

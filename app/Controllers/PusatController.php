@@ -6,6 +6,7 @@ use App\Models\AbsensiModel;
 use App\Models\CabangModel;
 use App\Models\ChildrenModel;
 use App\Models\PembimbingsModel;
+use App\Models\TempModel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
@@ -18,6 +19,8 @@ class PusatController extends BaseController
     protected $cabangModel;
     protected $quiz;
     protected $absensiController;
+    protected $tempModel;
+    protected $db;
 
     public function __construct()
     {
@@ -27,6 +30,8 @@ class PusatController extends BaseController
         $this->cabangModel = new CabangModel();
         $this->quiz =  $this->cabangModel->find(user()->toArray()['region'])['quiz'];
         $this->absensiController = new AbsensiController();
+        $this->tempModel = new TempModel();
+        $this->db = \Config\Database::connect();
     }
 
     public function getHomeChartYear($cabang = null)
@@ -281,8 +286,6 @@ class PusatController extends BaseController
             ->get()
             ->getResultArray();
 
-
-
         $sunday_date = [];
         $semua = [];
 
@@ -474,135 +477,5 @@ class PusatController extends BaseController
 
 
         return json_encode($respond);
-    }
-
-    public function rank()
-    {
-        $data = [];
-
-        if (!in_groups('pusat')) {
-            $date = $this->absensiModel->select('sunday_date')->findAll();
-            dd($date);
-        } else {
-            $cabang = $this->cabangModel->findAll();
-
-            $data = [
-                'title'  => 'Ranking',
-                'cabang' => $cabang,
-            ];
-        }
-
-        return view('dashboard/absensi/rangking', $data);
-    }
-
-    public function gettingYear($id_cabang)
-    {
-
-        $data = $this->absensiModel->join('pembimbings', 'pembimbings.id_pembimbing = absensis.pembimbing_id')
-            ->where('region_pembimbing', $id_cabang)
-            ->select('year')
-            ->get()
-            ->getResultArray();
-
-        $year = [];
-
-        foreach ($data as $d) {
-            $year[] = $d['year'];
-        }
-
-        $year = array_unique($year);
-
-        return json_encode($year);
-    }
-
-    public function getAbsensiDate($id_cabang, $year)
-    {
-        $date = [];
-        $dates = [];
-        $data = $this->absensiModel->join('pembimbings', 'pembimbings.id_pembimbing = absensis.pembimbing_id')
-            ->where('region_pembimbing', $id_cabang)
-            ->where('year', $year)
-            ->findAll();
-        foreach ($data as $d) {
-            $date[] = $d['sunday_date'];
-        }
-        $date = array_unique($date);
-
-        foreach ($date as $d) {
-            $dates[] = $this->dateToTanggal($d);
-        }
-
-        return json_encode($dates);
-    }
-
-    public function getReport()
-    {
-        dd($this->request->getVar());
-
-        // $cabang = $this->request->getVar('cabang');
-        // $start = $this->request->getVar('start');
-        // $end = $this->request->getVar('end');
-        // $year = $this->request->getVar('year');
-
-        // $data =  $this->absensiModel->join('pembimbings', 'pembimbings.id_pembimbing = absensis.pembimbing_id')
-        //     ->join('childrens', 'childrens.id_children = absensis.children_id')
-        //     ->where('region_pembimbing', $cabang)
-        //     ->where('year', $year)
-        //     ->orderBy('children_name', 'ASC')
-        //     ->findAll();
-        // // dd($data);
-
-        // // datestring to timestamp 
-        // $start = strtotime($start);
-        // $end = strtotime($end);
-    }
-
-    public function dateToTanggal($date)
-    {
-        $bulan = array('Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember');
-        $month = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-
-        $exploded = explode(' ', $date);
-        $date_month = $exploded[0];
-        $monthly = $exploded[1];
-        $year = $exploded[2];
-        for ($i = 0; $i < count($bulan); $i++) {
-            if ($monthly == $bulan[$i]) {
-                return $date_month . ' ' . $month[$i] . ' ' . $year;
-            }
-        }
-    }
-
-    public function getKelas($cabang, $start, $end)
-    {
-        $data = $this->absensiModel
-            ->join('pembimbings', 'pembimbings.id_pembimbing = absensis.pembimbing_id')
-            ->join('childrens', 'childrens.id_children = absensis.children_id')
-            ->join('kelas', 'kelas.id_class = childrens.role')
-            ->where('region_pembimbing', $cabang)
-            ->findAll();
-
-        $selectedData = [];
-
-        $start = strtotime($start);
-        $end = strtotime($end);
-
-        foreach ($data as $d) {
-            $thisTime = strtotime($this->dateToTanggal($d['sunday_date']));
-            if ($thisTime >= $start && $thisTime <= $end) {
-                $selectedData[] = $d;
-            }
-        }
-
-        $kelas = [];
-
-        foreach ($selectedData as $data) {
-            $kelas[] = $data['nama_kelas'];
-        }
-
-        $kelas = array_unique($kelas);
-
-        return json_encode($kelas);
     }
 }

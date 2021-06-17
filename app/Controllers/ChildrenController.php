@@ -345,7 +345,6 @@ class ChildrenController extends BaseController
                 $data_clear[] = $d;
             }
         }
-
         // upload database 
         $childrenArr = [];
 
@@ -379,32 +378,51 @@ class ChildrenController extends BaseController
         $nama_pembimbing = array_unique($nama_pembimbing);
 
         foreach ($nama_pembimbing as $pembimbing) {
-            $this->pembimbingModel->save([
-                'name_pembimbing'       => $pembimbing,
-                'region_pembimbing'     => user()->toArray()['region'],
-            ]);
+            $data = $this->pembimbingModel
+                ->where('region_pembimbing', $this->region)
+                ->where('name_pembimbing', $pembimbing)->first();
 
-            $pembimbing_id = $this->pembimbingModel->getInsertID();
+            if ($data != null) {
+                $pembimbing_id = $data['id_pembimbing'];
+            } else {
+                $this->pembimbingModel->save([
+                    'name_pembimbing'       => $pembimbing,
+                    'region_pembimbing'     => user()->toArray()['region'],
+                ]);
+
+                $pembimbing_id = $this->pembimbingModel->getInsertID();
+            }
+
             $data_pembimbing[$pembimbing] = $pembimbing_id;
         }
 
 
         foreach ($childrenArr as $child) {
-            $id_pembimbing = '';
-            $class = $this->classModel->where('nama_kelas', $child['role'])->first()['id_class'];
-            foreach ($data_pembimbing as $key => $value) {
-                if ($key == $child['pembimbing_name']) {
-                    $id_pembimbing = $value;
-                }
-            }
+            $children = $this->childrenModel
+                ->join('pembimbings', 'pembimbings.id_pembimbing = childrens.id_pembimbing')
+                ->where('children_name', $child['nama'])
+                ->where('region_pembimbing', $this->region)
+                ->first();
 
-            $this->childrenModel->save([
-                'children_name' => $child['nama'],
-                'code'          => $child['code'],
-                'id_pembimbing' => $id_pembimbing,
-                'role'          => $class,
-                'created_by'    => user()->toArray()['id'],
-            ]);
+            if ($children == null) {
+                $id_pembimbing = '';
+                $class = $this->classModel->where('nama_kelas', $child['role'])->first()['id_class'];
+                foreach ($data_pembimbing as $key => $value) {
+                    if ($key == $child['pembimbing_name']) {
+                        $id_pembimbing = $value;
+                    }
+                }
+
+                $this->childrenModel->save([
+                    'children_name' => $child['nama'],
+                    'code'          => $child['code'],
+                    'id_pembimbing' => $id_pembimbing,
+                    'role'          => $class,
+                    'created_by'    => user()->toArray()['id'],
+                ]);
+            } else {
+                continue;
+            }
         }
 
         return redirect()->to('/children');
