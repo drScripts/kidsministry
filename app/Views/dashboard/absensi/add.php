@@ -51,8 +51,27 @@ if (session()->getFlashData('success_add')) {
       })</script>";
 }
 
+date_default_timezone_set("Asia/Bangkok");
+
+
+if (date('D') != 'Sun' || date('D') != 'Mon' || date('D') != 'Tue') {
+    echo '<div class="alert alert-warning alert-with-icon" data-notify="container"> 
+    <span data-notify="icon" class="tim-icons icon-alert-circle-exc"></span>
+    <span data-notify="message">Data kemungkinan tidak akan masuk ke youtube namun tetap tersimpan</span>
+  </div>';
+} elseif (date('D') == 'Tue') {
+    if (strtotime('now') < (strtotime('today') + 17 * 60 * 60 + 30 * 60)) {
+        echo '<div class="alert alert-warning alert-with-icon" data-notify="container"> 
+        <span data-notify="icon" class="tim-icons icon-alert-circle-exc"></span>
+        <span data-notify="message">Data kemungkinan tidak akan masuk ke youtube namun tetap tersimpan</span>
+      </div>';
+    }
+}
+
 
 ?>
+
+
 
 <form action="<?= base_url('/absensi/insert'); ?>" method="POST" enctype="multipart/form-data">
 

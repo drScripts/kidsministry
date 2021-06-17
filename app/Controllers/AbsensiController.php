@@ -110,17 +110,6 @@ class AbsensiController extends BaseController
         try {
 
             $api = new GoogleApiServices();
-            $pembimbings = $this->pembimbingModel->where('region_pembimbing', user()->toArray()['region'])->get()->getResultArray();
-
-            $data = [
-                'title'         => 'Add Absensi',
-                'validation'    => \Config\Services::validation(),
-                'pembimbings'   => $pembimbings,
-                'quiz'          => boolval($this->quiz),
-                'zoom'          => boolval($this->zoom),
-            ];
-
-            return view('dashboard/absensi/add', $data);
         } catch (\Throwable $th) {
             $id = $this->googleToken->first()['token_id'];
 
@@ -130,6 +119,17 @@ class AbsensiController extends BaseController
                 return redirect()->to('/absensi/add');
             }
         }
+        $pembimbings = $this->pembimbingModel->where('region_pembimbing', user()->toArray()['region'])->get()->getResultArray();
+
+        $data = [
+            'title'         => 'Add Absensi',
+            'validation'    => \Config\Services::validation(),
+            'pembimbings'   => $pembimbings,
+            'quiz'          => boolval($this->quiz),
+            'zoom'          => boolval($this->zoom),
+        ];
+
+        return view('dashboard/absensi/add', $data);
     }
 
     public function insert()
