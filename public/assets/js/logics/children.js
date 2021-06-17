@@ -59,7 +59,9 @@ $(document).ready(function () {
               let pembimbing = datas.name_pembimbing
                 .toLowerCase()
                 .includes(value.toLowerCase());
-              let role = datas.role.toLowerCase().includes(value.toLowerCase());
+              let role = datas.nama_kelas
+                .toLowerCase()
+                .includes(value.toLowerCase());
 
               if (name || code || pembimbing || role) {
                 $("#body-table").append(
@@ -87,7 +89,7 @@ $(document).ready(function () {
                     </td> 
                     <td class="text-center">
                     ` +
-                    datas.role +
+                    datas.nama_kelas +
                     `
                     </td> 
                     <td class="td-actions text-center">

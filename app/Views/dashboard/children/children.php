@@ -21,6 +21,20 @@ if (session()->getFlashData('success_add')) {
         </script>
         ";
 }
+
+if (session()->getFlashData('failed_import')) {
+    echo "
+        <script>
+            demo.dangerNotification('top', 'right', '<b>Failed !</b><br> " . session()->getFlashData('failed_import') . "');
+        </script>
+        ";
+} elseif (session()->getFlashData('success_import')) {
+    echo "
+        <script>
+            demo.successNotification('top', 'right', '<b>Success !</b><br> " . session()->getFlashData('success_import') . "');
+        </script>
+        ";
+}
 ?>
 
 <div class="d-flex">

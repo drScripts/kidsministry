@@ -21,6 +21,7 @@ class PusatController extends BaseController
     protected $absensiController;
     protected $tempModel;
     protected $db;
+    protected $zoom;
 
     public function __construct()
     {
@@ -29,6 +30,7 @@ class PusatController extends BaseController
         $this->pembimbingModel = new PembimbingsModel();
         $this->cabangModel = new CabangModel();
         $this->quiz =  $this->cabangModel->find(user()->toArray()['region'])['quiz'];
+        $this->zoom = $this->cabangModel->find(user()->toArray()['region'])['zoom'];
         $this->absensiController = new AbsensiController();
         $this->tempModel = new TempModel();
         $this->db = \Config\Database::connect();
@@ -201,12 +203,13 @@ class PusatController extends BaseController
             ->join('pembimbings', 'pembimbings.id_pembimbing = absensis.pembimbing_id')
             ->join('cabang', 'cabang.id_cabang = pembimbings.region_pembimbing')
             ->join('users', 'users.id = absensis.created_by')
-            ->select('video,image,absensis.quiz as quis,sunday_date,absensis.created_at as absensiCreatedAt,children_name,name_pembimbing,nama_cabang,username,absensis.updated_at as absensiUpdatedAt,absensis.updated_by as absensiUpdateBy')
+            ->select('video,image,absensis.quiz as quis,sunday_date,absensis.created_at as absensiCreatedAt,children_name,name_pembimbing,nama_cabang,username,absensis.updated_at as absensiUpdatedAt,absensis.updated_by as absensiUpdateBy,absensis.zoom as zooms')
             ->find($id);
         $data = [
             'absensis'  => $data,
             'title'     => "Detail's Absensi",
             'quiz'      => $this->quiz,
+            'zoom'      => $this->zoom,
         ];
         return view('dashboard/absensi/details', $data);
     }

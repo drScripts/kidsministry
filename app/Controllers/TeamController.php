@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
@@ -7,26 +8,30 @@ use App\Models\TeamsModel;
 use Myth\Auth\Authorization\GroupModel as AuthorizationGroupModel;
 use Myth\Auth\Models\UserModel;
 
-class TeamController extends BaseController{
-    
-    protected $usermodel; 
+class TeamController extends BaseController
+{
+
+    protected $usermodel;
     protected $cabangModel;
     protected $groupModel;
     protected $teamModel;
-    
+    protected $userModel;
+
     public function __construct()
     {
-        $this->usermodel = new UserModel(); 
-        $this->cabangModel = new CabangModel();  
+        $this->usermodel = new UserModel();
+        $this->cabangModel = new CabangModel();
         $this->groupModel = new AuthorizationGroupModel();
         $this->teamModel = new TeamsModel();
+        $this->userModel = new UserModel();
     }
 
-    public function index(){     
+    public function index()
+    {
 
-        $users = $this->usermodel->getDataUser()->paginate(7,'users');
+        $users = $this->usermodel->getDataUser()->paginate(7, 'users');
         $pager = $this->usermodel->pager;
-        
+
         // mengambil penghitungan data
         $current_page = $this->request->getVar('page_users') ? $this->request->getVar('page_users') : 1;
 
@@ -36,17 +41,18 @@ class TeamController extends BaseController{
             'pager'         => $pager,
             'current_page'  => $current_page,
         ];
-        return view('dashboard/team/index',$data);
+        return view('dashboard/team/index', $data);
     }
 
-    public function edit(int $id){ 
+    public function edit(int $id)
+    {
 
         $user = $this->usermodel->getSingleUser($id)->get()->getFirstRow();
-        
-        
+
+
         $groups = $this->usermodel->getGroups()->get()->getResult();
         $cabangs = $this->cabangModel->get()->getResult();
-         
+
 
         $data = [
             'title' => 'Edit User Data',
@@ -55,10 +61,11 @@ class TeamController extends BaseController{
             'group'     => $groups,
             'cabangs'   => $cabangs
         ];
-        return view('dashboard/team/edit',$data);
+        return view('dashboard/team/edit', $data);
     }
 
-    public function attemptEdit(int $id){ 
+    public function attemptEdit(int $id)
+    {
         $validate = $this->validate([
             'username' => [
                 'rules'     => 'required|string',
@@ -91,7 +98,7 @@ class TeamController extends BaseController{
             ],
         ]);
 
-        if(!$validate){
+        if (!$validate) {
             return redirect()->to("/team/edit/$id")->withInput();
         }
 
@@ -107,20 +114,29 @@ class TeamController extends BaseController{
             'region'    => $cabang,
         ];
 
-       $this->teamModel->update($id,$data);
-       $this->groupModel->removeUserFromAllGroups($id);
-       $this->groupModel->addUserToGroup($id,$groups);
-        
-       
+        $this->teamModel->update($id, $data);
+        $this->groupModel->removeUserFromAllGroups($id);
+        $this->groupModel->addUserToGroup($id, $groups);
 
-        session()->setFlashData('success_update','User Data Successfully Updated !');
+
+
+        session()->setFlashData('success_update', 'User Data Successfully Updated !');
         return redirect()->to("/team");
-
     }
 
-    public function getCabang(){
+    public function getCabang()
+    {
         $cabang = $this->cabangModel->findAll();
         return json_encode($cabang);
     }
 
+    public function deleteTeam($id)
+    {
+        $deleted = $this->userModel->delete($id);
+        $this->userModel->purgeDeleted();
+        if ($deleted) {
+            session()->setFlashData('success_deleted', 'Team Successfully Deleted');
+            return redirect()->to('/team');
+        }
+    }
 }

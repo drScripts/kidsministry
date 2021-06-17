@@ -337,6 +337,11 @@ class ChildrenController extends BaseController
         $data = $spreadSheet->getActiveSheet()->toArray();
         unlink($path_file);
 
+        if ($data[0][0] != 'Nama Anak' || $data[0][1] != 'Code Anak' || $data[0][2] != 'Role/Kelas' || $data[0][3] != 'Nama Pembimbing') {
+            session()->setFlashData('failed_import', 'Gagal Import Data Pastikan File Sesuai Dengan Ketentuan atau Template');
+            return redirect()->to('/children');
+        }
+
         $data = array_slice($data, 1, count($data) - 1);
 
         $data_clear = [];
@@ -356,7 +361,6 @@ class ChildrenController extends BaseController
             if ($datak[0] == null && $datak[1] == null && $datak[2] == null && $datak[3] == null) {
                 continue;
             }
-
             $nama = trim(ucwords($datak[0]));
             $code = $datak[1] != null ? trim(strtoupper($datak[1])) : '-';
             $role = trim(ucwords($datak[2]));
@@ -374,6 +378,20 @@ class ChildrenController extends BaseController
             $childrenArr[] = $temp_arr;
         }
 
+        $kelas = $this->classModel->findAll();
+        $fault = 0;
+        foreach ($childrenArr as $temp) {
+            foreach ($kelas as $k) {
+                if ($temp['role'] == $k['nama_kelas']) {
+                    $fault++;
+                }
+            }
+        }
+
+        if ($fault != count($childrenArr)) {
+            session()->setFlashData('failed_import', 'Gagal Import Data Pastikan Kelas Sesuai dengan yang tersedia');
+            return redirect()->to('/children/import');
+        }
 
         $nama_pembimbing = array_unique($nama_pembimbing);
 
@@ -424,7 +442,7 @@ class ChildrenController extends BaseController
                 continue;
             }
         }
-
+        session()->setFlashData('success_import', 'Success Fully Add Children Data');
         return redirect()->to('/children');
     }
 }

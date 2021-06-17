@@ -3,7 +3,6 @@
 
 
 <?php
-
 if (session()->getFlashData('success_add')) {
     echo "
      <script>
@@ -29,6 +28,17 @@ if (session()->getFlashData('success_update')) {
 ?>
 
 <div class="d-flex justify-content-between">
+    <?php if (in_groups('superadmin') || in_groups('pusat')) : ?>
+        <div class="p-2 bd-highlight">
+            <div class="row">
+                <div class="col-md" data-aos="fade-right" data-aos-duration="500" data-aos-delay="300">
+                    <a href="javascript:void(0)" id='checkDate' class="btn-sm btn">
+                        <p><i class="fas fa-calendar-day"></i> Check Sunday Date</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
     <?php if (!in_groups('pusat')) : ?>
         <div class="p-2 bd-highlight">
             <div class="row">
@@ -90,7 +100,10 @@ if (session()->getFlashData('success_update')) {
         </div>
         <!-- search button end -->
     <?php endif ?>
+
 </div>
+
+
 
 <table class="table table-bordered" data-aos="zoom-in" data-aos-duration="500" data-aos-delay="300">
     <thead>
@@ -206,4 +219,15 @@ if (session()->getFlashData('success_update')) {
     </script>
 <?php endif; ?>
 <!-- pagination -->
+
+<?php
+if (in_groups('pusat') || in_groups('superadmin')) {
+    echo "<script>
+    $('#checkDate').on('click', function() {
+        demo.successNotification('top', 'right', 'model : " . $sunday_date_model . "<br>controller : " . $sunday_date_controller . "');
+    })
+    </script>";
+}
+
+?>
 <?= $this->endSection(); ?>

@@ -50,7 +50,7 @@ if (session()->getFlashData('success_add')) {
         <!-- search button -->
         <div class="p-2 ml-auto bd-highlight" data-aos="fade-left" data-aos-duration="500" data-aos-delay="300">
             <div class="input-group mb-3">
-                <input type="text" id="search-input" class="form-control" placeholder="Search Children">
+                <input type="text" id="search-input" class="form-control" placeholder="Search Pembimbing">
                 <div class="input-group-append">
                     <button class="btn btn-sm white-fonts" type="button" id="button-addon2"><i class="fas fa-search"></i></button>
                 </div>
@@ -72,7 +72,7 @@ if (session()->getFlashData('success_add')) {
         <!-- search button -->
         <div class="p-2 bd-highlight" data-aos="fade-left" data-aos-duration="500" data-aos-delay="300">
             <div class="input-group mb-3">
-                <input type="text" id="search-input" class="form-control" placeholder="Search Children">
+                <input type="text" id="search-input" class="form-control" placeholder="Search Pembimbing">
                 <div class="input-group-append">
                     <button class="btn btn-sm white-fonts" type="button" id="button-addon2"><i class="fas fa-search"></i></button>
                 </div>

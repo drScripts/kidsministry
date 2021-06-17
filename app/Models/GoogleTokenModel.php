@@ -21,8 +21,3 @@ class GoogleTokenModel extends Model{
 
 
 }
-
-
-
-
-?>

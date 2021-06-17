@@ -95,14 +95,18 @@ $routes->group('', ['filter' => 'role:pusat'], function ($routes) {
 	$routes->get('/pusat/getChartMonth/(:any)/(:any)', 'PusatController::getHomeChartMonth/$1/$2');
 	$routes->get('/pusat/getChildrenCabang/(:any)', 'PusatController::getChildrenByCabang/$1');
 	$routes->get('/pusat/getAllChildren', 'PusatController::showAllChildren');
+
 	$routes->get('/children/details/(:num)', 'PusatController::details/$1');
+
 	$routes->get('/pusat/getPembimbing', 'PusatController::getPembimbing');
 	$routes->get('/pusat/getPembimbing/(:any)', 'PusatController::getPembimbing/$1');
 	$routes->get('/pusat/getSundayDate/(:any)', 'PusatController::getPusatSunday/$1');
 	$routes->get('/pusat/getAbsensi', 'PusatController::getAbsensi');
 	$routes->get('/pusat/getAbsensi/(:any)', 'PusatController::getAbsensi/$1');
 	$routes->get('/pusat/getAbsensi/(:any)/(:any)', 'PusatController::getAbsensi/$1/$2');
+
 	$routes->get('/absensi/details/(:num)', 'PusatController::detailsAbsen/$1');
+
 	$routes->get('/pusat/getHistorys/(:any)', 'PusatController::absensiHistory/$1');
 	$routes->get('/pusat/tracking', 'PusatController::trackingData');
 	$routes->get('/pusat/tracking/(:any)', 'PusatController::trackingData/$1');
@@ -131,6 +135,7 @@ $routes->group('', ['filter' => 'role:superadmin,pusat'], function ($routes) {
 
 	$routes->put('/team/update/(:num)', "TeamController::attemptEdit/$1");
 	$routes->get('/team/cabang', "TeamController::getCabang");
+	$routes->delete('/team/(:num)', 'TeamController::deleteTeam/$1');
 });
 
 

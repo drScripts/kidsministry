@@ -1,18 +1,20 @@
-<?php 
+<?php
+
 namespace App\Models;
 
 use CodeIgniter\Model;
 
-class PembimbingsModel extends Model{    
-    protected $table      = 'pembimbings'; 
-    
-	protected $primaryKey = 'id_pembimbing';
+class PembimbingsModel extends Model
+{
+    protected $table      = 'pembimbings';
+
+    protected $primaryKey = 'id_pembimbing';
     protected $useAutoIncrement = true;
 
     protected $returnType     = 'array';
-    protected $useSoftDeletes = false;
+    protected $useSoftDeletes = true;
 
-    protected $allowedFields = ['name_pembimbing','region_pembimbing'];
+    protected $allowedFields = ['name_pembimbing', 'region_pembimbing'];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
@@ -20,9 +22,8 @@ class PembimbingsModel extends Model{
     protected $deletedField  = 'deleted_at';
 
 
-    public function getPembimbings(){
-       return $this->table($this->table)->where('region_pembimbing',user()->toArray()['region']);
+    public function getPembimbings()
+    {
+        return $this->table($this->table)->where('region_pembimbing', user()->toArray()['region']);
     }
-
-
 }

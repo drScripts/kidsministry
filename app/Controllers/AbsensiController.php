@@ -40,11 +40,15 @@ class AbsensiController extends BaseController
     public function index()
     {
         // mengambil penghitungan data
+
+        $sunday_date_controller = $this->getDateName();
+        $sunday_date_model = $this->absensiModel->getDateName();
         if (!in_groups('pusat')) {
             $current_page = $this->request->getVar('page_absensi') ? $this->request->getVar('page_absensi') : 1;
 
             $absensis = $this->absensiModel->getAllDataFetch()->paginate(7, 'absensi');
             $pager = $this->absensiModel->pager;
+
 
             $data = [
                 'title'         => 'Absensi',
@@ -54,6 +58,11 @@ class AbsensiController extends BaseController
                 'quiz'          => boolval($this->quiz),
                 'zoom'          => boolval($this->zoom),
             ];
+
+            if (in_groups('superadmin')) {
+                $data['sunday_date_model']          = $sunday_date_model;
+                $data['sunday_date_controller']     = $sunday_date_controller;
+            }
             return view('dashboard/absensi/index', $data);
         } else {
             $current_page = $this->request->getVar('page_absensi') ? $this->request->getVar('page_absensi') : 1;
@@ -99,6 +108,8 @@ class AbsensiController extends BaseController
                 'sunday_dates'  => $sunday_date,
                 'quiz'          => $this->quiz,
                 'zoom'          => boolval($this->zoom),
+                'sunday_date_model'         => $sunday_date_model,
+                'sunday_date_controller'    => $sunday_date_controller,
             ];
             return view('dashboard/absensi/index', $data);
         }
@@ -407,6 +418,9 @@ class AbsensiController extends BaseController
     public function searchData()
     {
         $data = $this->absensiModel->searchData();
+        $cabang = $this->cabangModel->where('id_cabang', $this->region)->select('quiz,zoom')->first();
+        $data['settings'] = $cabang;
+
         return json_encode($data);
     }
 
@@ -734,5 +748,19 @@ class AbsensiController extends BaseController
     {
         $data = $this->absensiModel->chartAbsensi();
         return json_encode($data);
+    }
+
+    public function checkDate()
+    {
+        $absensi_controller = $this->getDateName();
+        $absensi_model = $this->absensiModel->getDateName();
+
+        $data = [
+            'title' => 'Check Date Name',
+            'absensiController' => $absensi_controller,
+            'absensiModel'      => $absensi_model,
+        ];
+
+        return view('dashboard/absensi/check', $data);
     }
 }

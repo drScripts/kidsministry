@@ -62,8 +62,6 @@ class AbsensiModel extends Model
 
     public function searchData()
     {
-
-
         $date_name = $this->getDateName();
         $dateNames = explode(" ", $date_name);
         $month = $dateNames[1];
@@ -72,9 +70,9 @@ class AbsensiModel extends Model
 
         $tables->join('pembimbings', "pembimbings.id_pembimbing = $this->table.pembimbing_id");
         $tables->join('childrens', "childrens.id_children = $this->table.children_id");
+        $tables->join('kelas', 'kelas.id_class = childrens.role');
         $tables->where('month', $month);
         $tables->where('region_pembimbing', user()->toArray()['region']);
-
         return $tables->get()->getResultArray();
     }
 

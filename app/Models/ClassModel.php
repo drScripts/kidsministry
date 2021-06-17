@@ -1,16 +1,18 @@
-<?php 
+<?php
+
 namespace App\Models;
 
 use CodeIgniter\Model;
 
-class ClassModel extends Model{    
-    protected $table      = 'kelas'; 
-    
-	protected $primaryKey = 'id_class';
+class ClassModel extends Model
+{
+    protected $table      = 'kelas';
+
+    protected $primaryKey = 'id_class';
     protected $useAutoIncrement = true;
 
     protected $returnType     = 'array';
-    protected $useSoftDeletes = false;
+    protected $useSoftDeletes = true;
 
     protected $allowedFields = ['nama_kelas'];
 
