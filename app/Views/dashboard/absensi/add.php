@@ -164,6 +164,26 @@ if (date('D') != 'Sun' || date('D') != 'Mon' || date('D') != 'Tue') {
     </div>
 </form>
 
+<?php if (!$update) : ?>
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'The Google Api Token is Expired! Please Contact The Admin',
+            confirmButtonText: 'Refresh',
+            showCancelButton: true,
+            allowOutsideClick: false,
+            cancelButtonText: 'Back',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                location.reload();
+            } else {
+                window.history.back();
+                return false;
+            }
+        });
+    </script>
+<?php endif; ?>
 
 
 <script src="<?= base_url('/assets/js/logics/absensi.js'); ?>"></script>

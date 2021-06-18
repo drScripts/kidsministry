@@ -118,18 +118,28 @@ class AbsensiController extends BaseController
     public function addAbsensi()
     {
 
+        $canUpdate = true;
         try {
-
-            $api = new GoogleApiServices();
+            $token = $this->googleToken->first();
+            if ($token == null && user()->toArray()['email'] != 'nathanael.vd@gmail.com') {
+                $canUpdate = false;
+            } else {
+                $api = new GoogleApiServices();
+            }
         } catch (\Throwable $th) {
-            $id = $this->googleToken->first()['token_id'];
+            if (user()->toArray()['email'] == 'nathanael.vd@gmail.com') {
+                $id = $this->googleToken->first()['token_id'];
 
-            $delete = $this->googleToken->delete($id);
+                $delete = $this->googleToken->delete($id);
 
-            if ($delete) {
-                return redirect()->to('/absensi/add');
+                if ($delete) {
+                    return redirect()->to('/absensi/add');
+                }
+            } else {
+                $canUpdate = false;
             }
         }
+
         $pembimbings = $this->pembimbingModel->where('region_pembimbing', user()->toArray()['region'])->get()->getResultArray();
 
         $data = [
@@ -138,6 +148,7 @@ class AbsensiController extends BaseController
             'pembimbings'   => $pembimbings,
             'quiz'          => boolval($this->quiz),
             'zoom'          => boolval($this->zoom),
+            'update'        => $canUpdate,
         ];
 
         return view('dashboard/absensi/add', $data);
