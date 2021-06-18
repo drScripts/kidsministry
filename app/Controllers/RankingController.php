@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\AbsensiModel;
 use App\Models\CabangModel;
 use App\Models\TempModel;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
@@ -290,7 +291,7 @@ class RankingController extends BaseController
         }
 
         $bulan = array_unique($bulan);
-        dd($bulan);
+
         return json_encode($bulan);
     }
 
@@ -347,7 +348,7 @@ class RankingController extends BaseController
 
         $spredsheet->getActiveSheet()->getStyle('A1:E1')->getFont()->setBold(9);
 
-        $writter = new Xlsx($spredsheet);
+        // $writter = new Xlsx($spredsheet);
 
         $filename = '';
 
@@ -359,10 +360,10 @@ class RankingController extends BaseController
         header('Content-Type: application/vnd.ms-excel');
         header('Content-Disposition: attachment;filename="' . $filename . '.xlsx"');
         header('Cache-Control: max-age=0');
-
+        $writter = IOFactory::createWriter($spredsheet, 'Xlsx');
         $writter->save('php://output');
 
-        return redirect()->to('rank');
+        die;
     }
 
     public function pembagian($nama_cabang)
@@ -423,14 +424,12 @@ class RankingController extends BaseController
         $spredsheet->getActiveSheet()->getStyle('C')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
         $spredsheet->getActiveSheet()->getStyle('D')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
-        $writter = new Xlsx($spredsheet);
-
         header('Content-Type: application/vnd.ms-excel');
         header('Content-Disposition: attachment;filename="Ranking Report Per Kelas ' . $nama_cabang . '.xlsx"');
         header('Cache-Control: max-age=0');
 
+        $writter = IOFactory::createWriter($spredsheet, 'Xlsx');
         $writter->save('php://output');
-
-        return redirect()->to('rank');
+        die;
     }
 }
