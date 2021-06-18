@@ -6,14 +6,14 @@
             <div class="card o-hidden border-0 shadow-lg my-5 py-2" data-aos="zoom-in" data-aos-duration="300" style="background-color: rgba(238, 241, 241, 1);">
                 <div class="card-body p-0">
                     <!-- Nested Row within Card Body -->
-                    <div class="row"> 
+                    <div class="row">
                         <div class="col-lg-12">
                             <div class="p-5">
                                 <div class="text-center" data-aos="zoom-in" data-aos-duration="700" data-aos-delay="500">
                                     <h4 class="card-header black-fonts"><?= lang('Auth.enterCodeEmailPassword') ?></h4>
                                 </div>
                                 <br>
-                                <?= view('Myth\Auth\Views\_message_block') ?> 
+                                <?= view('Myth\Auth\Views\_message_block') ?>
                                 <form class="user" action="<?= route_to('reset-password') ?>" method="post">
                                     <?= csrf_field() ?>
                                     <div class="form-group">
@@ -30,10 +30,20 @@
                                             <?= session('errors.email') ?>
                                         </div>
                                     </div>
- 
+
                                     <div class="form-group">
                                         <label for="password" class="black-fonts"><?= lang('Auth.newPassword') ?></label>
-                                        <input type="password" class="form-control black-fonts <?php if (session('errors.password')) : ?>is-invalid<?php endif ?>" name="password" placeholder="Input New Password">
+
+
+                                        <div class="input-group">
+                                            <div class="input-group-prepend" id='viewPassword'>
+                                                <div class="input-group-text" id="icon">
+                                                    <i class="fas fa-eye-slash black-fonts"></i>
+                                                </div>
+                                            </div>
+                                            <input id='password' type="password" class="form-control black-fonts <?php if (session('errors.password')) : ?>is-invalid<?php endif ?>" name="password" placeholder="Input New Password">
+                                        </div>
+
                                         <div class="invalid-feedback">
                                             <?= session('errors.password') ?>
                                         </div>
@@ -46,7 +56,7 @@
                                             <?= session('errors.pass_confirm') ?>
                                         </div>
                                     </div>
-                                    <button class="btn btn-primary btn-user btn-block" type="submit" data-aos="fade-left" data-aos-duration="700" ><?=lang('Auth.resetPassword')?></button>
+                                    <button class="btn btn-primary btn-user btn-block" type="submit" data-aos="fade-left" data-aos-duration="700"><?= lang('Auth.resetPassword') ?></button>
                                 </form>
                             </div>
                         </div>
@@ -56,4 +66,13 @@
         </div>
     </div>
 </div>
+<script>
+    $('#viewPassword').mousedown(function() {
+        $('#icon').html(`<i class="fas fa-eye black-fonts"></i>`);
+        $('#password').attr('type', 'text');
+    }).mouseup(function() {
+        $('#icon').html(`<i class="fas fa-eye-slash black-fonts"></i>`);
+        $('#password').attr('type', 'password');
+    });
+</script>
 <?= $this->include('template/footers'); ?>

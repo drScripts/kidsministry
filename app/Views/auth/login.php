@@ -26,7 +26,14 @@
                                     </div>
 
                                     <div class="form-group" data-aos="fade-left" data-aos-duration="700" data-aos-delay="700">
-                                        <input type="password" class="form-control form-control-user black-fonts <?php if (session('errors.password')) : ?>is-invalid<?php endif ?>" name="password" placeholder="Password" minlength="8" password required>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend" id='viewPassword'>
+                                                <div class="input-group-text" id="icon">
+                                                    <i class="fas fa-eye-slash black-fonts"></i>
+                                                </div>
+                                            </div>
+                                            <input id='password' type="password" class="form-control form-control-user black-fonts <?php if (session('errors.password')) : ?>is-invalid<?php endif ?>" name="password" placeholder="Password" minlength="8" password required>
+                                        </div>
                                         <div class="invalid-feedback">
                                             <?= session('errors.password') ?>
                                         </div>
@@ -50,13 +57,13 @@
                                     <a class="small" href="forgot-password.html">Forgot Password?</a>
                                 </div> -->
                                 <?php if ($config->allowRegistration) : ?>
-                                <div class="text-center" data-aos="fade-left" data-aos-duration="700" data-aos-delay="1100">
-                                    <a class="small" href="<?= base_url(); ?>/register">Create an Account!</a>
-                                </div>
+                                    <div class="text-center" data-aos="fade-left" data-aos-duration="700" data-aos-delay="1100">
+                                        <a class="small" href="<?= base_url(); ?>/register">Create an Account!</a>
+                                    </div>
                                 <?php endif; ?>
                                 <?php if ($config->activeResetter) : ?>
                                     <div class="text-center" data-aos="fade-left" data-aos-duration="700" data-aos-delay="1100">
-                                        <a class="small" href="<?= route_to('forgot') ?>"><?=lang('Auth.forgotYourPassword')?></a>
+                                        <a class="small" href="<?= route_to('forgot') ?>"><?= lang('Auth.forgotYourPassword') ?></a>
                                     </div>
                                 <?php endif; ?>
                             </div>
@@ -67,4 +74,13 @@
         </div>
     </div>
 </div>
+<script>
+    $('#viewPassword').mousedown(function() {
+        $('#icon').html(`<i class="fas fa-eye black-fonts"></i>`);
+        $('#password').attr('type', 'text');
+    }).mouseup(function() {
+        $('#icon').html(`<i class="fas fa-eye-slash black-fonts"></i>`);
+        $('#password').attr('type', 'password');
+    });
+</script>
 <?= $this->include('template/footers'); ?>

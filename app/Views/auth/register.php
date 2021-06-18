@@ -19,38 +19,38 @@
 
                             <div class="form-group row" data-aos="fade-left" data-aos-duration="700" data-aos-delay="500">
                                 <div class="col-sm mb-0">
-                                    <input type="text" class="form-control form-control-user black-fonts "
-                                        placeholder="Username" name="username" value="<?= old('username') ?>" required>
+                                    <input type="text" class="form-control form-control-user black-fonts " placeholder="Username" name="username" value="<?= old('username') ?>" required>
                                 </div>
                             </div>
 
                             <div class="form-group mb-2" data-aos="fade-left" data-aos-duration="700" data-aos-delay="600">
-                                <input type="email" class="form-control form-control-user black-fonts mb-sm-0 "
-                                    placeholder="Email Address" name="email" value="<?= old('email') ?>" required email>
+                                <input type="email" class="form-control form-control-user black-fonts mb-sm-0 " placeholder="Email Address" name="email" value="<?= old('email') ?>" required email>
                             </div>
 
-                            <div class="form-group row" >
-
+                            <div class="form-group row">
                                 <div class="col-sm-6 mb-2 mb-sm-0" data-aos="fade-right" data-aos-duration="700" data-aos-delay="700">
-                                    <input type="password" name="password"
-                                        class="form-control form-control-user black-fonts  " placeholder="Password"
-                                        required minlength="8">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend" id='viewPassword'>
+                                            <div class="input-group-text" id="icon">
+                                                <i class="fas fa-eye-slash black-fonts"></i>
+                                            </div>
+                                        </div>
+                                        <input id='password' type="password" name="password" class="form-control form-control-user black-fonts" placeholder="Password" required minlength="8">
+                                    </div>
                                 </div>
 
                                 <div class="col-sm-6 mb-sm-0" data-aos="fade-left" data-aos-duration="700" data-aos-delay="700">
-                                    <input type="password" class="form-control form-control-user black-fonts  "
-                                        name="pass_confirm" placeholder="Repeat Password" required>
+                                    <input type="password" class="form-control form-control-user black-fonts  " name="pass_confirm" placeholder="Repeat Password" required>
                                 </div>
 
                             </div>
 
                             <div class="form-group" data-aos="fade-left" data-aos-duration="700" data-aos-delay="800">
                                 <div class="mb-2 mb-sm-0">
-                                    <select class="custom-select form-control black-fonts cabang" name="region" id="section"
-                                        required>
+                                    <select class="custom-select form-control black-fonts cabang" name="region" id="section" required>
                                         <option value="" class="cabang"> Select Cabang Region </option>
                                         <?php array_pop($cabangs); ?>
-                                        <?php foreach($cabangs as $cabang): ?>
+                                        <?php foreach ($cabangs as $cabang) : ?>
                                             <option class="cabang" value="<?= $cabang['id_cabang']; ?>"><?= $cabang['nama_cabang']; ?></option>
                                         <?php endforeach; ?>
                                     </select>
@@ -72,4 +72,13 @@
         </div>
     </div>
 </div>
+<script>
+    $('#viewPassword').mousedown(function() {
+        $('#icon').html(`<i class="fas fa-eye black-fonts"></i>`);
+        $('#password').attr('type', 'text');
+    }).mouseup(function() {
+        $('#icon').html(`<i class="fas fa-eye-slash black-fonts"></i>`);
+        $('#password').attr('type', 'password');
+    });
+</script>
 <?= $this->include('template/footers'); ?>
