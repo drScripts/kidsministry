@@ -307,12 +307,12 @@ class AbsensiController extends BaseController
         if ($videoFile->getName() != "") {
             $videoExt = $videoFile->getClientExtension();
             $video = 'yes';
-            if ($kelas == 'Balita' || $kelas == 'Batita' || $kelas == 'Pratama' || $kelas == 'Daud' || $kelas == 'Samuel' || $kelas == 'Balita/Pratama') {
-                $pictId = $api->push_file($childrenName, $fotoIdKecil, $pictExt, $pictureFile);
+            if ($kelas == 'Balita' || $kelas == 'Batita' || $kelas == 'Pratama' || $kelas == 'Pratama' || $kelas == 'Daud' || $kelas == 'Samuel' || $kelas == 'Balita/Pratama') {
+                $videoIds = $api->push_file($childrenName, $videoIdKecil, $videoExt, $videoFile);
             } elseif ($kelas == 'Teens' || $kelas == 'Mazmur' || $kelas == 'Lukas') {
-                $pictId = $api->push_file($childrenName, $fotoIdTeen, $pictExt, $pictureFile);
+                $videoIds = $api->push_file($childrenName, $videoIdTeen, $videoExt, $videoFile);
             } else {
-                $pictId = $api->push_file($childrenName, $fotoIdBesar, $pictExt, $pictureFile);
+                $videoIds = $api->push_file($childrenName, $videoIdBesar, $pictExt, $pictureFile);
             }
         } else {
             $video = 'no';
