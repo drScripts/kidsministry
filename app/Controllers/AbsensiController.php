@@ -293,9 +293,9 @@ class AbsensiController extends BaseController
         if ($pictureFile->getName() != "") {
             $pictExt = $pictureFile->getClientExtension();
             $pict = 'yes';
-            if ($kelas == 'Balita' || $kelas == 'Batita' || $kelas == 'Pratama' || $kelas == 'Daud' || $kelas == 'Samuel') {
+            if ($kelas == 'Balita' || $kelas == 'Batita' || $kelas == 'Pratama' || $kelas == 'Daud' || $kelas == 'Samuel' || $kelas == 'Balita/Pratama') {
                 $pictId = $api->push_file($childrenName, $fotoIdKecil, $pictExt, $pictureFile);
-            } elseif ($kelas == 'Teens') {
+            } elseif ($kelas == 'Teens' || $kelas == 'Mazmur' || $kelas == 'Lukas') {
                 $pictId = $api->push_file($childrenName, $fotoIdTeen, $pictExt, $pictureFile);
             } else {
                 $pictId = $api->push_file($childrenName, $fotoIdBesar, $pictExt, $pictureFile);
@@ -307,12 +307,12 @@ class AbsensiController extends BaseController
         if ($videoFile->getName() != "") {
             $videoExt = $videoFile->getClientExtension();
             $video = 'yes';
-            if ($kelas == 'Balita' || $kelas == 'Batita' || $kelas == 'Pratama' || $kelas == 'Mazmur' || $kelas == 'Lukas') {
-                $videoIds = $api->push_file($childrenName, $videoIdKecil, $videoExt, $videoFile);
-            } elseif ($kelas == 'Teens') {
-                $videoIds = $api->push_file($childrenName, $videoIdTeen, $videoExt, $videoFile);
+            if ($kelas == 'Balita' || $kelas == 'Batita' || $kelas == 'Pratama' || $kelas == 'Daud' || $kelas == 'Samuel' || $kelas == 'Balita/Pratama') {
+                $pictId = $api->push_file($childrenName, $fotoIdKecil, $pictExt, $pictureFile);
+            } elseif ($kelas == 'Teens' || $kelas == 'Mazmur' || $kelas == 'Lukas') {
+                $pictId = $api->push_file($childrenName, $fotoIdTeen, $pictExt, $pictureFile);
             } else {
-                $videoIds = $api->push_file($childrenName, $videoIdBesar, $pictExt, $pictureFile);
+                $pictId = $api->push_file($childrenName, $fotoIdBesar, $pictExt, $pictureFile);
             }
         } else {
             $video = 'no';
