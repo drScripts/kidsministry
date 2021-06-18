@@ -65,17 +65,21 @@ if (session()->getFlashData('failed_import')) {
         </div>
 
     <?php endif; ?>
-    <?php if (in_groups('superadmin')) : ?>
-        <div class="p-2 bd-highlight">
-            <div class="row">
-                <div class="col-md" data-aos="fade-right" data-aos-duration="500" data-aos-delay="900">
-                    <a href="<?= base_url('/children/addClass'); ?>" class="btn-sm btn">
-                        <p><i class="fas fa-user-plus mr-2"></i> Add Data Kelas</p>
-                    </a>
+    <div class="p-2 bd-highlight ml-3">
+        <div class="row">
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle font-weight-lighter" type="button" id="dropdownMenuButton" data-toggle="dropdown">
+                    Class Actions
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <?php if (in_groups('superadmin')) : ?>
+                        <a class="dropdown-item" href="<?= base_url('/children/addClass'); ?>"> <i class="fas fa-plus-circle"></i> Add Data Kelas</a>
+                    <?php endif; ?>
+                    <button type="button" data-toggle="modal" data-target="#dataKelas" class="dropdown-item"> <i class="fas fa-eye"></i> View Data Kelas</button>
                 </div>
             </div>
         </div>
-    <?php endif; ?>
+    </div>
 
     <!-- search button -->
     <?php if (!in_groups('pusat')) : ?>
@@ -190,7 +194,29 @@ if (session()->getFlashData('failed_import')) {
     <?= $pager->links('children', 'custom'); ?>
 </div>
 <!-- pagination -->
-
+<!-- Modal -->
+<div class="modal fade" id="dataKelas" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">List Class</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ol>
+                    <?php foreach ($class as $c) : ?>
+                        <li class="black-fonts"><?= $c['nama_kelas']; ?></li>
+                    <?php endforeach; ?>
+                </ol>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <?php if (!in_groups('pusat')) : ?>
     <script src="<?= base_url(); ?>/assets/js/logics/children.js"></script>
 <?php else : ?>

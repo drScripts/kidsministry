@@ -31,8 +31,9 @@ class ChildrenController extends BaseController
 
         // mengambil penghitungan data
         $current_page = $this->request->getVar('page_children') ? $this->request->getVar('page_children') : 1;
-
+        $class = $this->classModel->findAll();
         if (!in_groups('pusat')) {
+
             // konek to database withh model 
             // $children_pageinate = $this->childrenModel->getChildren()->findAll();
             $children_pageinate = $this->childrenModel->getChildren()->paginate(7, 'children');
@@ -43,6 +44,7 @@ class ChildrenController extends BaseController
                 'pager'         => $pager,
                 'childrens'     => $children_pageinate,
                 'current_page'  => $current_page,
+                'class'         => $class,
             ];
         } else {
             $cabangs = $this->childrenModel->getPusatChildren()->select('nama_cabang')->get()->getResultArray();
@@ -62,9 +64,9 @@ class ChildrenController extends BaseController
                 'childrens'     => $children_pageinate,
                 'current_page'  => $current_page,
                 'cabangs'       => array_unique($cabang),
+                'class'         => $class,
             ];
         }
-
 
 
         return view('dashboard/children/children', $data);
