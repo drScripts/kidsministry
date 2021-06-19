@@ -109,6 +109,7 @@ $routes->group('', ['filter' => 'role:pusat'], function ($routes) {
 
 	$routes->get('/pusat/getHistorys/(:any)', 'PusatController::absensiHistory/$1');
 	$routes->get('/pusat/tracking', 'PusatController::trackingData');
+	$routes->delete('/pusat/tracking/(:any)', 'PusatController::deleteTracking/$1');
 	$routes->get('/pusat/tracking/(:any)', 'PusatController::trackingData/$1');
 	$routes->get('/pusat/export/(:any)/(:any)/(:any)', 'PusatController::historyExport/$1/$2/$3');
 

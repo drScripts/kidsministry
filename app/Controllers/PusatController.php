@@ -240,7 +240,7 @@ class PusatController extends BaseController
                 ->join('pembimbings', 'pembimbings.id_pembimbing = absensis.pembimbing_id')
                 ->join('users', 'users.id = absensis.deleted_by')
                 ->join('cabang', 'cabang.id_cabang = pembimbings.region_pembimbing')
-                ->select('children_name,absensis.deleted_at as absensiDeleted,username,email,name_pembimbing,nama_cabang')
+                ->select('children_name,absensis.deleted_at as absensiDeleted,username,email,name_pembimbing,nama_cabang,id_absensi')
                 ->orderBy('absensis.deleted_at', 'ASC')
                 ->paginate(7, 'tracking');
             $pager = $this->absensiModel->pager;
@@ -256,7 +256,7 @@ class PusatController extends BaseController
                 ->join('users', 'users.id = childrens.deleted_by')
                 ->join('pembimbings', 'pembimbings.id_pembimbing = childrens.id_pembimbing')
                 ->join('cabang', 'cabang.id_cabang = pembimbings.region_pembimbing')
-                ->select('children_name,childrens.deleted_at as childrenDeleted,username,email,name_pembimbing,nama_cabang')
+                ->select('children_name,childrens.deleted_at as childrenDeleted,username,email,name_pembimbing,nama_cabang,id_absensi')
                 ->orderBy('childrens.deleted_at', 'ASC')
                 ->paginate(7, 'tracking');
 
@@ -271,6 +271,15 @@ class PusatController extends BaseController
         }
 
         return view('dashboard/tracking/index', $data);
+    }
+
+    public function deleteTracking($id)
+    {
+        $nama = $this->absensiModel->withDeleted()->join('childrens', 'childrens.id_children = absensis.children_id')->find($id)['children_name'];
+        $this->db->query("DELETE FROM `absensis` WHERE `id_absensi` = $id");
+
+        session()->setFlashData('success_delete', "Successfully Delete Record Absensi Of  $nama !");
+        return redirect()->to('/pusat/tracking');
     }
 
     public function historyExport($month, $year, $cabang)
