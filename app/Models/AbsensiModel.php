@@ -78,7 +78,7 @@ class AbsensiModel extends Model
 
     public function getDateName()
     {
-
+        date_default_timezone_set("Asia/Bangkok");
         $bulan = array(
             1 =>   'Januari',
             'Februari',

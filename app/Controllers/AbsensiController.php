@@ -39,8 +39,7 @@ class AbsensiController extends BaseController
 
     public function index()
     {
-        // mengambil penghitungan data
-
+        // mengambil penghitungan data 
         $sunday_date_controller = $this->getDateName();
         $sunday_date_model = $this->absensiModel->getDateName();
         if (!in_groups('pusat')) {
@@ -118,6 +117,10 @@ class AbsensiController extends BaseController
     public function addAbsensi()
     {
 
+        if (session()->getFlashData('data')) {
+            $this->absensiModel->save(session()->getFlashData('data'));
+        }
+
         $canUpdate = true;
         try {
             $token = $this->googleToken->first();
@@ -157,7 +160,6 @@ class AbsensiController extends BaseController
     public function insert()
     {
         $api = new GoogleApiServices();
-
         $validator = [
             'pembimbing' => [
                 'rules'     => 'required|integer',
@@ -174,18 +176,18 @@ class AbsensiController extends BaseController
                 ],
             ],
             'picture'    => [
-                'rules'     => 'mime_in[picture,image/gif,image/jpg,image/jpeg,image/png,image/svg+xml]|is_image[picture]|max_size[picture,15360]',
+                'rules'     => 'mime_in[picture,image/gif,image/jpg,image/jpeg,image/png,image/svg+xml]|is_image[picture]|max_size[picture,50000]',
                 'errors'    => [
                     'mime_in'   => 'Picture Must With Mime Type Of Images !',
                     'is_image'  => 'Picture Must Be A Picture File !',
-                    'max_size'  => 'Picture Size Must Less Than 15MB !'
+                    'max_size'  => 'Picture Size Must Less Than 50000MB !'
                 ],
             ],
             'video'    => [
-                'rules'     => 'mime_in[video,video/x-flv,video/mp4,application/x-mpegURL,video/MP2T,video/3gpp,video/quicktime]|max_size[video,15360]',
+                'rules'     => 'mime_in[video,video/x-flv,video/mp4,application/x-mpegURL,video/MP2T,video/3gpp,video/quicktime]|max_size[video,50000]',
                 'errors'    => [
                     'mime_in'   => 'Video Must With Mime Type Of Videos',
-                    'max_size'  => 'Video Size Must Less Than 15MB',
+                    'max_size'  => 'Video Size Must Less Than 50MB',
                 ],
             ],
         ];
@@ -213,41 +215,11 @@ class AbsensiController extends BaseController
         }
 
         $validate = $this->validate($validator);
-
-
         if (!$validate) {
             return redirect()->to('/absensi/add')->withInput();
         }
 
-        $date_file_name = $this->getDateName();
-        $bulan = explode(' ', $date_file_name)[1];
-        //// search PPl Kids Name
-        $pplParentId = $api->searchPplKidsFolder();
-
-        //// search grouping folder name
-        $group = $api->search_parents_date_folder('Foto Video Anak - Bulan ' . $bulan, $pplParentId);
-
-        //// search date folder
-        $dateFolderId = $api->search_parents_date_folder($date_file_name, $group);
-
-        //// search region folder
-        $regionName = $this->cabangModel->find(user()->toArray()['region'])['nama_cabang'];
-        $regionFolderId = $api->search_parents_folder($regionName, $dateFolderId);
-
-        //// search Besar Folder
-        $besarId = $api->search_parents_folder('Besar', $regionFolderId);
-        $kecilId = $api->search_parents_folder('Kecil', $regionFolderId);
-        $teenId = $api->search_parents_folder('Teens', $regionFolderId);
-
-        ///// search Foto Folder Besar
-        $fotoIdBesar = $api->search_parents_folder('Foto', $besarId);
-        $fotoIdKecil = $api->search_parents_folder('Foto', $kecilId);
-        $fotoIdTeen = $api->search_parents_folder('Foto', $teenId);
-
-        //// search Video Folder
-        $videoIdBesar = $api->search_parents_folder('Video', $besarId);
-        $videoIdKecil = $api->search_parents_folder('Video', $kecilId);
-        $videoIdTeen = $api->search_parents_folder('Video', $teenId);
+        $regionFolderId = $api->executedFileParents();
 
         //// get all request
         $pembimbingId = $this->request->getVar('pembimbing');
@@ -271,9 +243,10 @@ class AbsensiController extends BaseController
 
         //// get Children name by id
 
-        $childrenName = $this->childrenModel->getSingleChildren($childrenId)['children_name'];
-        $childrenRole = $this->childrenModel->getSingleChildren($childrenId)['role'];
-        $kelas = $this->classModel->find($childrenRole)['nama_kelas'];
+        //// get Children name by id
+        $children = $this->childrenModel->getSingleChildren($childrenId);
+        $childrenName = $children['children_name'];
+        $kelas = $children['nama_kelas'];
 
 
         //// extension the file
@@ -290,10 +263,20 @@ class AbsensiController extends BaseController
             $pictExt = $pictureFile->getClientExtension();
             $pict = 'yes';
             if ($kelas == 'Balita' || $kelas == 'Batita' || $kelas == 'Pratama' || $kelas == 'Daud' || $kelas == 'Samuel' || $kelas == 'Balita/Pratama') {
+
+                $kecilId = $api->search_parents_folder('Kecil', $regionFolderId);
+                $fotoIdKecil = $api->search_parents_folder('Foto', $kecilId);
                 $pictId = $api->push_file($childrenName, $fotoIdKecil, $pictExt, $pictureFile);
-            } elseif ($kelas == 'Teens' || $kelas == 'Mazmur' || $kelas == 'Lukas') {
+            } elseif ($kelas == 'Teens') {
+
+                $teenId = $api->search_parents_folder('Teens', $regionFolderId);
+                $fotoIdTeen = $api->search_parents_folder('Foto', $teenId);
                 $pictId = $api->push_file($childrenName, $fotoIdTeen, $pictExt, $pictureFile);
             } else {
+
+                $besarId = $api->search_parents_folder('Besar', $regionFolderId);
+                $fotoIdBesar = $api->search_parents_folder('Foto', $besarId);
+
                 $pictId = $api->push_file($childrenName, $fotoIdBesar, $pictExt, $pictureFile);
             }
         } else {
@@ -304,21 +287,32 @@ class AbsensiController extends BaseController
             $videoExt = $videoFile->getClientExtension();
             $video = 'yes';
             if ($kelas == 'Balita' || $kelas == 'Batita' || $kelas == 'Pratama' || $kelas == 'Pratama' || $kelas == 'Daud' || $kelas == 'Samuel' || $kelas == 'Balita/Pratama') {
+
+                $kecilId = $api->search_parents_folder('Kecil', $regionFolderId);
+                $videoIdKecil = $api->search_parents_folder('Video', $kecilId);
                 $videoIds = $api->push_file($childrenName, $videoIdKecil, $videoExt, $videoFile);
-            } elseif ($kelas == 'Teens' || $kelas == 'Mazmur' || $kelas == 'Lukas') {
+            } elseif ($kelas == 'Teens') {
+
+                $teenId = $api->search_parents_folder('Teens', $regionFolderId);
+                $videoIdTeen = $api->search_parents_folder('Video', $teenId);
                 $videoIds = $api->push_file($childrenName, $videoIdTeen, $videoExt, $videoFile);
             } else {
-                $videoIds = $api->push_file($childrenName, $videoIdBesar, $pictExt, $pictureFile);
+
+                $besarId = $api->search_parents_folder('Besar', $regionFolderId);
+                $videoIdBesar = $api->search_parents_folder('Video', $besarId);
+
+                $videoIds = $api->push_file($childrenName, $videoIdBesar, $videoExt, $videoFile);
             }
         } else {
             $video = 'no';
         }
 
+        $date_file_name = $this->getDateName();
         $fileNames = explode(" ", $date_file_name);
         $month = $fileNames[1];
         $year = $fileNames[2];
 
-        $save = $this->absensiModel->save([
+        $array = [
             'children_id'   => $childrenId,
             'pembimbing_id' => $pembimbingId,
             'video'         => $video,
@@ -330,14 +324,13 @@ class AbsensiController extends BaseController
             'sunday_date'   => $date_file_name,
             'id_foto'       => $pictId,
             'id_video'      => $videoIds,
-            'created_by'       => user()->toArray()['id'],
-        ]);
+            'created_by'    => $this->region,
+        ];
 
-        if ($save) {
-            session()->setFlashData('success_add', "Successfully Add Absensi Of $childrenName !");
+        session()->setFlashData('data', $array);
+        session()->setFlashData('success_add', "Successfully Add Absensi Of $childrenName !");
 
-            return redirect()->to('/absensi/add');
-        }
+        return redirect()->to('/absensi/add');
     }
 
     public function delete($id)
@@ -439,7 +432,7 @@ class AbsensiController extends BaseController
 
     public function getDateName()
     {
-
+        date_default_timezone_set("Asia/Bangkok");
         $bulan = array(
             1 =>   'Januari',
             'Februari',

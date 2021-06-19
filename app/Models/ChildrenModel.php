@@ -41,7 +41,7 @@ class ChildrenModel extends Model
 
     public function getSingleChildren($id)
     {
-        return $this->find($id);
+        return $this->join('kelas', 'kelas.id_class = childrens.role')->find($id);
     }
 
     public function getPusatChildren()
