@@ -191,34 +191,29 @@ class AbsensiController extends BaseController
         ];
 
 
-        // if (boolval($this->quiz)) {
-        //     $validator[] = [
-        //         'quiz'     => [
-        //             'rules'     => 'required|string|max_length[5]',
-        //             'errors'    => [
-        //                 'required'      => 'Please Select The Children Quiz !',
-        //                 'string'        => 'Quiz Must Be String !',
-        //                 'max_length'    => 'Quiz Max Is 5 !',
-        //             ],
-        //         ],
-        //     ];
-        //     $validate = $this->validate($validator);
-        // } elseif (boolval($this->zoom)) {
-        //     $validator[] = [
-        //         'zoom'     => [
-        //             'rules'     => 'required|string|max_length[5]',
-        //             'errors'    => [
-        //                 'required'      => 'Please Select The Children Zoom !',
-        //                 'string'        => 'Quiz Must Be String !',
-        //                 'max_length'    => 'Quiz Max Is 5 !',
-        //             ],
-        //         ],
-        //     ];
-        //     $validate = $this->validate($validator);
-        // } else {
-        //     $validate = $this->validate($validator);
-        // }
+        if (boolval($this->quiz)) {
+            $validator['quiz'] =  [
+                'rules'     => 'required|string|max_length[5]',
+                'errors'    => [
+                    'required'      => 'Please Select The Children Quiz !',
+                    'string'        => 'Quiz Must Be String !',
+                    'max_length'    => 'Quiz Max Is 5 !',
+                ],
+            ];
+        }
+        if (boolval($this->zoom)) {
+            $validator['zoom'] = [
+                'rules'     => 'required|string|max_length[5]',
+                'errors'    => [
+                    'required'      => 'Please Select The Children Zoom !',
+                    'string'        => 'Quiz Must Be String !',
+                    'max_length'    => 'Quiz Max Is 5 !',
+                ],
+            ];
+        }
+
         $validate = $this->validate($validator);
+
 
         if (!$validate) {
             return redirect()->to('/absensi/add')->withInput();
