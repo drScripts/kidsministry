@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\PembimbingsModel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class PembimbingController extends BaseController
 {
@@ -23,7 +24,7 @@ class PembimbingController extends BaseController
         $current_page = $this->request->getVar('page_pembimbing') ? $this->request->getVar('page_pembimbing') : 1;
         if (!in_groups('pusat')) {
             $pembimbings = $this->pembimbing_model->where('region_pembimbing', user()->toArray()['region'])->paginate(7, 'pembimbing');
-            
+
 
             $pager = $this->pembimbing_model->pager;
 
@@ -36,10 +37,10 @@ class PembimbingController extends BaseController
         } else {
             $cabang = [];
 
-            $data = $this->pembimbing_model->join('cabang','cabang.id_cabang = pembimbings.region_pembimbing')->findAll();
-            $pembimbings = $this->pembimbing_model->join('cabang','cabang.id_cabang = pembimbings.region_pembimbing')->orderby('nama_cabang','ASC')->paginate(7,'pembimbing');
+            $data = $this->pembimbing_model->join('cabang', 'cabang.id_cabang = pembimbings.region_pembimbing')->findAll();
+            $pembimbings = $this->pembimbing_model->join('cabang', 'cabang.id_cabang = pembimbings.region_pembimbing')->orderby('nama_cabang', 'ASC')->paginate(7, 'pembimbing');
 
-            foreach ($data as $pembimbing ) {
+            foreach ($data as $pembimbing) {
                 $cabang[] = $pembimbing['nama_cabang'];
             }
 
@@ -56,7 +57,7 @@ class PembimbingController extends BaseController
             ];
         }
 
-        
+
         return view('dashboard/pembimbing/index', $data);
     }
 
@@ -168,11 +169,12 @@ class PembimbingController extends BaseController
 
         $spreadsheet->getActiveSheet()->getStyle('A1:B1')->getFont()->setBold(9);
 
-        $writer = new Xlsx($spreadsheet);
+        $writter = IOFactory::createWriter($spreadsheet, 'Xlsx');
         header('Content-Type: application/vnd.ms-excel');
         header('Content-Disposition: attachment;filename="Daftar Pembimbing ' . user()->toArray()['region'] . '.xlsx"');
         header('Cache-Control: max-age=0');
 
-        $writer->save('php://output');
+        $writter->save('php://output');
+        die;
     }
 }

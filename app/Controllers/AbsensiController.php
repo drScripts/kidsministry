@@ -11,6 +11,7 @@ use App\Models\GoogleTokenModel;
 use App\Models\PembimbingsModel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class AbsensiController extends BaseController
 {
@@ -733,7 +734,7 @@ class AbsensiController extends BaseController
 
         $spreadsheet->getActiveSheet()->getStyle('A1:I1')->getFont()->setBold(9);
 
-        $writer = new Xlsx($spreadsheet);
+        $writter = IOFactory::createWriter($spreadsheet, 'Xlsx');
 
         $getRegionName = $this->cabangModel->getCabang(user()->toArray()['region'])['nama_cabang'];
 
@@ -741,7 +742,8 @@ class AbsensiController extends BaseController
         header('Content-Disposition: attachment;filename="Absensi ' . $getRegionName . ' ' . $month . ' ' . $year . '.xlsx"');
         header('Cache-Control: max-age=0');
 
-        $writer->save('php://output');
+        $writter->save('php://output');
+        die;
     }
 
     public function chartAbsensi()

@@ -9,6 +9,7 @@ use App\Models\ClassModel;
 use App\Models\PembimbingsModel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class ChildrenController extends BaseController
 {
@@ -261,7 +262,7 @@ class ChildrenController extends BaseController
 
         $spredsheet->getActiveSheet()->getStyle('A1:D1')->getFont()->setBold(9);
 
-        $writer = new Xlsx($spredsheet);
+        $writter = IOFactory::createWriter($spredsheet, 'Xlsx');
 
         $getCabangName = $this->cabangModel->getCabang(user()->toArray()['region'])['nama_cabang'];
 
@@ -269,7 +270,8 @@ class ChildrenController extends BaseController
         header('Content-Disposition: attachment;filename="Daftar Anak ' . $getCabangName . '.xlsx"');
         header('Cache-Control: max-age=0');
 
-        $writer->save('php://output');
+        $writter->save('php://output');
+        die;
     }
 
     public function addClass()

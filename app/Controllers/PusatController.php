@@ -9,6 +9,7 @@ use App\Models\PembimbingsModel;
 use App\Models\TempModel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class PusatController extends BaseController
 {
@@ -384,13 +385,15 @@ class PusatController extends BaseController
 
         $spredsheet->getActiveSheet()->getStyle('A1:I1')->getFont()->setBold(9);
 
-        $writter = new Xlsx($spredsheet);
+        $writter = IOFactory::createWriter($spredsheet, 'Xlsx');
+
 
         header('Content-Type: application/vnd.ms-excel');
         header('Content-Disposition: attachment;filename="Absensi ' . $cabang . ' ' . $month . ' ' . $year . '.xlsx"');
         header('Cache-Control: max-age=0');
 
         $writter->save('php://output');
+        die;
     }
 
     public function settings()
