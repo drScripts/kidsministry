@@ -256,7 +256,7 @@ class PusatController extends BaseController
                 ->join('users', 'users.id = childrens.deleted_by')
                 ->join('pembimbings', 'pembimbings.id_pembimbing = childrens.id_pembimbing')
                 ->join('cabang', 'cabang.id_cabang = pembimbings.region_pembimbing')
-                ->select('children_name,childrens.deleted_at as childrenDeleted,username,email,name_pembimbing,nama_cabang,id_absensi')
+                ->select('children_name,childrens.deleted_at as childrenDeleted,username,email,name_pembimbing,nama_cabang')
                 ->orderBy('childrens.deleted_at', 'ASC')
                 ->paginate(7, 'tracking');
 
