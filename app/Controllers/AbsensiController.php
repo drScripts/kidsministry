@@ -386,6 +386,7 @@ class AbsensiController extends BaseController
             'data'  => $data_absensi,
             'id'    => $id,
             'quiz'  => boolval($this->quiz),
+            'zoom'  => boolval($this->zoom),
         ];
 
         return view('dashboard/absensi/edit', $data);
@@ -408,6 +409,38 @@ class AbsensiController extends BaseController
             $this->absensiModel->update($id, [
                 'video'         => $video,
             ]);
+        }
+
+        if ($this->request->getPost('quiz') && $this->request->getPost('zoom')) {
+            $quiz = $this->request->getVar('quiz');
+            $zoom = $this->request->getVar('zoom');
+            $update = $this->absensiModel->update($id, [
+                'quiz'          => $quiz,
+                'zoom'          => $zoom,
+                'updated_by'    => user()->toArray()['id'],
+            ]);
+
+            if ($update) {
+                session()->setFlashData('success_update', 'Absensi Successfully Updated');
+                return redirect()->to('/absensi');
+            } else {
+                return redirect()->to('/absensi');
+            }
+        }
+
+        if ($this->request->getPost('zoom')) {
+            $zoom = $this->request->getVar('zoom');
+            $update = $this->absensiModel->update($id, [
+                'zoom'          => $zoom,
+                'updated_by'    => user()->toArray()['id'],
+            ]);
+
+            if ($update) {
+                session()->setFlashData('success_update', 'Absensi Successfully Updated');
+                return redirect()->to('/absensi');
+            } else {
+                return redirect()->to('/absensi');
+            }
         }
 
         if ($this->request->getPost('quiz')) {

@@ -61,6 +61,20 @@ if (user()->toArray()['region'] == 'super') {
         </div>
 
     <?php endif; ?>
+    <?php if ($zoom) : ?>
+        <div class="form-group" data-aos="fade-right" data-aos-duration="500" data-aos-delay="1100">
+            <label for="quiz" class="white-fonts">Zoom</label>
+            <select name="zoom" id="quiz" class="form-control grey-fonts">
+                <optgroup label='Default Value'>
+                    <option value="<?= $data['absensi']['zoom']; ?>"><?= strtoupper($data['absensi']['zoom']); ?></option>
+                </optgroup>
+                <optgroup label="Options">
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                </optgroup>
+            </select>
+        </div>
+    <?php endif; ?>
     <button type="submit" class="btn btn-primary mt-5" onclick="return confirm('Are You Sure Want To Update It?')">Submit</button>
 </form>
 
