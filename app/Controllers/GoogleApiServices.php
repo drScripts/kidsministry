@@ -159,7 +159,7 @@ class GoogleApiServices extends BaseController
     public function searchPplKidsFolder()
     {
         $response = $this->service->files->listFiles([
-            'q' => "mimeType = 'application/vnd.google-apps.folder' and name = 'PPL KOPO' and trashed=false",
+            'q' => "mimeType = 'application/vnd.google-apps.folder' and name = 'PPL Kids' and trashed=false",
         ]);
 
         $parentsID = '';
@@ -175,6 +175,23 @@ class GoogleApiServices extends BaseController
     }
 
     public function search_parents_date_folder($name, $parent_id)
+    {
+        $response = $this->service->files->listFiles([
+            'q' => "'$parent_id' in parents and name = '$name'",
+        ]);
+
+        $exist_id = '';
+        if ($response['files']) {
+            $exist_id  = $response['files'][0]['id'];
+        } else {
+            $response = $this->create_folder($name, $parent_id);
+            $exist_id = $response->id;
+        }
+
+        return $exist_id;
+    }
+
+    public function search_group_date_folder($name, $parent_id)
     {
         $response = $this->service->files->listFiles([
             'q' => "'$parent_id' in parents and name contains '$name'",
@@ -257,24 +274,5 @@ class GoogleApiServices extends BaseController
         $folder = $this->service->files->create($fileMetadata);
 
         return $folder;
-    }
-
-    public function executedFileParents()
-    {
-        $date_file_name = $this->absensi->getDateName();
-        $bulan = explode(' ', $date_file_name)[1];
-
-        // parents root
-        $pplParentId = $this->searchPplKidsFolder();
-
-        // grouping
-        $group = $this->search_parents_date_folder('Foto Video Anak - Bulan ' . $bulan, $pplParentId);
-
-        // datefolder        
-        $dateFolderId = $this->search_parents_date_folder($date_file_name, $group);
-
-        //region
-        $regionName = $this->cabangModel->find(user()->toArray()['region'])['nama_cabang'];
-        return  $this->search_parents_folder($regionName, $dateFolderId);;
     }
 }

@@ -220,7 +220,38 @@ class AbsensiController extends BaseController
             return redirect()->to('/absensi/add')->withInput();
         }
 
-        $regionFolderId = $api->executedFileParents();
+
+        $date_file_name = $this->getDateName();
+        $bulan = explode(' ', $date_file_name)[1];
+
+        //// search PPl Kids Name
+        $pplParentId = $api->searchPplKidsFolder();
+
+        //// search grouping folder name
+        $group = $api->search_group_date_folder('Foto Video Anak - Bulan ' . $bulan, $pplParentId);
+
+        //// search date folder 
+        $dateFolderId = $api->search_parents_date_folder($date_file_name, $group);
+
+        //// search region folder
+        $regionName = $this->cabangModel->find(user()->toArray()['region'])['nama_cabang'];
+        $regionFolderId = $api->search_parents_folder($regionName, $dateFolderId);
+
+        //// search Besar Folder
+        $besarId = $api->search_parents_folder('Besar', $regionFolderId);
+        $kecilId = $api->search_parents_folder('Kecil', $regionFolderId);
+        $teenId = $api->search_parents_folder('Teens', $regionFolderId);
+
+        ///// search Foto Folder Besar
+        $fotoIdBesar = $api->search_parents_folder('Foto', $besarId);
+        $fotoIdKecil = $api->search_parents_folder('Foto', $kecilId);
+        $fotoIdTeen = $api->search_parents_folder('Foto', $teenId);
+
+        //// search Video Folder
+        $videoIdBesar = $api->search_parents_folder('Video', $besarId);
+        $videoIdKecil = $api->search_parents_folder('Video', $kecilId);
+        $videoIdTeen = $api->search_parents_folder('Video', $teenId);
+
 
         //// get all request
         $pembimbingId = $this->request->getVar('pembimbing');
@@ -264,20 +295,10 @@ class AbsensiController extends BaseController
             $pictExt = $pictureFile->getClientExtension();
             $pict = 'yes';
             if ($kelas == 'Balita' || $kelas == 'Batita' || $kelas == 'Pratama' || $kelas == 'Daud' || $kelas == 'Samuel' || $kelas == 'Balita/Pratama') {
-
-                $kecilId = $api->search_parents_folder('Kecil', $regionFolderId);
-                $fotoIdKecil = $api->search_parents_folder('Foto', $kecilId);
                 $pictId = $api->push_file($childrenName, $fotoIdKecil, $pictExt, $pictureFile);
             } elseif ($kelas == 'Teens') {
-
-                $teenId = $api->search_parents_folder('Teens', $regionFolderId);
-                $fotoIdTeen = $api->search_parents_folder('Foto', $teenId);
                 $pictId = $api->push_file($childrenName, $fotoIdTeen, $pictExt, $pictureFile);
             } else {
-
-                $besarId = $api->search_parents_folder('Besar', $regionFolderId);
-                $fotoIdBesar = $api->search_parents_folder('Foto', $besarId);
-
                 $pictId = $api->push_file($childrenName, $fotoIdBesar, $pictExt, $pictureFile);
             }
         } else {
@@ -288,20 +309,10 @@ class AbsensiController extends BaseController
             $videoExt = $videoFile->getClientExtension();
             $video = 'yes';
             if ($kelas == 'Balita' || $kelas == 'Batita' || $kelas == 'Pratama' || $kelas == 'Pratama' || $kelas == 'Daud' || $kelas == 'Samuel' || $kelas == 'Balita/Pratama') {
-
-                $kecilId = $api->search_parents_folder('Kecil', $regionFolderId);
-                $videoIdKecil = $api->search_parents_folder('Video', $kecilId);
                 $videoIds = $api->push_file($childrenName, $videoIdKecil, $videoExt, $videoFile);
             } elseif ($kelas == 'Teens') {
-
-                $teenId = $api->search_parents_folder('Teens', $regionFolderId);
-                $videoIdTeen = $api->search_parents_folder('Video', $teenId);
                 $videoIds = $api->push_file($childrenName, $videoIdTeen, $videoExt, $videoFile);
             } else {
-
-                $besarId = $api->search_parents_folder('Besar', $regionFolderId);
-                $videoIdBesar = $api->search_parents_folder('Video', $besarId);
-
                 $videoIds = $api->push_file($childrenName, $videoIdBesar, $videoExt, $videoFile);
             }
         } else {
