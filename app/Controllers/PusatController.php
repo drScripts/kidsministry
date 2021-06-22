@@ -7,6 +7,7 @@ use App\Models\CabangModel;
 use App\Models\ChildrenModel;
 use App\Models\PembimbingsModel;
 use App\Models\TempModel;
+use App\Models\UserModel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -16,6 +17,7 @@ class PusatController extends BaseController
 
     protected $absensiModel;
     protected $childrenModel;
+    protected $userModel;
     protected $pembimbingModel;
     protected $cabangModel;
     protected $quiz;
@@ -29,6 +31,7 @@ class PusatController extends BaseController
         $this->absensiModel = new AbsensiModel();
         $this->childrenModel = new ChildrenModel();
         $this->pembimbingModel = new PembimbingsModel();
+        $this->userModel = new UserModel();
         $this->cabangModel = new CabangModel();
         $this->quiz =  $this->cabangModel->find(user()->toArray()['region'])['quiz'];
         $this->zoom = $this->cabangModel->find(user()->toArray()['region'])['zoom'];
@@ -110,7 +113,7 @@ class PusatController extends BaseController
             ->join('users', 'users.id = childrens.created_by')
             ->join('cabang', 'cabang.id_cabang = pembimbings.region_pembimbing')
             ->join('kelas', 'kelas.id_class = childrens.role')
-            ->select('childrens.created_by as childrenAdd, childrens.updated_by as childrenUpdate,children_name,code,name_pembimbing,role,nama_cabang,username,email,childrens.created_at as childrenCreated,childrens.updated_at as childrenUpdated,nama_kelas')
+            ->select('childrens.created_by as childrenAdd, childrens.updated_by as childrenUpdate,children_name,code,name_pembimbing,role,nama_cabang,username,email,childrens.created_at as childrenCreated,childrens.updated_at as childrenUpdated,nama_kelas,tanggal_lahir')
             ->find($id);
         $data = [
             'title'  => 'Detail Children',
@@ -485,6 +488,26 @@ class PusatController extends BaseController
                 } else {
                     $respond = [
                         'failed'  => 'Quiz Module Failed Updated',
+                    ];
+                }
+            }
+        } elseif ($mode == 'notifyBirthday') {
+            $hasil = 0;
+            $request = $this->request->getVar()['status'];
+            if ($request == 0) {
+                $hasil = 1;
+
+                $update = $this->userModel->update(user()->toArray()['id'], [
+                    'notify_birthday'  => $hasil,
+                ]);
+
+                if ($update) {
+                    $respond = [
+                        'success'  => 'Silahkan Check Icon Kue Ulang Tahun Di Atas Kanan',
+                    ];
+                } else {
+                    $respond = [
+                        'failed'  => 'Silahkan Check Icon Kue Ulang Tahun Di Atas Kanan',
                     ];
                 }
             }

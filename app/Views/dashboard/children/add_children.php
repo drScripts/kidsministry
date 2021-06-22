@@ -4,7 +4,7 @@
 
 
 <?php
-if ($validation->hasError('children_name') || $validation->hasError('code') || $validation->hasError('role') || $validation->hasError('pembimbing')) {
+if ($validation->hasError('children_name') || $validation->hasError('code') || $validation->hasError('role') || $validation->hasError('pembimbing') || $validation->hasError('tgllhr')) {
     echo "
     <script>
         demo.dangerNotification('top', 'right', '<b>Failed Add Chldren</b><br>Check Your Input');
@@ -53,6 +53,17 @@ if ($validation->hasError('children_name') || $validation->hasError('code') || $
         </select>
         <div class="invalid-feedback ">
             <?= $validation->getError('pembimbing'); ?>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group form-check" data-aos="fade-right" data-aos-duration="500" data-aos-delay="900">
+                <label for="tgllhr" class="white-fonts">Tanggal Lahir</label>
+                <input type="date" name="tgllhr" id="tgllhr" class="form-control white-fonts <?= ($validation->hasError('tgllhr')) ? 'is-invalid' : ''; ?>">
+                <div class="invalid-feedback ">
+                    <?= $validation->getError('tgllhr'); ?>
+                </div>
+            </div>
         </div>
     </div>
     <button type="submit" class="btn btn-primary mt-5" data-aos="fade-right" data-aos-duration="500" data-aos-delay="1100">Submit</button>

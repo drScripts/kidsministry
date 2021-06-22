@@ -91,6 +91,46 @@
   </div>
 
   <?php if (!in_groups('pusat')) : ?>
+    <?php if ($notif_birthday == 0 && count($children_birthday) != 0) {
+      echo "
+      <script>
+        Swal.fire({
+          title: 'Ada " . count($children_birthday) . " Anak Yang Ulang Tahun Bulan Ini !',
+          width: 700,
+          padding: '3em',
+          allowOutsideClick: false,
+          imageUrl: 'https://i.gifer.com/3TsW.gif',
+          backdrop: `
+            rgba(0,0,123,0.4)
+            url('" . base_url('assets/img/confe.gif') . "')
+            left top
+          `
+        }).then((result) => {
+          if(result.isConfirmed){
+            $.ajax({
+              url: '/settings/notifyBirthday',
+              type: 'POST',
+              data: {
+                  'status': $notif_birthday,
+              },
+              headers: {
+                  'X-Requested-With': 'XMLHttpRequest',
+              },
+              dataType: 'json',
+              success: function(data) {
+                  if (data.success) {
+                      demo.successNotification('top', 'left', '<b>Notification !</b><br> ' + data.success);
+                  } else {
+                      demo.successNotification('top', 'left', '<b>Notification !</b><br> ' + data.failed);
+                  }
+              }
+          });
+      } else {
+          }
+        });
+      </script>
+      ";
+    } ?>
     <script src="<?= base_url('assets/js/logics/index.js'); ?>"></script>
   <?php else : ?>
     <script src="<?= base_url('/assets/js/logics/pusat.js'); ?>"></script>

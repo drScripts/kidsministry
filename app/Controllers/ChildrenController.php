@@ -127,17 +127,24 @@ class ChildrenController extends BaseController
                     'required'  => 'Please Select The Children Pembimbing !'
                 ]
             ],
+            'tgllhr'    => [
+                'rules'     => 'required|valid_date[Y-m-d]',
+                'errors'    => [
+                    'valid_date'    => 'Date Must Be Valid Date',
+                    'required'      => 'Please Select The Children Birth Day !'
+                ]
+            ],
         ]);
 
         if (!$validate) {
             return redirect()->to('/children/add')->withInput();
         };
-
         $this->childrenModel->save([
             'children_name' => $this->request->getVar('children_name'),
             'code'          => $this->request->getVar('code'),
             'id_pembimbing' => $this->request->getVar('pembimbing'),
             'role'          => $this->request->getVar('role'),
+            'tanggal_lahir' => $this->request->getVar('tgllhr'),
             'created_by'    => user()->toArray()['id'],
         ]);
 
@@ -213,18 +220,25 @@ class ChildrenController extends BaseController
                     'required'  => 'Please Select The Children Pembimbing !'
                 ]
             ],
+            'tgllhr'    => [
+                'rules'     => 'required|valid_date[Y-m-d]',
+                'errors'    => [
+                    'valid_date'    => 'Date Must Be Valid Date',
+                    'required'      => 'Please Select The Children Birth Day !'
+                ]
+            ],
         ]);
 
         if (!$validate) {
             return redirect()->to('/children/edit/' . $id)->withInput();
         };
-
         $this->childrenModel->save([
             'id_children'   => $id,
             'children_name' => $this->request->getVar('children_name'),
             'code'          => $this->request->getVar('code'),
             'id_pembimbing' => $this->request->getVar('pembimbing'),
             'role'          => $this->request->getVar('role'),
+            'tanggal_lahir' => $this->request->getVar('tgllhr'),
             'updated_by'    => user()->toArray()['id'],
         ]);
         session()->setFlashData('success_update', 'Children Data Successfully Updated');

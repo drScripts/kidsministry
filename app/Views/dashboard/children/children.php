@@ -130,6 +130,7 @@ if (session()->getFlashData('failed_import')) {
             <th>Name</th>
             <th class="text-center">Code</th>
             <th>Pembimbing</th>
+            <th class="text-center">Tanggal Lahir</th>
             <?php if (!in_groups('pusat')) : ?>
                 <th class="text-center">Role</th>
             <?php else : ?>
@@ -159,7 +160,9 @@ if (session()->getFlashData('failed_import')) {
                     <td>
                         <?= $child['name_pembimbing']; ?>
                     </td>
-
+                    <td class="text-center">
+                        <?= ($child['tanggal_lahir'] == null) ? 'Belum Di Atur' : $child['tanggal_lahir']; ?>
+                    </td>
 
                     <?php if (!in_groups('pusat')) : ?>
                         <td class="text-center"><?= $child['nama_kelas']; ?></td>

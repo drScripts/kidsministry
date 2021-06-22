@@ -3,15 +3,21 @@
 namespace App\Controllers;
 
 use App\Models\AbsensiModel;
+use App\Models\ChildrenModel;
+use App\Models\UserModel;
 
 class Home extends BaseController
 {
 
 	protected $absensiModel;
+	protected $childrenModel;
+	protected $userModel;
 
 	public function __construct()
 	{
 		$this->absensiModel = new AbsensiModel();
+		$this->childrenModel = new ChildrenModel();
+		$this->userModel = new UserModel();
 	}
 
 	public function dashboard()
@@ -19,6 +25,8 @@ class Home extends BaseController
 		$date = date('Y');
 		$month = [];
 		if (!in_groups('pusat')) {
+			$notify = user()->toArray()['notify_birthday'];
+			$child_birthday = $this->childrenModel->birthDayChildren();
 			$datas = $this->absensiModel->join('pembimbings', "pembimbings.id_pembimbing = absensis.pembimbing_id")
 				->where('region_pembimbing', user()->toArray()['region'])
 				->where('year', $date)
@@ -32,6 +40,8 @@ class Home extends BaseController
 			$data = [
 				'month' 	=> array_unique($month),
 				'title' 	=> 'Home Dashboard',
+				'notif_birthday'		=> $notify,
+				'children_birthday'		=> $child_birthday,
 			];
 		} else {
 			$datas = $this->absensiModel->join('pembimbings', "pembimbings.id_pembimbing = absensis.pembimbing_id")

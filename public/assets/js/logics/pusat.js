@@ -104,7 +104,7 @@ const pusat = {
               },
             ],
           },
-          options: optionPusatYear(350),
+          options: optionPusatYear(400),
         };
         var myChartData = new Chart(ctx, config);
       },
@@ -161,7 +161,7 @@ const pusat = {
               },
             ],
           },
-          options: optionPusatYear(200),
+          options: optionPusatYear(400),
         };
         var myChartData = new Chart(ctx, config);
       },
@@ -255,6 +255,10 @@ const pusat = {
               var jumlah = 0;
               $("#body-table").html("");
               $.each(data, function (i, datas) {
+                let tanggal_lahir =
+                  datas.tanggal_lahir == null
+                    ? "Belum Diatur"
+                    : datas.tanggal_lahir;
                 let name = datas.children_name
                   .toLowerCase()
                   .includes(value.toLowerCase());
@@ -291,6 +295,11 @@ const pusat = {
                     <td >
                         ` +
                       datas.name_pembimbing +
+                      `
+                    </td>
+                    <td class="text-center">
+                    ` +
+                      tanggal_lahir +
                       `
                     </td>
                     <td class="text-center">
@@ -425,6 +434,10 @@ const pusat = {
               $("#body-table").html("");
 
               $.each(data, function (i, datas) {
+                let tanggal_lahir =
+                  datas.tanggal_lahir == null
+                    ? "Belum Diatur"
+                    : datas.tanggal_lahir;
                 $("#body-table").append(
                   `
                   <tr>
@@ -447,7 +460,12 @@ const pusat = {
                         ` +
                     datas.name_pembimbing +
                     `
-                    </td> 
+                    </td>
+                    <td class="text-center">
+                    ` +
+                    tanggal_lahir +
+                    `
+                    </td>
                     <td class="text-center">
                     ` +
                     datas.nama_cabang +

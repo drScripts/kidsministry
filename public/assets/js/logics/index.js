@@ -26,7 +26,7 @@ gradientChartOptionsConfigurationWithTooltipPurple = {
         },
         ticks: {
           suggestedMin: 0,
-          suggestedMax: 350,
+          suggestedMax: 500,
           padding: 20,
           fontColor: "#9a9a9a",
         },
@@ -131,7 +131,7 @@ gradient2 = {
         },
         ticks: {
           suggestedMin: 0,
-          suggestedMax: 200,
+          suggestedMax: 400,
           padding: 20,
           fontColor: "#9a9a9a",
         },

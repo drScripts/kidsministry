@@ -51,6 +51,10 @@ $(document).ready(function () {
             var jumlah = 0;
             $("#body-table").html("");
             $.each(data, function (i, datas) {
+              let tanggal_lahir =
+                datas.tanggal_lahir == null
+                  ? "Belum Diatur"
+                  : datas.tanggal_lahir;
               let name = datas.children_name
                 .toLowerCase()
                 .includes(value.toLowerCase());
@@ -85,6 +89,11 @@ $(document).ready(function () {
                     <td >
                         ` +
                     datas.name_pembimbing +
+                    `
+                    </td>
+                    <td class="text-center">
+                    ` +
+                    tanggal_lahir +
                     `
                     </td> 
                     <td class="text-center">
