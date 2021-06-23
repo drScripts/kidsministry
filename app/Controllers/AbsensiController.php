@@ -692,7 +692,13 @@ class AbsensiController extends BaseController
         $sheet = $spreadsheet->getActiveSheet();
 
 
-        $data = $this->absensiModel->join('pembimbings', "pembimbings.id_pembimbing = absensis.pembimbing_id")->join('childrens', "childrens.id_children = absensis.children_id")->where('region_pembimbing', user()->toArray()['region'])->where('month', $month)->where('year', $year)->get()->getResultArray();
+        $data = $this->absensiModel->join('pembimbings', "pembimbings.id_pembimbing = absensis.pembimbing_id")
+            ->join('childrens', "childrens.id_children = absensis.children_id")
+            ->join('kelas', 'kelas.id_class = childrens.role')
+            ->where('region_pembimbing', user()->toArray()['region'])
+            ->where('month', $month)
+            ->where('year', $year)
+            ->get()->getResultArray();
 
         $tanggal_awal = $data[0]['sunday_date'];
         $data_semua = [];
@@ -709,11 +715,14 @@ class AbsensiController extends BaseController
                 $data_baru = [
                     'Nama Anak'       => $absen['children_name'],
                     'Code Anak'       => $absen['code'],
-                    'Kelas'           => $absen['role'],
+                    'Kelas'           => $absen['nama_kelas'],
                     'Nama Pembimbing' => $absen['name_pembimbing'],
                     'Absen Foto'      => $absen['image'],
                     'Absen Video'     => $absen['video'],
                     'Children Quiz'   => $absen['quiz'],
+                    'Children Zoom'   => $absen['zoom'],
+                    'Children ABA'    => $absen['aba'],
+                    'Children Komsel' => $absen['komsel'],
                     'Tanggal Minggu'  => $absen['sunday_date'],
                 ];
                 $data_semua[] = $data_baru;
@@ -731,21 +740,33 @@ class AbsensiController extends BaseController
                 'Absen Foto'      => ' ',
                 'Absen Video'     => ' ',
                 'Children Quiz'   => ' ',
+                'Children Zoom'   => ' ',
+                'Children ABA'    => ' ',
+                'Children Komsel' => ' ',
                 'Tanggal Minggu'  => ' ',
             ];
             $data_semua[] = $data_baru;
 
-            $datas = $this->absensiModel->join('pembimbings', "pembimbings.id_pembimbing = absensis.pembimbing_id")->join('childrens', "childrens.id_children = absensis.children_id")->where('region_pembimbing', user()->toArray()['region'])->where('sunday_date', $tanggal)->get()->getResultArray();
+            $datas = $this->absensiModel
+                ->join('pembimbings', "pembimbings.id_pembimbing = absensis.pembimbing_id")
+                ->join('childrens', "childrens.id_children = absensis.children_id")
+                ->join('kelas', 'kelas.id_class = childrens.role')
+                ->where('region_pembimbing', user()->toArray()['region'])
+                ->where('sunday_date', $tanggal)
+                ->get()->getResultArray();
 
             foreach ($datas as $data) {
                 $data_baru = [
                     'Nama Anak'       => $data['children_name'],
                     'Code Anak'       => $data['code'],
-                    'Kelas'           => $data['role'],
+                    'Kelas'           => $data['nama_kelas'],
                     'Nama Pembimbing' => $data['name_pembimbing'],
                     'Absen Foto'      => $data['image'],
                     'Absen Video'     => $data['video'],
                     'Children Quiz'   => $data['quiz'],
+                    'Children Zoom'   => $data['zoom'],
+                    'Children ABA'    => $data['aba'],
+                    'Children Komsel' => $data['komsel'],
                     'Tanggal Minggu'  => $data['sunday_date'],
                 ];
                 $data_semua[] = $data_baru;
@@ -760,7 +781,10 @@ class AbsensiController extends BaseController
         $sheet->setCellValue('F1', 'Absen Foto');
         $sheet->setCellValue('G1', 'Absen Video');
         $sheet->setCellValue('H1', 'Children Quiz');
-        $sheet->setCellValue('I1', 'Tanggal Minggu');
+        $sheet->setCellValue('I1', 'Children Zoom');
+        $sheet->setCellValue('J1', 'Children ABA');
+        $sheet->setCellValue('K1', 'Children Komsel');
+        $sheet->setCellValue('L1', 'Tanggal Minggu');
 
         $no = 1;
         $index = 2;
@@ -777,7 +801,10 @@ class AbsensiController extends BaseController
             $sheet->setCellValue('F' . $index, $data['Absen Foto']);
             $sheet->setCellValue('G' . $index, $data['Absen Video']);
             $sheet->setCellValue('H' . $index, $data['Children Quiz']);
-            $sheet->setCellValue('I' . $index, $data['Tanggal Minggu']);
+            $sheet->setCellValue('I' . $index, $data['Children Zoom']);
+            $sheet->setCellValue('J' . $index, $data['Children ABA']);
+            $sheet->setCellValue('K' . $index, $data['Children Komsel']);
+            $sheet->setCellValue('L' . $index, $data['Tanggal Minggu']);
             $index++;
         }
         $spreadsheet->getActiveSheet()->getColumnDimensionByColumn(2)->setWidth(30);
@@ -787,15 +814,21 @@ class AbsensiController extends BaseController
         $spreadsheet->getActiveSheet()->getColumnDimensionByColumn(6)->setWidth(15);
         $spreadsheet->getActiveSheet()->getColumnDimensionByColumn(7)->setWidth(15);
         $spreadsheet->getActiveSheet()->getColumnDimensionByColumn(8)->setWidth(15);
-        $spreadsheet->getActiveSheet()->getColumnDimensionByColumn(9)->setWidth(20);
+        $spreadsheet->getActiveSheet()->getColumnDimensionByColumn(9)->setWidth(15);
+        $spreadsheet->getActiveSheet()->getColumnDimensionByColumn(10)->setWidth(15);
+        $spreadsheet->getActiveSheet()->getColumnDimensionByColumn(11)->setWidth(15);
+        $spreadsheet->getActiveSheet()->getColumnDimensionByColumn(12)->setWidth(20);
 
         $spreadsheet->getActiveSheet()->getStyle('A')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
         $spreadsheet->getActiveSheet()->getStyle('F')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
         $spreadsheet->getActiveSheet()->getStyle('G')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
         $spreadsheet->getActiveSheet()->getStyle('H')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
         $spreadsheet->getActiveSheet()->getStyle('I')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $spreadsheet->getActiveSheet()->getStyle('J')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $spreadsheet->getActiveSheet()->getStyle('K')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $spreadsheet->getActiveSheet()->getStyle('L')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
-        $spreadsheet->getActiveSheet()->getStyle('A1:I1')->getFont()->setBold(9);
+        $spreadsheet->getActiveSheet()->getStyle('A1:L1')->getFont()->setBold(9);
 
         $writter = IOFactory::createWriter($spreadsheet, 'Xlsx');
 
