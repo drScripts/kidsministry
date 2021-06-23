@@ -404,11 +404,15 @@ class PusatController extends BaseController
         $cabang = $this->cabangModel->find(user()->toArray()['region']);
         $quiz = $cabang['quiz'];
         $zoom = $cabang['zoom'];
+        $aba = $cabang['aba'];
+        $komsel = $cabang['komsel'];
 
         $data = [
-            'title' => 'Settings',
-            'quiz'  => boolval($quiz),
-            'zoom'  => boolval($zoom),
+            'title'     => 'Settings',
+            'quiz'      => boolval($quiz),
+            'zoom'      => boolval($zoom),
+            'aba'       => boolval($aba),
+            'komsel'    => boolval($komsel),
         ];
 
         return view('dashboard/settings/index', $data);
@@ -508,6 +512,80 @@ class PusatController extends BaseController
                 } else {
                     $respond = [
                         'failed'  => 'Silahkan Check Icon Kue Ulang Tahun Di Atas Kanan',
+                    ];
+                }
+            }
+        } elseif ($mode == 'aba') {
+            $hasil = 0;
+            $request = $this->request->getVar()['status'];
+
+
+            if ($request == 'true') {
+                $hasil = 1;
+
+                $update = $this->cabangModel->update(user()->toArray()['region'], [
+                    'aba'  => $hasil,
+                ]);
+
+                if ($update) {
+                    $respond = [
+                        'success'  => 'ABA Module Success Updated. Now ABA module is Active',
+                    ];
+                } else {
+                    $respond = [
+                        'failed'  => 'ABA Module Failed Updated',
+                    ];
+                }
+            } else {
+                $hasil = 0;
+                $update = $this->cabangModel->update(user()->toArray()['region'], [
+                    'aba'  => $hasil,
+                ]);
+
+                if ($update) {
+                    $respond = [
+                        'success'  => 'ABA Module Success Updated. Now ABA Module is non Active',
+                    ];
+                } else {
+                    $respond = [
+                        'failed'  => 'ABA Module Failed Updated',
+                    ];
+                }
+            }
+        } elseif ($mode == 'komsel') {
+            $hasil = 0;
+            $request = $this->request->getVar()['status'];
+
+
+            if ($request == 'true') {
+                $hasil = 1;
+
+                $update = $this->cabangModel->update(user()->toArray()['region'], [
+                    'komsel'  => $hasil,
+                ]);
+
+                if ($update) {
+                    $respond = [
+                        'success'  => 'Komsel Module Success Updated. Now Komsel module is Active',
+                    ];
+                } else {
+                    $respond = [
+                        'failed'  => 'Komsel Module Failed Updated',
+                    ];
+                }
+            } else {
+                $hasil = 0;
+                $update = $this->cabangModel->update(user()->toArray()['region'], [
+                    'komsel'  => $hasil,
+                ]);
+
+                if ($update) {
+                    $respond = [
+                        'success'  => 'Komsel Module Success Updated. Now Komsel Module is non Active',
+                    ];
+                } else {
+                    $respond = [
+                        'failed'  => 'Komsel Module Failed Updated',
                     ];
                 }
             }

@@ -32,6 +32,32 @@
                         </label>
                     </th>
                 </tr>
+                <tr>
+                    <th class=" mr-5 white-fonts">Enable ABA Absensi:</th>
+                    <th>
+                        <label class="switch ml-5">
+                            <?php if ($aba) : ?>
+                                <input type="checkbox" id="abaBtn" checked>
+                            <?php else : ?>
+                                <input type="checkbox" id="abaBtn">
+                            <?php endif; ?>
+                            <span class="slider round"></span>
+                        </label>
+                    </th>
+                </tr>
+                <tr>
+                    <th class=" mr-5 white-fonts">Enable Komsel Absensi:</th>
+                    <th>
+                        <label class="switch ml-5">
+                            <?php if ($komsel) : ?>
+                                <input type="checkbox" id="komselBtn" checked>
+                            <?php else : ?>
+                                <input type="checkbox" id="komselBtn">
+                            <?php endif; ?>
+                            <span class="slider round"></span>
+                        </label>
+                    </th>
+                </tr>
             </thead>
         </table>
     </div>
@@ -114,6 +140,100 @@
                 type: "POST",
                 data: {
                     'status': switchStatusZoom,
+                },
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+                dataType: "json",
+                success: function(data) {
+                    if (data.success) {
+                        demo.warningNotification('top', 'right', '<b>Success !</b><br> ' + data.success);
+                    } else {
+                        demo.dangerNotification('top', 'right', '<b>Success !</b><br> ' + data.failed);
+
+                    }
+                }
+            });
+        }
+    });
+
+    let switchStatusAba = false;
+    $("#abaBtn").on('change', function() {
+        if ($(this).is(':checked')) {
+            switchStatusAba = $(this).is(':checked');
+            $.ajax({
+                url: "/settings/aba",
+                type: "POST",
+                data: {
+                    'status': switchStatusAba,
+                },
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+                dataType: "json",
+                success: function(data) {
+                    if (data.success) {
+                        demo.successNotification('top', 'right', '<b>Success !</b><br> ' + data.success);
+                    } else {
+                        demo.dangerNotification('top', 'right', '<b>Success !</b><br> ' + data.failed);
+
+                    }
+                }
+            });
+        } else {
+            switchStatusAba = $(this).is(':checked');
+            $.ajax({
+                url: "/settings/aba",
+                type: "POST",
+                data: {
+                    'status': switchStatusAba,
+                },
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+                dataType: "json",
+                success: function(data) {
+                    if (data.success) {
+                        demo.warningNotification('top', 'right', '<b>Success !</b><br> ' + data.success);
+                    } else {
+                        demo.dangerNotification('top', 'right', '<b>Success !</b><br> ' + data.failed);
+
+                    }
+                }
+            });
+        }
+    });
+
+    let switchStatusKomsel = false;
+    $("#komselBtn").on('change', function() {
+        if ($(this).is(':checked')) {
+            switchStatusKomsel = $(this).is(':checked');
+            $.ajax({
+                url: "/settings/komsel",
+                type: "POST",
+                data: {
+                    'status': switchStatusKomsel,
+                },
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+                dataType: "json",
+                success: function(data) {
+                    if (data.success) {
+                        demo.successNotification('top', 'right', '<b>Success !</b><br> ' + data.success);
+                    } else {
+                        demo.dangerNotification('top', 'right', '<b>Success !</b><br> ' + data.failed);
+
+                    }
+                }
+            });
+        } else {
+            switchStatusKomsel = $(this).is(':checked');
+            $.ajax({
+                url: "/settings/komsel",
+                type: "POST",
+                data: {
+                    'status': switchStatusKomsel,
                 },
                 headers: {
                     "X-Requested-With": "XMLHttpRequest",
