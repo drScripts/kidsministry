@@ -151,8 +151,10 @@ class RankingController extends BaseController
         $tempPoint = 0;
         $finalData = [];
 
-        // foto = 1, video = 1, quiz =1, zoom = 1
+        // foto = 1, video = 1, quiz =1, zoom = 1 (normal)
+        // aba = sesuai_database, komsel = 2 , quiz = 3 (teens/kopo)
         foreach ($timedData as $data) {
+
             if ($name != $data['children_name']) {
                 $name = '';
                 $tempPoint = 0;
@@ -166,12 +168,33 @@ class RankingController extends BaseController
                 }
 
                 if ($data['quiz'] == 'yes') {
-                    $tempPoint += 1;
+                    if ($nama_cabang == 'Kopo' && $data['nama_kelas'] == 'Teens') {
+                        $tempPoint += 3;
+                    } else {
+                        $tempPoint += 1;
+                    }
                 }
 
                 if ($data['zoom'] == 'yes') {
                     $tempPoint += 1;
                 }
+
+                if ($data['komsel'] == 'yes') {
+                    if ($nama_cabang == 'Kopo' && $data['nama_kelas'] == 'Teens') {
+                        $tempPoint += 2;
+                    } else {
+                        $tempPoint += 1;
+                    }
+                }
+
+                if ($data['aba'] != '-') {
+                    if ($nama_cabang == 'Kopo' && $data['nama_kelas'] == 'Teens') {
+                        $tempPoint += (int)$data['aba'];
+                    } else {
+                        $tempPoint += (int)$data['aba'];
+                    }
+                }
+
                 $tempDataPoint[$data['children_name']] = [
                     'data_anak' => $data,
                     'point_anak' => $tempPoint
@@ -186,11 +209,31 @@ class RankingController extends BaseController
                 }
 
                 if ($data['quiz'] == 'yes') {
-                    $tempPoint += 1;
+                    if ($nama_cabang == 'Kopo' && $data['nama_kelas'] == 'Teens') {
+                        $tempPoint += 3;
+                    } else {
+                        $tempPoint += 1;
+                    }
                 }
 
                 if ($data['zoom'] == 'yes') {
                     $tempPoint += 1;
+                }
+
+                if ($data['komsel'] == 'yes') {
+                    if ($nama_cabang == 'Kopo' && $data['nama_kelas'] == 'Teens') {
+                        $tempPoint += 2;
+                    } else {
+                        $tempPoint += 1;
+                    }
+                }
+
+                if ($data['aba'] != '-') {
+                    if ($nama_cabang == 'Kopo' && $data['nama_kelas'] == 'Teens') {
+                        $tempPoint += (int)$data['aba'];
+                    } else {
+                        $tempPoint += (int)$data['aba'];
+                    }
                 }
 
                 $tempDataPoint[$data['children_name']] = [
@@ -199,13 +242,13 @@ class RankingController extends BaseController
                 ];
             }
         }
-
         foreach ($tempDataPoint as $dataPoint) {
             $finalData[] = [
                 'children_id'     => $dataPoint['data_anak']['children_id'],
                 'point'             => $dataPoint['point_anak']
             ];
         }
+
         $this->db->query("DELETE FROM `temp`");
 
         foreach ($finalData as $fData) {
@@ -347,8 +390,6 @@ class RankingController extends BaseController
         $spredsheet->getActiveSheet()->getStyle('E')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
         $spredsheet->getActiveSheet()->getStyle('A1:E1')->getFont()->setBold(9);
-
-        // $writter = new Xlsx($spredsheet);
 
         $filename = '';
 
