@@ -55,6 +55,8 @@ $(document).ready(function () {
             var jumlah = 0;
             let zoomSettings = 0;
             let quizSettings = 0;
+            let abaSettings = 0;
+            let komselSettings = 0;
 
             let name = "";
             let code = "";
@@ -65,9 +67,15 @@ $(document).ready(function () {
             $("#body-table").html("");
             $.each(data, function (i, datas) {
               if (i === "settings") {
-                zoomSettings = datas.zoom;
+                console.log(datas);
                 quizSettings = datas.quiz;
-              } else {
+                zoomSettings = datas.zoom;
+                komselSettings = datas.komsel;
+                abaSettings = datas.aba;
+              }
+            });
+            $.each(data, function (i, datas) {
+              if (i !== "settings") {
                 name = datas.children_name
                   .toLowerCase()
                   .includes(value.toLowerCase());
@@ -82,243 +90,103 @@ $(document).ready(function () {
                 sundayDate = datas.sunday_date
                   .toLowerCase()
                   .includes(value.toLowerCase());
-              }
-
-              if (i !== "settings") {
                 if (name || code || month || pembimbing || role || sundayDate) {
-                  if (quizSettings === 1) {
-                    $("#body-table").append(
+                  let semua = "";
+                  let penutup =
+                    `<td class="text-center">
+                  ` +
+                    datas.sunday_date +
+                    `
+                  </td>
+                  <td class="td-actions text-center">
+                  <a href="/absensi/edit/` +
+                    datas.id_absensi +
+                    `" rel="tooltip" class="mr-3 btn btn-success btn-sm btn-round btn-icon">
+                      <i class="tim-icons icon-settings"></i>
+                    </a>
+                    <form action="/absensi/` +
+                    datas.id_absensi +
+                    `" method="POST" class="d-inline">
+                        <?= csrf_field(); ?>
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="submit" rel="tooltip" onclick="return confirm('Are You Sure Want To Delete ?');" class="btn btn-danger btn-sm btn-round btn-icon">
+                            <i class="far fa-trash-alt"></i>
+                        </button>
+                    </form>
+                  </td>
+                </tr>`;
+
+                  let awal =
+                    `
+                <tr>
+                  <td class="text-center">
+                      ` +
+                    number +
+                    `
+                  </td>
+                  <td>
+                      ` +
+                    datas.children_name +
+                    `
+                  </td>
+                  <td>
+                      ` +
+                    datas.name_pembimbing +
+                    `
+                  </td>
+                  <td class="text-center">
+                      ` +
+                    datas.video +
+                    `
+                  </td>
+                  <td>
+                  ` +
+                    datas.image +
+                    `
+                  </td>
+                `;
+                  if (quizSettings == 1) {
+                    awal =
+                      awal +
+                      `<td>
+                    ` +
+                      datas.quiz +
                       `
-                      <tr>
-                        <td class="text-center">
-                            ` +
-                        number +
-                        `
-                        </td>
-                        <td>
-                            ` +
-                        datas.children_name +
-                        `
-                        </td>
-                        <td>
-                            ` +
-                        datas.name_pembimbing +
-                        `
-                        </td>
-                        <td class="text-center">
-                            ` +
-                        datas.video +
-                        `
-                        </td>
-                        <td>
-                        ` +
-                        datas.image +
-                        `
-                        </td>
-                        <td>
-                        ` +
-                        datas.quiz +
-                        `
-                        </td>
-                        <td class="text-center">
-                        ` +
-                        datas.sunday_date +
-                        `
-                        </td>
-                        <td class="td-actions text-center">
-                        <a href="/absensi/edit/` +
-                        datas.id_absensi +
-                        `" rel="tooltip" class="mr-3 btn btn-success btn-sm btn-round btn-icon">
-                            <i class="tim-icons icon-settings"></i>
-                          </a>
-                          <form action="/absensi/` +
-                        datas.id_absensi +
-                        `" method="POST" class="d-inline">
-                              <?= csrf_field(); ?>
-                              <input type="hidden" name="_method" value="DELETE">
-                              <button type="submit" rel="tooltip" onclick="return confirm('Are You Sure Want To Delete ?');" class="btn btn-danger btn-sm btn-round btn-icon">
-                                  <i class="far fa-trash-alt"></i>
-                              </button>
-                          </form>
-                        </td>
-                      </tr>
-                      `
-                    );
-                  } else if (zoomSettings === 1) {
-                    $("#body-table").append(
-                      `
-                      <tr>
-                        <td class="text-center">
-                            ` +
-                        number +
-                        `
-                        </td>
-                        <td>
-                            ` +
-                        datas.children_name +
-                        `
-                        </td>
-                        <td>
-                            ` +
-                        datas.name_pembimbing +
-                        `
-                        </td>
-                        <td class="text-center">
-                            ` +
-                        datas.video +
-                        `
-                        </td>
-                        <td>
-                        ` +
-                        datas.image +
-                        `
-                        </td>
-                        <td>
-                        ` +
-                        datas.zoom +
-                        `
-                        </td>
-                        <td class="text-center">
-                        ` +
-                        datas.sunday_date +
-                        `
-                        </td>
-                        <td class="td-actions text-center">
-                        <a href="/absensi/edit/` +
-                        datas.id_absensi +
-                        `" rel="tooltip" class="mr-3 btn btn-success btn-sm btn-round btn-icon">
-                            <i class="tim-icons icon-settings"></i>
-                          </a>
-                          <form action="/absensi/` +
-                        datas.id_absensi +
-                        `" method="POST" class="d-inline">
-                              <?= csrf_field(); ?>
-                              <input type="hidden" name="_method" value="DELETE">
-                              <button type="submit" rel="tooltip" onclick="return confirm('Are You Sure Want To Delete ?');" class="btn btn-danger btn-sm btn-round btn-icon">
-                                  <i class="far fa-trash-alt"></i>
-                              </button>
-                          </form>
-                        </td>
-                      </tr>
-                      `
-                    );
-                  } else if (zoomSettings === 1 && quizSettings === 1) {
-                    $("#body-table").append(
-                      `
-                      <tr>
-                        <td class="text-center">
-                            ` +
-                        number +
-                        `
-                        </td>
-                        <td>
-                            ` +
-                        datas.children_name +
-                        `
-                        </td>
-                        <td>
-                            ` +
-                        datas.name_pembimbing +
-                        `
-                        </td>
-                        <td class="text-center">
-                            ` +
-                        datas.video +
-                        `
-                        </td>
-                        <td>
-                        ` +
-                        datas.image +
-                        `
-                        </td>
-                        <td>
-                        ` +
-                        datas.quiz +
-                        `
-                        </td>
-                        <td>
-                        ` +
-                        datas.zoom +
-                        `
-                        </td>
-                        <td class="text-center">
-                        ` +
-                        datas.sunday_date +
-                        `
-                        </td>
-                        <td class="td-actions text-center">
-                        <a href="/absensi/edit/` +
-                        datas.id_absensi +
-                        `" rel="tooltip" class="mr-3 btn btn-success btn-sm btn-round btn-icon">
-                            <i class="tim-icons icon-settings"></i>
-                          </a>
-                          <form action="/absensi/` +
-                        datas.id_absensi +
-                        `" method="POST" class="d-inline">
-                              <?= csrf_field(); ?>
-                              <input type="hidden" name="_method" value="DELETE">
-                              <button type="submit" rel="tooltip" onclick="return confirm('Are You Sure Want To Delete ?');" class="btn btn-danger btn-sm btn-round btn-icon">
-                                  <i class="far fa-trash-alt"></i>
-                              </button>
-                          </form>
-                        </td>
-                      </tr>
-                      `
-                    );
-                  } else {
-                    $("#body-table").append(
-                      `
-                      <tr>
-                        <td class="text-center">
-                            ` +
-                        number +
-                        `
-                        </td>
-                        <td>
-                            ` +
-                        datas.children_name +
-                        `
-                        </td>
-                        <td>
-                            ` +
-                        datas.name_pembimbing +
-                        `
-                        </td>
-                        <td class="text-center">
-                            ` +
-                        datas.video +
-                        `
-                        </td>
-                        <td>
-                        ` +
-                        datas.image +
-                        `
-                        </td>
-                        <td class="text-center">
-                        ` +
-                        datas.sunday_date +
-                        `
-                        </td>
-                        <td class="td-actions text-center">
-                        <a href="/absensi/edit/` +
-                        datas.id_absensi +
-                        `" rel="tooltip" class="mr-3 btn btn-success btn-sm btn-round btn-icon">
-                            <i class="tim-icons icon-settings"></i>
-                          </a>
-                          <form action="/absensi/` +
-                        datas.id_absensi +
-                        `" method="POST" class="d-inline">
-                              <?= csrf_field(); ?>
-                              <input type="hidden" name="_method" value="DELETE">
-                              <button type="submit" rel="tooltip" onclick="return confirm('Are You Sure Want To Delete ?');" class="btn btn-danger btn-sm btn-round btn-icon">
-                                  <i class="far fa-trash-alt"></i>
-                              </button>
-                          </form>
-                        </td>
-                      </tr>
-                      `
-                    );
+                    </td>`;
                   }
+
+                  if (zoomSettings == 1) {
+                    awal =
+                      awal +
+                      `<td>
+                    ` +
+                      datas.zoom +
+                      `
+                    </td>`;
+                  }
+
+                  if (abaSettings == 1) {
+                    awal =
+                      awal +
+                      `<td>
+                    ` +
+                      datas.aba +
+                      `
+                    </td>`;
+                  }
+
+                  if (komselSettings == 1) {
+                    awal =
+                      awal +
+                      `<td>
+                    ` +
+                      datas.komsel +
+                      `
+                    </td>`;
+                  }
+
+                  semua = awal + penutup;
+                  $("#body-table").append(semua);
                   number++;
                   jumlah++;
                 }

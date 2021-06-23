@@ -127,10 +127,82 @@ if (date('D') != 'Sun' || date('D') != 'Mon' || date('D') != 'Tue') {
             </div>
         </div>
     <?php endif; ?>
-
+    <?php if ($komsel) : ?>
+        <div class="form-group form-check" data-aos="fade-right" data-aos-duration="500" data-aos-delay="900">
+            <label for="komsel-select" class="white-fonts">Children komsel</label>
+            <select name="komsel" id="komsel-select" class="form-control grey-fonts <?= ($validation->hasError('komsel')) ? 'is-invalid' : ''; ?>" required>
+                <option value="">Select Children komsel</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+            </select>
+            <div class="invalid-feedback">
+                <?= $validation->getError('komsel'); ?>
+            </div>
+        </div>
+    <?php endif; ?>
+    <?php if ($aba) : ?>
+        <div class="form-group form-check" data-aos="fade-right" data-aos-duration="500">
+            <label for="zoom-select" class="white-fonts">Children ABA</label>
+            <div class="container">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="aba" id="1" value="1" checked>
+                                <label class="form-check-label white-fonts" for="1">
+                                    1
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="aba" id="2" value="2">
+                                <label class="form-check-label white-fonts" for="2">
+                                    2
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="aba" id="3" value="3">
+                                <label class="form-check-label white-fonts" for="3">
+                                    3
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="aba" id="4" value="4">
+                                <label class="form-check-label white-fonts" for="4">
+                                    4
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="aba" id="5" value="5">
+                                <label class="form-check-label white-fonts" for="5">
+                                    5
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="aba" id="6" value="6">
+                                <label class="form-check-label white-fonts" for="6">
+                                    6
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="aba" id="7" value="7">
+                                <label class="form-check-label white-fonts" for="7">
+                                    7
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="invalid-feedback">
+                <?= $validation->getError('aba'); ?>
+            </div>
+        </div>
+    <?php endif; ?>
     <div class="d-flex justify-content-center mt-5">
         <div class="row text-center">
-            <div class="col " data-aos="fade-right" data-aos-duration="500" data-aos-delay="1000">
+            <div class="col " data-aos="fade-right" data-aos-duration="500">
                 <div class="form-group">
                     <label for="images">
                         <div class="card text-center " id='image' style="width: 31.5rem;">
@@ -143,7 +215,7 @@ if (date('D') != 'Sun' || date('D') != 'Mon' || date('D') != 'Tue') {
                     </label>
                 </div>
             </div>
-            <div class="col " data-aos="fade-left" data-aos-duration="500" data-aos-delay="1000">
+            <div class="col " data-aos="fade-left" data-aos-duration="500">
                 <div class="form-group">
                     <label for="videos">
                         <div class="card " id="video" style="width: 31.5rem;">

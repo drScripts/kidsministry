@@ -120,6 +120,12 @@ if (session()->getFlashData('success_update')) {
                 <?php if ($zoom) : ?>
                     <th class="text-center">Zoom</th>
                 <?php endif; ?>
+                <?php if ($aba) : ?>
+                    <th class="text-center">ABA</th>
+                <?php endif; ?>
+                <?php if ($komsel) : ?>
+                    <th class="text-center">Komsel</th>
+                <?php endif; ?>
                 <th class="text-center">Sunday Date</th>
             <?php else : ?>
                 <th class="text-center">Cabang</th>
@@ -167,6 +173,16 @@ if (session()->getFlashData('success_update')) {
                         <?php if ($zoom) : ?>
                             <td class="text-center">
                                 <?= $absen['zoom']; ?>
+                            </td>
+                        <?php endif; ?>
+                        <?php if ($aba) : ?>
+                            <td class="text-center">
+                                <?= $absen['aba']; ?>
+                            </td>
+                        <?php endif; ?>
+                        <?php if ($komsel) : ?>
+                            <td class="text-center">
+                                <?= $absen['komsel']; ?>
                             </td>
                         <?php endif; ?>
                         <td class="text-center">

@@ -25,6 +25,8 @@ class PusatController extends BaseController
     protected $tempModel;
     protected $db;
     protected $zoom;
+    protected $aba;
+    protected $komsel;
 
     public function __construct()
     {
@@ -33,8 +35,11 @@ class PusatController extends BaseController
         $this->pembimbingModel = new PembimbingsModel();
         $this->userModel = new UserModel();
         $this->cabangModel = new CabangModel();
-        $this->quiz =  $this->cabangModel->find(user()->toArray()['region'])['quiz'];
-        $this->zoom = $this->cabangModel->find(user()->toArray()['region'])['zoom'];
+        $cabangs =  $this->cabangModel->find(user()->toArray()['region']);
+        $this->quiz = $cabangs['quiz'];
+        $this->zoom = $cabangs['zoom'];
+        $this->aba = $cabangs['aba'];
+        $this->komsel = $cabangs['komsel'];
         $this->absensiController = new AbsensiController();
         $this->tempModel = new TempModel();
         $this->db = \Config\Database::connect();
@@ -207,13 +212,15 @@ class PusatController extends BaseController
             ->join('pembimbings', 'pembimbings.id_pembimbing = absensis.pembimbing_id')
             ->join('cabang', 'cabang.id_cabang = pembimbings.region_pembimbing')
             ->join('users', 'users.id = absensis.created_by')
-            ->select('video,image,absensis.quiz as quis,sunday_date,absensis.created_at as absensiCreatedAt,children_name,name_pembimbing,nama_cabang,username,absensis.updated_at as absensiUpdatedAt,absensis.updated_by as absensiUpdateBy,absensis.zoom as zooms')
+            ->select(',video,image,absensis.quiz as quis,sunday_date,absensis.created_at as absensiCreatedAt,children_name,name_pembimbing,nama_cabang,username,absensis.updated_at as absensiUpdatedAt,absensis.updated_by as absensiUpdateBy,absensis.zoom as zooms,absensis.aba as abas,absensis.komsel as komsels')
             ->find($id);
         $data = [
             'absensis'  => $data,
             'title'     => "Detail's Absensi",
             'quiz'      => $this->quiz,
             'zoom'      => $this->zoom,
+            'aba'       => $this->aba,
+            'komsel'    => $this->komsel,
         ];
         return view('dashboard/absensi/details', $data);
     }

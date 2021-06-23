@@ -24,6 +24,8 @@ class AbsensiController extends BaseController
     protected $classModel;
     protected $quiz;
     protected $zoom;
+    protected $aba;
+    protected $komsel;
 
     public function __construct()
     {
@@ -36,6 +38,8 @@ class AbsensiController extends BaseController
         $getRegionDate = $this->cabangModel->find(user()->toArray()['region']);
         $this->quiz =  $getRegionDate['quiz'];
         $this->zoom = $getRegionDate['zoom'];
+        $this->komsel = $getRegionDate['komsel'];
+        $this->aba = $getRegionDate['aba'];
     }
 
     public function index()
@@ -49,7 +53,6 @@ class AbsensiController extends BaseController
             $absensis = $this->absensiModel->getAllDataFetch()->paginate(7, 'absensi');
             $pager = $this->absensiModel->pager;
 
-
             $data = [
                 'title'         => 'Absensi',
                 'absensis'      => $absensis,
@@ -57,6 +60,8 @@ class AbsensiController extends BaseController
                 'current_page'  => $current_page,
                 'quiz'          => boolval($this->quiz),
                 'zoom'          => boolval($this->zoom),
+                'aba'           => boolval($this->aba),
+                'komsel'        => boolval($this->komsel),
             ];
 
             if (in_groups('superadmin')) {
@@ -152,15 +157,16 @@ class AbsensiController extends BaseController
             'pembimbings'   => $pembimbings,
             'quiz'          => boolval($this->quiz),
             'zoom'          => boolval($this->zoom),
+            'komsel'        => boolval($this->komsel),
+            'aba'           => boolval($this->aba),
             'update'        => $canUpdate,
         ];
 
         return view('dashboard/absensi/add', $data);
     }
 
-    public function insert()
+    public function validator()
     {
-        $api = new GoogleApiServices();
         $validator = [
             'pembimbing' => [
                 'rules'     => 'required|integer',
@@ -215,6 +221,34 @@ class AbsensiController extends BaseController
             ];
         }
 
+        if (boolval($this->aba)) {
+            $validator['aba'] = [
+                'rules'     => 'required|max_length[1]',
+                'errors'    => [
+                    'required'      => 'Please Select The Children Zoom !',
+                    'max_length'    => 'Quiz Max Is 1 !',
+                ],
+            ];
+        }
+
+        if (boolval($this->komsel)) {
+            $validator['komsel'] = [
+                'rules'     => 'required|string|max_length[5]',
+                'errors'    => [
+                    'required'      => 'Please Select The Children Zoom !',
+                    'string'        => 'Quiz Must Be String !',
+                    'max_length'    => 'Quiz Max Is 5 !',
+                ],
+            ];
+        }
+        return $validator;
+    }
+
+    public function insert()
+    {
+        $api = new GoogleApiServices();
+        $validator = $this->validator();
+
         $validate = $this->validate($validator);
         if (!$validate) {
             return redirect()->to('/absensi/add')->withInput();
@@ -256,8 +290,11 @@ class AbsensiController extends BaseController
         //// get all request
         $pembimbingId = $this->request->getVar('pembimbing');
         $childrenId = $this->request->getVar('children');
+
         $quiz = '';
         $zoom = '';
+        $aba = '';
+        $komsel = '';
         if (boolval($this->quiz)) {
             $quiz = $this->request->getVar('quiz');
         } else {
@@ -268,6 +305,18 @@ class AbsensiController extends BaseController
             $zoom = $this->request->getVar('zoom');
         } else {
             $zoom = '-';
+        }
+
+        if (boolval($this->aba)) {
+            $aba = $this->request->getVar('aba');
+        } else {
+            $aba = '-';
+        }
+
+        if (boolval($this->komsel)) {
+            $komsel = $this->request->getVar('komsel');
+        } else {
+            $komsel = '-';
         }
 
         $videoFile = $this->request->getFile('video');
@@ -331,12 +380,14 @@ class AbsensiController extends BaseController
             'image'         => $pict,
             'quiz'          => $quiz,
             'zoom'          => $zoom,
+            'aba'           => $aba,
+            'komsel'        => $komsel,
             'month'         => $month,
             'year'          => $year,
             'sunday_date'   => $date_file_name,
             'id_foto'       => $pictId,
             'id_video'      => $videoIds,
-            'created_by'    => $this->region,
+            'created_by'    => user()->toArray()['id'],
         ];
 
         session()->setFlashData('data', $array);
@@ -380,13 +431,14 @@ class AbsensiController extends BaseController
     {
 
         $data_absensi = $this->absensiModel->getSingleData($id);
-
         $data = [
-            'title' => 'Edit Absensi',
-            'data'  => $data_absensi,
-            'id'    => $id,
-            'quiz'  => boolval($this->quiz),
-            'zoom'  => boolval($this->zoom),
+            'title'     => 'Edit Absensi',
+            'data'      => $data_absensi,
+            'id'        => $id,
+            'quiz'      => boolval($this->quiz),
+            'zoom'      => boolval($this->zoom),
+            'aba'       => boolval($this->aba),
+            'komsel'    => boolval($this->komsel),
         ];
 
         return view('dashboard/absensi/edit', $data);
@@ -394,76 +446,43 @@ class AbsensiController extends BaseController
 
     public function update($id)
     {
-        $foto = null;
-        $video = null;
+        $data = [];
 
         if ($this->request->getVar('foto')) {
-            $foto = $this->request->getVar('foto');
-            $this->absensiModel->update($id, [
-                'image'         => $foto,
-            ]);
+            $data['image'] = $this->request->getVar('foto');
         }
 
         if ($this->request->getVar('video')) {
-            $video = $this->request->getVar('video');
-            $this->absensiModel->update($id, [
-                'video'         => $video,
-            ]);
+            $data['video'] = $this->request->getVar('video');
         }
 
-        if ($this->request->getPost('quiz') && $this->request->getPost('zoom')) {
-            $quiz = $this->request->getVar('quiz');
-            $zoom = $this->request->getVar('zoom');
-            $update = $this->absensiModel->update($id, [
-                'quiz'          => $quiz,
-                'zoom'          => $zoom,
-                'updated_by'    => user()->toArray()['id'],
-            ]);
-
-            if ($update) {
-                session()->setFlashData('success_update', 'Absensi Successfully Updated');
-                return redirect()->to('/absensi');
-            } else {
-                return redirect()->to('/absensi');
-            }
+        if ($this->request->getVar('zoom')) {
+            $data['zoom']   = $this->request->getVar('zoom');
         }
 
-        if ($this->request->getPost('zoom')) {
-            $zoom = $this->request->getVar('zoom');
-            $update = $this->absensiModel->update($id, [
-                'zoom'          => $zoom,
-                'updated_by'    => user()->toArray()['id'],
-            ]);
-
-            if ($update) {
-                session()->setFlashData('success_update', 'Absensi Successfully Updated');
-                return redirect()->to('/absensi');
-            } else {
-                return redirect()->to('/absensi');
-            }
+        if ($this->request->getVar('quiz')) {
+            $data['quiz']   = $this->request->getVar('quiz');
         }
 
-        if ($this->request->getPost('quiz')) {
-            $quiz = $this->request->getVar('quiz');
-            $update = $this->absensiModel->update($id, [
-                'quiz'          => $quiz,
-                'updated_by'    => user()->toArray()['id'],
-            ]);
-
-            if ($update) {
-                session()->setFlashData('success_update', 'Absensi Successfully Updated');
-                return redirect()->to('/absensi');
-            } else {
-                return redirect()->to('/absensi');
-            }
+        if ($this->request->getVar('aba')) {
+            $data['aba']    = $this->request->getVar('aba');
         }
+
+        if ($this->request->getVar('komsel')) {
+            $data['komsel'] = $this->request->getVar('komsel');
+        }
+
+        $data['updated_by'] = user()->toArray()['id'];
+
+        $this->absensiModel->update($id, $data);
+        session()->setFlashData('success_update', 'Absensi Successfully Updated');
         return redirect()->to('/absensi');
     }
 
     public function searchData()
     {
         $data = $this->absensiModel->searchData();
-        $cabang = $this->cabangModel->where('id_cabang', $this->region)->select('quiz,zoom')->first();
+        $cabang = $this->cabangModel->where('id_cabang', $this->region)->select('quiz,zoom,aba,komsel')->first();
         $data['settings'] = $cabang;
 
         return json_encode($data);

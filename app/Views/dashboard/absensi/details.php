@@ -22,6 +22,20 @@
                                                 echo $absensis['zooms'];
                                             } ?></h4>
 <?php endif; ?>
+<?php if ($aba) : ?>
+    <h4 class="white-fonts">Absen ABA : <?php if ($absensis['abas'] == '-') {
+                                            echo 'Tidak Ada';
+                                        } else {
+                                            echo $absensis['abas'];
+                                        } ?></h4>
+<?php endif; ?>
+<?php if ($komsel) : ?>
+    <h4 class="white-fonts">Absen Komsel : <?php if ($absensis['komsels'] == '-') {
+                                                echo 'Tidak Ada';
+                                            } else {
+                                                echo $absensis['komsels'];
+                                            } ?></h4>
+<?php endif; ?>
 <h4 class="white-fonts">Absen Untuk : <?= $absensis['sunday_date']; ?></h4>
 <h4 class="white-fonts">Di Absen Oleh : <?= $absensis['username']; ?></h4>
 <h4 class="white-fonts">Di Absen Pada Tanggal : <?= date('d M Y', strtotime($absensis['absensiCreatedAt'])) ?></h4>
