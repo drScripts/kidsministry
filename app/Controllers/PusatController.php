@@ -306,6 +306,7 @@ class PusatController extends BaseController
             ->where('month', $month)
             ->where('year', $year)
             ->where('nama_cabang', $cabang)
+            ->select('sunday_date,children_name,code,nama_kelas,name_pembimbing,image,video,absensis.quiz as quis, absensis.zoom as zooms,absensis.aba as abas,absensis.komsel as komsels')
             ->get()
             ->getResultArray();
 
@@ -328,7 +329,10 @@ class PusatController extends BaseController
                         'Nama Pembimbing'   => $d['name_pembimbing'],
                         'Absen Foto'        => $d['image'],
                         'Absen Video'       => $d['video'],
-                        'Absen Quiz'        => $d['quiz'],
+                        'Absen Quiz'        => $d['quis'],
+                        'Absen Zoom'        => $d['zooms'],
+                        'Absen ABA'         => $d['abas'],
+                        'Absen Komsel'      => $d['komsels'],
                         'Sunday Date'       => $d['sunday_date'],
                     ];
                 }
@@ -342,6 +346,9 @@ class PusatController extends BaseController
                 'Absen Foto'        => '',
                 'Absen Video'       => '',
                 'Absen Quiz'        => '',
+                'Absen Zoom'        => '',
+                'Absen ABA'         => '',
+                'Absen Komsel'      => '',
                 'Sunday Date'       => '',
             ];
         }
@@ -356,7 +363,10 @@ class PusatController extends BaseController
         $sheet->setCellValue('F1', 'Absen Foto');
         $sheet->setCellValue('G1', 'Absen Video');
         $sheet->setCellValue('H1', 'Children Quiz');
-        $sheet->setCellValue('I1', 'Tanggal Minggu');
+        $sheet->setCellValue('I1', 'Children Zoom');
+        $sheet->setCellValue('J1', 'Children ABA');
+        $sheet->setCellValue('K1', 'Children Komsel');
+        $sheet->setCellValue('L1', 'Tanggal Minggu');
 
         $no = 1;
         $index = 2;
@@ -374,7 +384,10 @@ class PusatController extends BaseController
             $sheet->setCellValue('F' . $index, $data['Absen Foto']);
             $sheet->setCellValue('G' . $index, $data['Absen Video']);
             $sheet->setCellValue('H' . $index, $data['Absen Quiz']);
-            $sheet->setCellValue('I' . $index, $data['Sunday Date']);
+            $sheet->setCellValue('I' . $index, $data['Absen Zoom']);
+            $sheet->setCellValue('J' . $index, $data['Absen ABA']);
+            $sheet->setCellValue('K' . $index, $data['Absen Komsel']);
+            $sheet->setCellValue('L' . $index, $data['Sunday Date']);
             $index++;
         }
 
@@ -385,15 +398,21 @@ class PusatController extends BaseController
         $spredsheet->getActiveSheet()->getColumnDimensionByColumn(6)->setWidth(15);
         $spredsheet->getActiveSheet()->getColumnDimensionByColumn(7)->setWidth(15);
         $spredsheet->getActiveSheet()->getColumnDimensionByColumn(8)->setWidth(15);
-        $spredsheet->getActiveSheet()->getColumnDimensionByColumn(9)->setWidth(20);
+        $spredsheet->getActiveSheet()->getColumnDimensionByColumn(9)->setWidth(15);
+        $spredsheet->getActiveSheet()->getColumnDimensionByColumn(10)->setWidth(15);
+        $spredsheet->getActiveSheet()->getColumnDimensionByColumn(11)->setWidth(15);
+        $spredsheet->getActiveSheet()->getColumnDimensionByColumn(12)->setWidth(20);
 
         $spredsheet->getActiveSheet()->getStyle('A')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
         $spredsheet->getActiveSheet()->getStyle('F')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
         $spredsheet->getActiveSheet()->getStyle('G')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
         $spredsheet->getActiveSheet()->getStyle('H')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
         $spredsheet->getActiveSheet()->getStyle('I')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $spredsheet->getActiveSheet()->getStyle('J')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $spredsheet->getActiveSheet()->getStyle('K')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $spredsheet->getActiveSheet()->getStyle('L')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
-        $spredsheet->getActiveSheet()->getStyle('A1:I1')->getFont()->setBold(9);
+        $spredsheet->getActiveSheet()->getStyle('A1:L1')->getFont()->setBold(9);
 
         $writter = IOFactory::createWriter($spredsheet, 'Xlsx');
 
