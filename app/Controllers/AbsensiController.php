@@ -398,7 +398,6 @@ class AbsensiController extends BaseController
 
     public function delete($id)
     {
-
         try {
             $api = new GoogleApiServices();
             $data = $this->absensiModel->find($id);

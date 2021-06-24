@@ -12,6 +12,7 @@ class GoogleApiServices extends BaseController
 
     protected $client;
     protected $service;
+    protected $serviceDriveFile;
     protected $ClientId     = '979082150599-v5udges2nfddnlfjhc87oh3e9udef2k5.apps.googleusercontent.com';
     protected $ClientSecret = 'vF_sz9v5MhsaUuXRCW0ZLFPo';
     protected $tokenModel;
@@ -153,13 +154,14 @@ class GoogleApiServices extends BaseController
             }
         }
         $this->service = new \Google_Service_Drive($this->client);
+        $this->serviceDriveFile = new \Google_Service_Drive_DriveFile($this->client);
     }
 
 
     public function searchPplKidsFolder()
     {
         $response = $this->service->files->listFiles([
-            'q' => "mimeType = 'application/vnd.google-apps.folder' and name = 'PPL Kids' and trashed=false",
+            'q' => "mimeType = 'application/vnd.google-apps.folder' and name = 'PPL KOPO' and trashed=false",
         ]);
 
         $parentsID = '';
@@ -259,8 +261,10 @@ class GoogleApiServices extends BaseController
 
     public function delteFile($id)
     {
-        $return = $this->service->files->delete($id);
-        return $return;
+        $this->serviceDriveFile->setTrashed(true);
+        $res = $this->service->files->update($id, $this->serviceDriveFile);
+
+        return $res;
     }
 
     public function create_folder($name, $parent_id)
