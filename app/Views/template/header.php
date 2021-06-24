@@ -37,6 +37,7 @@
   <link href="<?= base_url(); ?>/assets/demo/demo.css" rel="stylesheet" />
   <link rel="stylesheet" href="<?= base_url(); ?>/assets/css/my-css.css">
   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link rel="stylesheet" href="<?= base_url('assets/css/jquery.dataTables.min.css'); ?>">
 
   <script src="<?= base_url(); ?>/assets/js/core/jquery.min.js"></script>
   <script src="<?= base_url(); ?>/assets/js/core/popper.min.js"></script>

@@ -80,7 +80,15 @@ if (session()->getFlashData('failed_import')) {
             </div>
         </div>
     </div>
-
+    <div class="p-2 bd-highlight">
+        <div class="row">
+            <div class="col-md" data-aos="fade-right" data-aos-duration="500" data-aos-delay="900">
+                <a href="<?= base_url('/children/trace'); ?>" class="btn-sm btn">
+                    <p><i class="fab fa-searchengin"></i> Trace</p>
+                </a>
+            </div>
+        </div>
+    </div>
     <!-- search button -->
     <?php if (!in_groups('pusat')) : ?>
         <div class="p-2 ml-auto bd-highlight">
@@ -92,7 +100,7 @@ if (session()->getFlashData('failed_import')) {
             </div>
         </div>
     <?php else : ?>
-        <div class="p-2 bd-highlight">
+        <div class="ml-3 p-2 bd-highlight">
             <div class="row">
                 <div class="col-md" data-aos="fade-right" data-aos-duration="500" data-aos-delay="900">
                     <a href="<?= base_url('/pusat/tracking/children'); ?>" class="btn-sm btn">

@@ -86,6 +86,14 @@ $routes->group('', ['filter' => 'role:superadmin,pusat,admin'], function ($route
 
 	$routes->get('/settings', 'PusatController::settings');
 	$routes->post('/settings/(:any)', 'PusatController::attemptSettings/$1');
+
+	$routes->get('/children/trace', 'TraceController::index');
+	$routes->get('/children/trace/getYear/(:num)', 'TraceController::getYear/$1');
+	$routes->get('/children/trace/getMonth/(:any)', 'TraceController::getMonth/$1');
+	$routes->get('/children/trace/getMonth/(:any)/(:num)', 'TraceController::getMonth/$1/$2');
+	$routes->get('/children/trace/details/(:num)/(:any)/(:any)', 'TraceController::details/$1/$2/$3');
+	$routes->get('/children/trace/(:any)/(:any)', 'TraceController::trace/$1/$2');
+	$routes->get('/children/trace/(:any)/(:any)/(:num)', 'TraceController::trace/$1/$2/$3');
 });
 
 $routes->group('', ['filter' => 'role:pusat'], function ($routes) {
