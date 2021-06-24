@@ -144,6 +144,7 @@ $routes->group('', ['filter' => 'role:superadmin,pusat'], function ($routes) {
 
 	$routes->put('/team/update/(:num)', "TeamController::attemptEdit/$1");
 	$routes->get('/team/cabang', "TeamController::getCabang");
+	$routes->put('/team/refresh', "TeamController::refresh");
 	$routes->delete('/team/(:num)', 'TeamController::deleteTeam/$1');
 });
 

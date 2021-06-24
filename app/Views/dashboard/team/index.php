@@ -22,7 +22,17 @@ if (session()->getFlashData('success_deleted')) {
 ?>
 
 <div class="d-flex">
-
+    <div class="p-2 bd-highlight" data-aos="fade-left" data-aos-duration="500" data-aos-delay="300">
+        <div class="input-group mb-3">
+            <form action="<?= base_url("team/refresh"); ?>" method="POST" class="d-inline">
+                <?= csrf_field(); ?>
+                <input type="hidden" name="_method" value="PUT">
+                <button type="submit" rel="tooltip" onclick="return confirm('Are You Sure Want To Refresh ?');" class="btn btn-info btn-sm btn-round btn-icon">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </form>
+        </div>
+    </div>
     <!-- search button -->
     <div class="p-2 ml-auto bd-highlight" data-aos="fade-left" data-aos-duration="500" data-aos-delay="300">
         <div class="input-group mb-3">

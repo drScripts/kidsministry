@@ -16,6 +16,7 @@ class TeamController extends BaseController
     protected $groupModel;
     protected $teamModel;
     protected $userModel;
+    protected $db;
 
     public function __construct()
     {
@@ -24,6 +25,7 @@ class TeamController extends BaseController
         $this->groupModel = new AuthorizationGroupModel();
         $this->teamModel = new TeamsModel();
         $this->userModel = new UserModel();
+        $this->db = \Config\Database::connect();
     }
 
     public function index()
@@ -138,5 +140,11 @@ class TeamController extends BaseController
             session()->setFlashData('success_deleted', 'Team Successfully Deleted');
             return redirect()->to('/team');
         }
+    }
+
+    public function refresh()
+    {
+        $this->db->query("UPDATE `users` SET `notify_birthday` = 0");
+        return redirect()->to('/team');
     }
 }
