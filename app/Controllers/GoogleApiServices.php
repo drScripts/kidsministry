@@ -231,7 +231,7 @@ class GoogleApiServices extends BaseController
     {
         $filenames = $name . '.' . $data;
         $response = $this->service->files->listFiles([
-            'q' => "'$parent_id' in parents and name contains '$filenames'",
+            'q' => "'$parent_id' in parents and name contains '$filenames' and trashed=false",
         ]);
 
 
