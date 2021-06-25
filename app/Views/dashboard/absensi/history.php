@@ -24,7 +24,7 @@
             </div>
         </div>
         <!-- search button end -->
-    <?php else: ?>
+    <?php else : ?>
         <div class="p-2 bd-highlight">
             <div class="input-group mb-3">
                 <select id="cabang" class="form-control grey-fonts">

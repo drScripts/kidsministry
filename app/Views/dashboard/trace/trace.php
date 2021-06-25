@@ -2,7 +2,7 @@
 <?= $this->section('content'); ?>
 
 
-<table id="dtBasicExample" class="cell-border compact stripe" data-aos="zoom-in" data-aos-duration="500" data-aos-delay="900">
+<table id="dtBasicExample" class="table table-bordered" data-aos="zoom-in" data-aos-duration="500" data-aos-delay="900">
     <thead>
         <tr class="white-fonts">
             <th class="text-center">#</th>
