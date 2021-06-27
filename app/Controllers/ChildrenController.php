@@ -101,14 +101,14 @@ class ChildrenController extends BaseController
     {
         $validate =  $this->validate([
             'children_name' => [
-                'rules'     => 'string|required|is_unique[childrens.children_name]|max_length[255]',
+                'rules'     => 'string|required|max_length[255]',
                 'errors'    => [
                     'required'  => 'Please Insert The Children Name !',
                     'is_unique' => 'The Children Name Already Exist Please Check The Name Correctly !'
                 ],
             ],
             'code'          => [
-                'rules'     => 'string|required|is_unique[childrens.code]|max_length[10]',
+                'rules'     => 'string|required|max_length[10]',
                 'errors'    => [
                     'required'      => 'Please Insert The Children Code !',
                     'is_unique'     => 'The Children Code Already Exist Please Check The Code Correctly !',

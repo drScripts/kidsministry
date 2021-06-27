@@ -6,8 +6,15 @@ use App\Models\ChildrenModel;
 if (!in_groups('pusat')) {
     $childrenModel = new ChildrenModel();
 
+    $anakUltah = [];
     $childBirthDay = $childrenModel->birthDayChildren();
+    foreach ($childBirthDay as $child) {
+        if (date('m') == date('m', strtotime($child['tanggal_lahir']))) {
+            $anakUltah[] = $child;
+        }
+    }
 }
+
 
 $cabangModel = new CabangModel();
 $cabang = $cabangModel->getCabang(user()->toArray()['region'])['nama_cabang'];
@@ -46,22 +53,18 @@ $cabang = $cabangModel->getCabang(user()->toArray()['region'])['nama_cabang'];
                 <?php if (!in_groups('pusat')) : ?>
                     <li class="dropdown nav-item">
                         <a href="javascript:void(0)" class="dropdown-toggle nav-link" data-toggle="dropdown">
-                            <?= (count($childBirthDay) != 0) ? '<div class="notification d-none d-lg-block d-xl-block"></div>' : '' ?>
+                            <?= (!empty($anakUltah)) ? '<div class="notification d-none d-lg-block d-xl-block"></div>' : '' ?>
                             <i class="fas fa-birthday-cake"></i>
                             <p class="d-lg-none">
                                 Birthday Notifications
                             </p>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-right dropdown-navbar">
-                            <?php if (count($childBirthDay) == 0) : ?>
+                            <?php if (empty($anakUltah)) : ?>
                                 <li class="nav-link"><a href="javascript:void(0)" class="nav-item dropdown-item">Tidak Ada Yang Ulang Tahun Dibulan Ini</a></li>
                             <?php else : ?>
-                                <?php foreach ($childBirthDay as $birthDay) : ?>
-                                    <?php if (
-                                        date('m') == date('m', strtotime($birthDay['tanggal_lahir']))
-                                    ) : ?>
-                                        <li class="nav-link"><a href="javascript:void(0)" class="nav-item dropdown-item"><?= $birthDay['children_name']; ?> - <?= date('d M Y', strtotime($birthDay['tanggal_lahir'])); ?></a></li>
-                                    <?php endif; ?>
+                                <?php foreach ($anakUltah as $birthDay) : ?>
+                                    <li class="nav-link"><a href="javascript:void(0)" class="nav-item dropdown-item"><?= $birthDay['children_name']; ?> - <?= date('d M Y', strtotime($birthDay['tanggal_lahir'])); ?></a></li>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </ul>
