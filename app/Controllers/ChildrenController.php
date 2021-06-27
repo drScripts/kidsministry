@@ -364,7 +364,7 @@ class ChildrenController extends BaseController
 
         $data_clear = [];
         foreach ($data as $d) {
-            if ($d[0] != ' ') {
+            if ($d[0] != ' ' || $d[0] != null) {
                 $data_clear[] = $d;
             }
         }
@@ -383,6 +383,7 @@ class ChildrenController extends BaseController
             $code = $datak[1] != null ? trim(strtoupper($datak[1])) : '-';
             $role = trim(ucwords($datak[2]));
             $pembimbing_name = trim(ucwords($datak[3]));
+            $ultah = $datak[4] == null ? null : date('Y-m-d', strtotime($datak[4]));
 
             $nama_pembimbing[] = $pembimbing_name;
 
@@ -391,10 +392,12 @@ class ChildrenController extends BaseController
                 'code' => $code,
                 'role' => $role,
                 'pembimbing_name' => trim($pembimbing_name),
+                'ultah'             => $ultah,
             ];
 
             $childrenArr[] = $temp_arr;
         }
+
 
         $kelas = $this->classModel->findAll();
         $fault = 0;
@@ -440,24 +443,32 @@ class ChildrenController extends BaseController
                 ->where('region_pembimbing', $this->region)
                 ->first();
 
-            if ($children == null) {
-                $id_pembimbing = '';
-                $class = $this->classModel->where('nama_kelas', $child['role'])->first()['id_class'];
-                foreach ($data_pembimbing as $key => $value) {
-                    if ($key == $child['pembimbing_name']) {
-                        $id_pembimbing = $value;
-                    }
+            $id_pembimbing = '';
+            $class = $this->classModel->where('nama_kelas', $child['role'])->first()['id_class'];
+            foreach ($data_pembimbing as $key => $value) {
+                if ($key == $child['pembimbing_name']) {
+                    $id_pembimbing = $value;
                 }
+            }
 
+            if ($children == null) {
                 $this->childrenModel->save([
                     'children_name' => $child['nama'],
                     'code'          => $child['code'],
                     'id_pembimbing' => $id_pembimbing,
                     'role'          => $class,
+                    'tanggal_lahir' => $child['ultah'],
                     'created_by'    => user()->toArray()['id'],
                 ]);
             } else {
-                continue;
+                $this->childrenModel->update($children['id_children'], [
+                    'children_name' => $child['nama'],
+                    'code'          => $child['code'],
+                    'id_pembimbing' => $id_pembimbing,
+                    'role'          => $class,
+                    'tanggal_lahir' => $child['ultah'],
+                    'updated_by'    => user()->toArray()['id'],
+                ]);
             }
         }
         session()->setFlashData('success_import', 'Success Fully Add Children Data');
