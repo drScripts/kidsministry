@@ -27,6 +27,12 @@ class Home extends BaseController
 		if (!in_groups('pusat')) {
 			$notify = user()->toArray()['notify_birthday'];
 			$child_birthday = $this->childrenModel->birthDayChildren();
+			$ultah = [];
+			foreach ($child_birthday as $birth) {
+				if (date('m') == date('m', strtotime($birth['tanggal_lahir']))) {
+					$ultah[] = $birth;
+				}
+			}
 			$datas = $this->absensiModel->join('pembimbings', "pembimbings.id_pembimbing = absensis.pembimbing_id")
 				->where('region_pembimbing', user()->toArray()['region'])
 				->where('year', $date)
@@ -41,7 +47,7 @@ class Home extends BaseController
 				'month' 	=> array_unique($month),
 				'title' 	=> 'Home Dashboard',
 				'notif_birthday'		=> $notify,
-				'children_birthday'		=> $child_birthday,
+				'children_birthday'		=> $ultah,
 			];
 		} else {
 			$datas = $this->absensiModel->join('pembimbings', "pembimbings.id_pembimbing = absensis.pembimbing_id")
