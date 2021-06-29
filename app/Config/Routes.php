@@ -94,6 +94,8 @@ $routes->group('', ['filter' => 'role:superadmin,pusat,admin'], function ($route
 	$routes->get('/children/trace/details/(:num)/(:any)/(:any)', 'TraceController::details/$1/$2/$3');
 	$routes->get('/children/trace/(:any)/(:any)', 'TraceController::trace/$1/$2');
 	$routes->get('/children/trace/(:any)/(:any)/(:num)', 'TraceController::trace/$1/$2/$3');
+
+	$routes->get('/trying/(:any)', 'GoogleApiServices::cobagetThumbnailLink/$1');
 });
 
 $routes->group('', ['filter' => 'role:pusat'], function ($routes) {

@@ -11,7 +11,7 @@ if (user()->toArray()['region'] == 'super') {
 }
 ?>
 
-<form class="mt-5" action="<?= base_url('absensi/update') . '/' . $id; ?>" method="POST">
+<form class="mt-5" action="<?= base_url('absensi/update') . '/' . $id; ?>" method="POST" enctype="multipart/form-data">
     <?= csrf_field(); ?>
     <input type="hidden" name="_method" value="PUT">
     <div class="form-group white-fonts" data-aos="fade-right" data-aos-duration="500" data-aos-delay="300">
@@ -23,28 +23,31 @@ if (user()->toArray()['region'] == 'super') {
         <input type="text" class="form-control grey-fonts" id="pembimbing_name" value="<?= $data['pembimbing']['name_pembimbing']; ?>" <?= $class; ?>>
     </div>
     <div class="form-group" data-aos="fade-right" data-aos-duration="500" data-aos-delay="700">
+
         <label for="foto" class="white-fonts">Foto</label>
-        <select name="foto" id="foto" class="form-control grey-fonts" <?= $class; ?>>
-            <optgroup label='Default Value'>
-                <option value="<?= $data['absensi']['image']; ?>"><?= strtoupper($data['absensi']['image']); ?></option>
-            </optgroup>
-            <optgroup label="Options">
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
-            </optgroup>
-        </select>
+        <div class="row">
+            <div class="col-md-6 align-self-center">
+                <div class="input-group mb-3">
+                    <div class="custom-file">
+                        <input type="file" id="foto" class="custom-file-input" name="foto" accept="image/*" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01">
+                        <label id="labelFot" class="custom-file-label" for="inputGroupFile01"><?= $dataFoto['name'] == null ? 'Choose An Image' : $dataFoto['name']; ?></label>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="form-group" data-aos="fade-right" data-aos-duration="500" data-aos-delay="900">
         <label for="video" class="white-fonts">Video</label>
-        <select name="video" id="video" class="form-control grey-fonts" <?= $class; ?>>
-            <optgroup label='Default Value'>
-                <option value="<?= $data['absensi']['video']; ?>"><?= strtoupper($data['absensi']['video']); ?></option>
-            </optgroup>
-            <optgroup label="Options">
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
-            </optgroup>
-        </select>
+        <div class="row">
+            <div class="col-md-6 align-self-center">
+                <div class="input-group mb-3">
+                    <div class="custom-file">
+                        <input type="file" name="video" id="video" class="custom-file-input" accept="video/*" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01">
+                        <label id='labelVid' class="custom-file-label" for="inputGroupFile01"><?= $dataVideo['name'] == null ? 'Choose An Video' : $dataVideo['name']; ?></label>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <?php if ($quiz) : ?>
         <div class="form-group" data-aos="fade-right" data-aos-duration="500" data-aos-delay="1100">
@@ -147,5 +150,38 @@ if (user()->toArray()['region'] == 'super') {
     <?php endif; ?>
     <button type="submit" class="btn btn-primary mt-5" onclick="return confirm('Are You Sure Want To Update It?')">Submit</button>
 </form>
+
+
+<script>
+    $('#foto').on('change', function() {
+        let fileName = $(this).val().split('\\').pop();
+        $('#labelFot').html(fileName);
+    });
+    $('#video').on('change', function() {
+        let fileName = $(this).val().split('\\').pop();
+        $('#labelVid').html(fileName);
+    });
+</script>
+
+<?php if (!$update) : ?>
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'The Google Api Token is Expired! Please Contact The Admin',
+            confirmButtonText: 'Refresh',
+            showCancelButton: true,
+            allowOutsideClick: false,
+            cancelButtonText: 'Back',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                location.reload();
+            } else {
+                window.history.back();
+                return false;
+            }
+        });
+    </script>
+<?php endif; ?>
 
 <?= $this->endSection(); ?>

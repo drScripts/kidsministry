@@ -67,12 +67,14 @@
     </div>
 </div>
 <script>
-    $('#viewPassword').mousedown(function() {
-        $('#icon').html(`<i class="fas fa-eye black-fonts"></i>`);
-        $('#password').attr('type', 'text');
-    }).mouseup(function() {
-        $('#icon').html(`<i class="fas fa-eye-slash black-fonts"></i>`);
-        $('#password').attr('type', 'password');
+    $('#viewPassword').on('click', function() {
+        if ($('#password').attr('type') == 'password') {
+            $('#icon').html(`<i class="fas fa-eye black-fonts"></i>`);
+            $('#password').attr('type', 'text');
+        } else {
+            $('#icon').html(`<i class="fas fa-eye-slash black-fonts"></i>`);
+            $('#password').attr('type', 'password');
+        }
     });
 </script>
 <?= $this->include('template/footers'); ?>

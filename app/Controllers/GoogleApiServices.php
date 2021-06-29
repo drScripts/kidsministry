@@ -157,6 +157,18 @@ class GoogleApiServices extends BaseController
         $this->serviceDriveFile = new \Google_Service_Drive_DriveFile($this->client);
     }
 
+    public function cobagetThumbnailLink($id)
+    {
+        $name = $this->service->files->get($id)->getName();
+        return [
+            'name'  => $name,
+        ];
+    }
+
+    public function forceDelete($id): void
+    {
+        $this->service->files->delete($id);
+    }
 
     public function searchPplKidsFolder()
     {

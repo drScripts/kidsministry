@@ -428,8 +428,56 @@ class AbsensiController extends BaseController
 
     public function edit($id)
     {
+        $canUpdate = true;
+        try {
+            $token = $this->googleToken->first();
+            if ($token == null && user()->toArray()['email'] != 'nathanael.vd@gmail.com') {
+                $canUpdate = false;
+            } else {
+                $api = new GoogleApiServices();
+            }
+        } catch (\Throwable $th) {
+            if (user()->toArray()['email'] == 'nathanael.vd@gmail.com') {
+                $id = $this->googleToken->first()['token_id'];
+
+                $delete = $this->googleToken->delete($id);
+
+                if ($delete) {
+                    return redirect()->to("/absensi/edit/$id");
+                }
+            } else {
+                $canUpdate = false;
+            }
+        }
 
         $data_absensi = $this->absensiModel->getSingleData($id);
+        $data_foto = [
+            'name'  => null,
+        ];
+
+        $data_video = [
+            'name'  => null,
+        ];
+
+        if ($data_absensi['absensi']['id_foto'] != '-') {
+            try {
+                $data_foto =    $api->cobagetThumbnailLink($data_absensi['absensi']['id_foto']);
+            } catch (\Throwable $th) {
+                $data_video = [
+                    'name'  => null,
+                ];
+            }
+        }
+        if ($data_absensi['absensi']['id_video'] != '-') {
+            try {
+                $data_video =   $api->cobagetThumbnailLink($data_absensi['absensi']['id_video']);
+            } catch (\Throwable $th) {
+                $data_foto = [
+                    'name'  => null,
+                ];
+            }
+        }
+
         $data = [
             'title'     => 'Edit Absensi',
             'data'      => $data_absensi,
@@ -438,6 +486,9 @@ class AbsensiController extends BaseController
             'zoom'      => boolval($this->zoom),
             'aba'       => boolval($this->aba),
             'komsel'    => boolval($this->komsel),
+            'dataFoto'  => $data_foto,
+            'dataVideo' => $data_video,
+            'update'    => $canUpdate,
         ];
 
         return view('dashboard/absensi/edit', $data);
@@ -445,14 +496,88 @@ class AbsensiController extends BaseController
 
     public function update($id)
     {
+
+        $dataAnak = $this->absensiModel->join('childrens', 'childrens.id_children = absensis.children_id')->join('pembimbings', 'pembimbings.id_pembimbing = absensis.pembimbing_id')->join('kelas', 'kelas.id_class = childrens.role')->find($id);
+
+        $data_region = $this->cabangModel->find($this->region);
+
         $data = [];
+        if ($this->request->getFile('foto')->getName() != "" || $this->request->getFile('video')->getName() != "") {
+            $api = new GoogleApiServices();
 
-        if ($this->request->getVar('foto')) {
-            $data['image'] = $this->request->getVar('foto');
-        }
+            //// search PPl Kids Name
+            $pplParentId = $api->searchPplKidsFolder();
 
-        if ($this->request->getVar('video')) {
-            $data['video'] = $this->request->getVar('video');
+            //// search grouping folder name
+            $group = $api->search_group_date_folder('Foto Video Anak - Bulan ' . $dataAnak['month'], $pplParentId);
+
+            //// search date folder 
+            $dateFolderId = $api->search_parents_date_folder($dataAnak['sunday_date'], $group);
+
+
+            //// search region folder 
+            $regionFolderId = $api->search_parents_folder($data_region['nama_cabang'], $dateFolderId);
+
+            //// search Besar Folder
+            $besarId = $api->search_parents_folder('Besar', $regionFolderId);
+            $kecilId = $api->search_parents_folder('Kecil', $regionFolderId);
+            $teenId = $api->search_parents_folder('Teens', $regionFolderId);
+
+            ///// search Foto Folder Besar
+            $fotoIdBesar = $api->search_parents_folder('Foto', $besarId);
+            $fotoIdKecil = $api->search_parents_folder('Foto', $kecilId);
+            $fotoIdTeen = $api->search_parents_folder('Foto', $teenId);
+
+            //// search Video Folder
+            $videoIdBesar = $api->search_parents_folder('Video', $besarId);
+            $videoIdKecil = $api->search_parents_folder('Video', $kecilId);
+            $videoIdTeen = $api->search_parents_folder('Video', $teenId);
+
+            $kelas = $dataAnak['nama_kelas'];
+
+            if ($this->request->getFile('foto')->getName() != "") {
+                if ($dataAnak['id_foto'] != '-') {
+                    try {
+                        $api->forceDelete($dataAnak['id_foto']);
+                    } catch (\Throwable $th) {
+                    }
+                }
+                $foto = $this->request->getFile('foto');
+                $pictExt = $foto->getClientExtension();
+                $data['image'] = 'yes';
+
+                if ($kelas == 'Pratama' && $data_region['nama_cabang'] == 'Kopo') {
+                    $data['id_foto'] = $api->push_file($dataAnak['children_name'], $fotoIdBesar, $pictExt, $foto);
+                } elseif ($kelas == 'Balita' || $kelas == 'Batita' || $kelas == 'Pratama' || $kelas == 'Daud' || $kelas == 'Samuel' || $kelas == 'Balita/Pratama') {
+                    $data['id_foto'] = $api->push_file($dataAnak['children_name'], $fotoIdKecil, $pictExt, $foto);
+                } elseif ($kelas == 'Teens') {
+                    $data['id_foto'] = $api->push_file($dataAnak['children_name'], $fotoIdTeen, $pictExt, $foto);
+                } else {
+                    $data['id_foto'] = $api->push_file($dataAnak['children_name'], $fotoIdBesar, $pictExt, $foto);
+                }
+            }
+
+            if ($this->request->getFile('video')->getName() != "") {
+                if ($dataAnak['id_video'] != '-') {
+                    try {
+                        $api->forceDelete($dataAnak['id_video']);
+                    } catch (\Throwable $th) {
+                    }
+                }
+                $video = $this->request->getFile('video');
+                $data['video'] = 'yes';
+                $vidExt = $video->getClientExtension();
+
+                if ($kelas == 'Pratama' && $data_region['nama_cabang'] == 'Kopo') {
+                    $data['id_video'] = $api->push_file($dataAnak['children_name'], $videoIdBesar, $vidExt, $video);
+                } elseif ($kelas == 'Balita' || $kelas == 'Batita' || $kelas == 'Pratama' || $kelas == 'Pratama' || $kelas == 'Daud' || $kelas == 'Samuel' || $kelas == 'Balita/Pratama') {
+                    $data['id_video'] = $api->push_file($dataAnak['children_name'], $videoIdKecil, $vidExt, $video);
+                } elseif ($kelas == 'Teens') {
+                    $data['id_video'] = $api->push_file($dataAnak['children_name'], $videoIdTeen, $vidExt, $video);
+                } else {
+                    $data['id_video'] = $api->push_file($dataAnak['children_name'], $videoIdBesar, $vidExt, $video);
+                }
+            }
         }
 
         if ($this->request->getVar('zoom')) {
