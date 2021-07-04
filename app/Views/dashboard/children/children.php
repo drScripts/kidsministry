@@ -90,16 +90,7 @@ if (session()->getFlashData('failed_import')) {
         </div>
     </div>
     <!-- search button -->
-    <?php if (!in_groups('pusat')) : ?>
-        <div class="p-2 ml-auto bd-highlight">
-            <div class="input-group mb-3" data-aos="fade-left" data-aos-duration="500" data-aos-delay="1000">
-                <input type="text" id="search-input" class="form-control" placeholder="Search Children">
-                <div class="input-group-append">
-                    <button class="btn btn-sm white-fonts" type="button" id="button-addon2"><i class="fas fa-search"></i></button>
-                </div>
-            </div>
-        </div>
-    <?php else : ?>
+    <?php if (in_groups('pusat')) : ?>
         <div class="ml-3 p-2 bd-highlight">
             <div class="row">
                 <div class="col-md" data-aos="fade-right" data-aos-duration="500" data-aos-delay="900">
@@ -131,7 +122,7 @@ if (session()->getFlashData('failed_import')) {
     <!-- search button end -->
 </div>
 
-<table class="table table-bordered" data-aos="zoom-in" data-aos-duration="500" data-aos-delay="900">
+<table class="table table-bordered" id="dtBasicExample" data-aos="zoom-in" data-aos-duration="500" data-aos-delay="900">
     <thead>
         <tr>
             <th class="text-center">#</th>
@@ -201,10 +192,14 @@ if (session()->getFlashData('failed_import')) {
         <?php endif; ?>
     </tbody>
 </table>
-<div id="link">
-    <?= $pager->links('children', 'custom'); ?>
-</div>
+
 <!-- pagination -->
+<div id="link">
+    <?php if (in_groups('pusat')) : ?>
+        <?= $pager->links('children', 'custom'); ?>
+    <?php endif; ?>
+</div>
+
 <!-- Modal -->
 <div class="modal fade" id="dataKelas" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable">
@@ -228,8 +223,17 @@ if (session()->getFlashData('failed_import')) {
         </div>
     </div>
 </div>
+
 <?php if (!in_groups('pusat')) : ?>
-    <script src="<?= base_url(); ?>/assets/js/logics/children.js"></script>
+    <script src="<?= base_url('assets/js/core/jquery.dataTables.min.js'); ?>"></script>
+    <script>
+        $('#dtBasicExample').DataTable();
+        $('#dtBasicExample_length').addClass('white-fonts');
+        $('#dtBasicExample_filter label input').addClass('white-fonts');
+        $('#dtBasicExample_filter').addClass('white-fonts');
+        $('#dtBasicExample_info').addClass('white-fonts');
+        $("#dtBasicExample_paginate").addClass('white-fonts');
+    </script>
 <?php else : ?>
     <script src="<?= base_url('/assets/js/logics/pusat.js'); ?>"></script>
     <script>

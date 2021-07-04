@@ -36,13 +36,13 @@ class ChildrenController extends BaseController
         if (!in_groups('pusat')) {
 
             // konek to database withh model 
-            // $children_pageinate = $this->childrenModel->getChildren()->findAll();
-            $children_pageinate = $this->childrenModel->getChildren()->paginate(7, 'children');
-            $pager = $this->childrenModel->pager;
+            $children_pageinate = $this->childrenModel->getChildren()->findAll();
+            // $children_pageinate = $this->childrenModel->getChildren()->paginate(7, 'children');
+            // $pager = $this->childrenModel->pager;
 
             $data = [
                 'title'         => "Children's",
-                'pager'         => $pager,
+                // 'pager'         => $pager,
                 'childrens'     => $children_pageinate,
                 'current_page'  => $current_page,
                 'class'         => $class,
@@ -256,6 +256,7 @@ class ChildrenController extends BaseController
         $sheet->setCellValue('B1', 'Code Anak');
         $sheet->setCellValue('C1', 'Role/Kelas');
         $sheet->setCellValue('D1', 'Nama Pembimbing');
+        $sheet->setCellValue('E1', 'Tanggal Lahir (Tahun-Bulan-Tanggal)');
 
         $index = 2;
         foreach ($arrChildren as $children) {
@@ -263,6 +264,7 @@ class ChildrenController extends BaseController
             $sheet->setCellValue('B' . $index, $children['code']);
             $sheet->setCellValue('C' . $index, $children['nama_kelas']);
             $sheet->setCellValue('D' . $index, $children['name_pembimbing']);
+            $sheet->setCellValue('E' . $index, $children['tanggal_lahir'] == null ? "Belum Ditambahkan" : $children['tanggal_lahir']);
             $index++;
         }
 
@@ -270,11 +272,13 @@ class ChildrenController extends BaseController
         $spredsheet->getActiveSheet()->getColumnDimension('B')->setWidth(20);
         $spredsheet->getActiveSheet()->getColumnDimension('C')->setWidth(15);
         $spredsheet->getActiveSheet()->getColumnDimension('D')->setWidth(30);
+        $spredsheet->getActiveSheet()->getColumnDimension('E')->setWidth(35);
 
         $spredsheet->getActiveSheet()->getStyle('B')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
         $spredsheet->getActiveSheet()->getStyle('C')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $spredsheet->getActiveSheet()->getStyle('E')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
-        $spredsheet->getActiveSheet()->getStyle('A1:D1')->getFont()->setBold(9);
+        $spredsheet->getActiveSheet()->getStyle('A1:E1')->getFont()->setBold(9);
 
         $writter = IOFactory::createWriter($spredsheet, 'Xlsx');
 
