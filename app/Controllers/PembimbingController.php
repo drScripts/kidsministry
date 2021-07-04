@@ -23,16 +23,11 @@ class PembimbingController extends BaseController
         // mengambil penghitungan data
         $current_page = $this->request->getVar('page_pembimbing') ? $this->request->getVar('page_pembimbing') : 1;
         if (!in_groups('pusat')) {
-            $pembimbings = $this->pembimbing_model->where('region_pembimbing', user()->toArray()['region'])->paginate(7, 'pembimbing');
-
-
-            $pager = $this->pembimbing_model->pager;
+            $pembimbings = $this->pembimbing_model->where('region_pembimbing', user()->toArray()['region'])->findAll();
 
             $data = [
                 'title'        => 'Pembimbing',
                 'pembimbings'  => $pembimbings,
-                'pager'        => $pager,
-                'current_page' => $current_page,
             ];
         } else {
             $cabang = [];

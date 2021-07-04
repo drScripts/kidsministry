@@ -47,16 +47,6 @@ if (session()->getFlashData('success_add')) {
                 </div>
             </div>
         </div>
-        <!-- search button -->
-        <div class="p-2 ml-auto bd-highlight" data-aos="fade-left" data-aos-duration="500" data-aos-delay="300">
-            <div class="input-group mb-3">
-                <input type="text" id="search-input" class="form-control" placeholder="Search Pembimbing">
-                <div class="input-group-append">
-                    <button class="btn btn-sm white-fonts" type="button" id="button-addon2"><i class="fas fa-search"></i></button>
-                </div>
-            </div>
-        </div>
-        <!-- search button end -->
     <?php else : ?>
         <div class="p-2 ml-auto bd-highlight">
             <div class="input-group mb-3" data-aos="fade-left" data-aos-duration="500" data-aos-delay="1000">
@@ -83,7 +73,7 @@ if (session()->getFlashData('success_add')) {
 
 </div>
 
-<table class="table table-bordered" data-aos="zoom-in" data-aos-duration="500" data-aos-delay="300">
+<table class="table table-bordered" id="dtBasicExample" data-aos="zoom-in" data-aos-duration="500" data-aos-delay="300">
     <thead>
         <tr>
             <th class="text-center">Id</th>
@@ -103,7 +93,7 @@ if (session()->getFlashData('success_add')) {
             </tr>
         <?php else : ?>
             <?php
-            $no = 1 + (7 * ($current_page - 1));
+            $no = 1;
             foreach ($pembimbings as $pembimbing) : ?>
                 <tr>
                     <td class="text-center">
@@ -136,13 +126,22 @@ if (session()->getFlashData('success_add')) {
     </tbody>
 </table>
 <div id="link">
-    <?= $pager->links('pembimbing', 'custom'); ?>
+    <?php if (in_groups('pusat')) : ?>
+        <?= $pager->links('pembimbing', 'custom'); ?>
+    <?php endif; ?>
 </div>
 
 
 <?php if (!in_groups('pusat')) : ?>
-    <!-- pagination -->
-    <script src="<?= base_url('assets/js/logics/pembimbing.js'); ?>"></script>
+    <script src="<?= base_url('assets/js/core/jquery.dataTables.min.js'); ?>"></script>
+    <script>
+        $('#dtBasicExample').DataTable();
+        $('#dtBasicExample_length').addClass('white-fonts');
+        $('#dtBasicExample_filter label input').addClass('white-fonts');
+        $('#dtBasicExample_filter').addClass('white-fonts');
+        $('#dtBasicExample_info').addClass('white-fonts');
+        $("#dtBasicExample_paginate").addClass('white-fonts');
+    </script>
 <?php else : ?>
     <script src="<?= base_url('assets/js/logics/pusat.js'); ?>"></script>
     <script>
