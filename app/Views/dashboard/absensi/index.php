@@ -49,16 +49,8 @@ if (session()->getFlashData('success_update')) {
                 </div>
             </div>
         </div>
-        <!-- search button -->
-        <div class="p-2 bd-highlight" data-aos="fade-left" data-aos-duration="500" data-aos-delay="300">
-            <div class="input-group mb-3">
-                <input type="text" id="search-input" class="form-control" placeholder="Search Absensi">
-                <div class="input-group-append">
-                    <button class="btn btn-sm white-fonts" type="button" id="button-addon2"><i class="fas fa-search"></i></button>
-                </div>
-            </div>
+        <div class="p-2 bd-highlight">
         </div>
-        <!-- search button end -->
     <?php else : ?>
         <div class="p-2 bd-highlight">
             <div class="row">
@@ -105,7 +97,7 @@ if (session()->getFlashData('success_update')) {
 
 
 
-<table class="table table-bordered" data-aos="zoom-in" data-aos-duration="500" data-aos-delay="300">
+<table class="table table-bordered" id="dtBasicExample" data-aos="zoom-in" data-aos-duration="500" data-aos-delay="300">
     <thead>
         <tr>
             <th class="text-center">#</th>
@@ -135,7 +127,7 @@ if (session()->getFlashData('success_update')) {
         </tr>
     </thead>
     <tbody id="body-table">
-        <?php $no = 1 + (7 * ($current_page - 1)); ?>
+        <?php $no = 1; ?>
 
         <?php if (count($absensis) == 0) : ?>
             <tr>
@@ -223,11 +215,21 @@ if (session()->getFlashData('success_update')) {
 </table>
 
 <div id="link">
-    <?= $pager->links('absensi', 'custom'); ?>
+    <?php if (in_groups('pusat')) : ?>
+        <?= $pager->links('absensi', 'custom'); ?>
+    <?php endif ?>
 </div>
 
 <?php if (!in_groups('pusat')) : ?>
-    <script src="<?= base_url('/assets/js/logics/absensi.js'); ?>"></script>
+    <script src="<?= base_url('assets/js/core/jquery.dataTables.min.js'); ?>"></script>
+    <script>
+        $('#dtBasicExample').DataTable();
+        $('#dtBasicExample_length').addClass('white-fonts');
+        $('#dtBasicExample_filter label input').addClass('white-fonts');
+        $('#dtBasicExample_filter').addClass('white-fonts');
+        $('#dtBasicExample_info').addClass('white-fonts');
+        $("#dtBasicExample_paginate").addClass('white-fonts');
+    </script>
 <?php else : ?>
     <script src="<?= base_url('/assets/js/logics/pusat.js'); ?>"></script>
     <script>

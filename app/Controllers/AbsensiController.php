@@ -48,16 +48,11 @@ class AbsensiController extends BaseController
         $sunday_date_controller = $this->getDateName();
         $sunday_date_model = $this->absensiModel->getDateName();
         if (!in_groups('pusat')) {
-            $current_page = $this->request->getVar('page_absensi') ? $this->request->getVar('page_absensi') : 1;
-
-            $absensis = $this->absensiModel->getAllDataFetch()->paginate(7, 'absensi');
-            $pager = $this->absensiModel->pager;
+            $absensis = $this->absensiModel->getAllDataFetch()->findAll();
 
             $data = [
                 'title'         => 'Absensi',
                 'absensis'      => $absensis,
-                'pager'         => $pager,
-                'current_page'  => $current_page,
                 'quiz'          => boolval($this->quiz),
                 'zoom'          => boolval($this->zoom),
                 'aba'           => boolval($this->aba),
