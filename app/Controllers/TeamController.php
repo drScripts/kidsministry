@@ -31,17 +31,11 @@ class TeamController extends BaseController
     public function index()
     {
 
-        $users = $this->usermodel->getDataUser()->paginate(7, 'users');
-        $pager = $this->usermodel->pager;
-
-        // mengambil penghitungan data
-        $current_page = $this->request->getVar('page_users') ? $this->request->getVar('page_users') : 1;
+        $users = $this->usermodel->getDataUser()->findAll();
 
         $data = [
             'title'         => "Team's Management",
             'team'      => $users,
-            'pager'         => $pager,
-            'current_page'  => $current_page,
         ];
         return view('dashboard/team/index', $data);
     }

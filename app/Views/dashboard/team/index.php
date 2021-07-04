@@ -45,7 +45,7 @@ if (session()->getFlashData('success_deleted')) {
     <!-- search button end -->
 </div>
 
-<table class="table table-bordered" data-aos="zoom-in" data-aos-duration="500" data-aos-delay="300">
+<table class="table table-bordered" id="dtBasicExample" data-aos="zoom-in" data-aos-duration="500" data-aos-delay="300">
     <thead>
         <tr>
             <th class="text-center">No</th>
@@ -57,7 +57,7 @@ if (session()->getFlashData('success_deleted')) {
         </tr>
     </thead>
     <tbody id="body-table">
-        <?php $no = 1 + (7 * ($current_page - 1)); ?>
+        <?php $no = 1; ?>
         <?php if (count($team) == 0) : ?>
             <tr>
                 <td colspan="6" class="text-center">Data Not Found</td>
@@ -87,9 +87,14 @@ if (session()->getFlashData('success_deleted')) {
         <?php endif; ?>
     </tbody>
 </table>
-<div id="link">
-    <?= $pager->links('users', 'custom'); ?>
-</div>
 
-<!-- pagination
+<script src="<?= base_url('assets/js/core/jquery.dataTables.min.js'); ?>"></script>
+<script>
+    $('#dtBasicExample').DataTable();
+    $('#dtBasicExample_length').addClass('white-fonts');
+    $('#dtBasicExample_filter label input').addClass('white-fonts');
+    $('#dtBasicExample_filter').addClass('white-fonts');
+    $('#dtBasicExample_info').addClass('white-fonts');
+    $("#dtBasicExample_paginate").addClass('white-fonts');
+</script>
 <?= $this->endSection(); ?>
